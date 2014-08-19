@@ -63,9 +63,10 @@ getAdminHomeR :: CoreHandler Html
 getAdminHomeR = lift $ adminLayout [whamlet|Welcome to the admin section!|]
 
 getAdminUsersR :: CoreHandler Html
-getAdminUsersR = do
-    users <- runDB $ selectList [] [] :: [Entity User]
-    lift $ adminLayout [whamlet|Welcome to the admin users section! #{strU}|]
+getAdminUsersR =
+    lift $ adminLayout [whamlet|Welcome to the admin's user section!|]
+--    do users <- runDB $ selectList [] [] :: [Entity User]
+--       lift $ adminLayout [whamlet|Welcome to the admin users section! #{strU}|]
 
 
 instance (Yesod master, LambdaCmsAdmin master) => YesodSubDispatch Core (HandlerT master IO) where
