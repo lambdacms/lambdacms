@@ -1,0 +1,31 @@
+name:               lambdacms-core
+version:            0.0.7
+license:            MIT
+license-file:       LICENSE
+author:             Cies Breijs
+maintainer:         cies@AT-hoppinger.com
+copyright:          (c) 2014 Hoppinger
+bug-reports:        https://github.com/lambdacms/lambdacms-core
+homepage:           http://lambdacms.org
+synopsis:           LambdaCms
+description:        Content Management System (CMS)
+stability:          alpha
+category:           web
+build-type:         Simple
+cabal-version:      >= 1.20
+tested-with:        GHC >= 7.6
+extra-source-files: README.md
+
+source-repository head
+  type:             git
+  location:         git://github.com/lambdacms/lambdacms-core.git
+
+library
+  default-language: Haskell2010
+  exposed-modules:  LambdaCms.Core
+  other-modules:    LambdaCms.Core.Routes
+  build-depends:    base
+                  , yesod
+                  , text
+  ghc-options:      -Wall
+                    -O2
