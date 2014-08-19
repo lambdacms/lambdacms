@@ -2,11 +2,11 @@
 
 
 ```
-                            ,                     _
-                           /   _, _   /  _/ _,   / ) _  _,
-                          (__ (/ //) () (/ (/   (__ //)_)
+                           ,                     _
+                          /   _, _   /  _/ _,   / ) _  _,
+                         (__ (/ //) () (/ (/   (__ //)_)
 
-                    developer friendly :: type safe :: performant
+                   developer friendly :: type safe :: performant
 ```
 
 
