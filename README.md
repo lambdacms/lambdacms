@@ -47,7 +47,7 @@ instructions that follow).
 ## Haskell & co
 
 Make sure to have **GHC** 7.6+, **cabal-install** 1.20+, **happy** and **alex**
-installedi, and their binaries available to your shell's `$PATH`.
+installed, and their binaries available to your shell's `$PATH`.
 
 [Haskell Platform](https://www.haskell.org/platform/) provides a convenient way
 to install these dependencies. Alternatively you can follow the "leaner" route
