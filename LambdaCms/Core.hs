@@ -6,15 +6,17 @@
 
 module LambdaCms.Core
     ( module LambdaCms.Core.Routes
+    , module LambdaCms.Core.Models
     , module LambdaCms.Core
     ) where
 
 import           Yesod
 import           Data.Text (Text)
 import           LambdaCms.Core.Routes
+import           LambdaCms.Core.Models
 
 
-class (Yesod master, RenderRoute master) => LambdaCmsAdmin master where
+class (Yesod master, RenderRoute master, YesodPersist master) => LambdaCmsAdmin master where
     -- | Applies some form of layout to the contents of an admin section page.
     adminLayout :: WidgetT master IO () -> HandlerT master IO Html
     adminLayout w = do

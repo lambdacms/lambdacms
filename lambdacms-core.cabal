@@ -24,6 +24,7 @@ library
   default-language: Haskell2010
   exposed-modules:  LambdaCms.Core
   other-modules:    LambdaCms.Core.Routes
+                  , LambdaCms.Core.Models
   build-depends:    base
                   , yesod
                   , text

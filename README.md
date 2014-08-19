@@ -144,3 +144,7 @@ http://stackoverflow.com/questions/13055611/what-should-the-type-be-for-a-subsit
 http://www.yesodweb.com/book/wiki-chat-example
 
 https://github.com/yesodweb/yesod/tree/master/yesod-auth (probably the most complex subsite example)
+
+https://groups.google.com/forum/#!searchin/yesodweb/persistent$20subsite/yesodweb/r3hf3xKYAmg/dJDPirX-q2MJ
+
+https://github.com/piyush-kurur/yesod-admin (he stopped working on it before the subsite rewrite)
