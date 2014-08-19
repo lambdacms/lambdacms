@@ -2,30 +2,38 @@
 
 
 ```
-                      ,                     _
-                     /   _, _   /  _/ _,   / ) _  _,
-                    (__ (/ //) () (/ (/   (__ //)_)
+                            ,                     _
+                           /   _, _   /  _/ _,   / ) _  _,
+                          (__ (/ //) () (/ (/   (__ //)_)
 
-              developer friendly :: type safe :: performant
+                    developer friendly :: type safe :: performant
 ```
 
 
 # Rationale
 
 LambdaCms is a set of libraries that contain sub-sites for the
-Yesod application framework.  The `lambdacms-*` packages can be installed
+[Yesod application framework](http://www.yesodweb.com).  The LambdaCms
+sub-sites can be composed to quickly create a performant website with
+content management funcationality.
+The `lambdacms-*` packages contain the sub-sites and should be installed
 in a "master application" (a standard Yesod application) by adding them as
 dependencies to the master application's cabal file and writing some glue code.
 
 The master application is responsible for the database connection, the model
-definitions, the authentication strategies, and overriding default behavior
+definitions, the authentication strategies, and overrides default behavior
 of the `lambdacms-*` packages.
 
 The `lambdacms-*` packages each provide some specific behavior and can in turn
-depend on eachother.  The only mandatory package is `lambdacms-core`, it
-provides the elementary CMS functionality that all other `lambdacms-*` packages
+depend on eachother.  The only mandatory package is `lambdacms-core`, this package,
+it provides the elementary CMS functionality that all other `lambdacms-*` packages
 extend on.
 
+
+# Disclaimer
+
+This software is in the "alpha" stage: it may break, it may change, it is
+certainly not feature complete.
 
 
 # Installation
@@ -38,10 +46,20 @@ instructions that follow).
 
 ## Haskell & co
 
-Make sure to have GHC 7.6+ and cabal-install 1.20+.
+Make sure to have **GHC** 7.6+, **cabal-install** 1.20+, **happy** and **alex**
+installedi, and their binaries available to your shell's `$PATH`.
+
+[Haskell Platform](https://www.haskell.org/platform/) provides a convenient way
+to install these dependencies. Alternatively you can follow the "leaner" route
+of installing Haskell by following
+[these installation instructions](http://haskell-lang.org/downloads) for Linux and OSX.
+
+To check that you are good to go:
 
     ghc -V
     cabal -V
+    happy -V
+    alex -V
 
 
 ## Yesod in a cabal sandbox
@@ -105,7 +123,7 @@ And to `Foundation.hs` add the line:
 
     instance LambdaCmsAdmin App
 
-**NOTE:**: From here it is pretty much work in progress... You're on your own, good luck.
+**NOTE:** From here it is pretty much work in progress... You're on your own, good luck.
 
 Further steps to add:
 
@@ -116,7 +134,8 @@ Further steps to add:
 
 # Links of interest
 
-Obviously the Yesod book is a must read, beyond that docs may sommethimes be thin.
+Obviously the [Yesod book](http://www.yesodweb.com/book) is a must read,
+beyond that docs may sommetimes be scarse.
 Therefore this collection of links that may shed some light on corners of Yesod
 that are of particular interest when hacking on LambdaCms.
 
