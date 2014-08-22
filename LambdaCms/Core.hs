@@ -5,78 +5,22 @@
 {-# LANGUAGE RankNTypes            #-}
 
 module LambdaCms.Core
-    ( module LambdaCms.Core.Routes
-    , module LambdaCms.Core.Models
-    , module LambdaCms.Core
+    ( module Export
+    , LambdaCmsAdmin
+    , maybeAuth'
+    , maybeAuthId'
+    , authLoginDest
+    , Core
     ) where
 
-import           Yesod
-import           Data.Text (Text)
-import           LambdaCms.Core.Routes
-import           LambdaCms.Core.Models
+import           LambdaCms.Core.Import
+import           LambdaCms.Core.Models as Export
+import           LambdaCms.Core.Routes as Export
+import           LambdaCms.Core.Handler.Home as Export
+import           LambdaCms.Core.Handler.User as Export
 
-
-class (Yesod master, RenderRoute master, YesodPersist master) => LambdaCmsAdmin master where
-    -- | Applies some form of layout to the contents of an admin section page.
-    adminLayout :: WidgetT master IO () -> HandlerT master IO Html
-    adminLayout w = do
-        p <- widgetToPageContent w
-        mmsg <- getMessage
-        user <- getUserName
-        giveUrlRenderer [hamlet|
-            $newline never
-            $doctype 5
-            <html>
-                <head>
-                    <title>#{pageTitle p} :: Admin
-                    ^{pageHead p}
-                <body>
-                    <p>#{user}
-                    $maybe msg <- mmsg
-                        <p .message>#{msg}
-                    <h1>Admin section
-                    ^{pageBody p}
-            |]
-
-    defaultLambdaCmsAdminAuthLayout :: WidgetT master IO () -> HandlerT master IO Html
-    defaultLambdaCmsAdminAuthLayout w = do
-        p <- widgetToPageContent w
-        mmsg <- getMessage
-        giveUrlRenderer [hamlet|
-            $newline never
-            $doctype 5
-            <html>
-                <head>
-                    <title>#{pageTitle p} :: Admin Login
-                    ^{pageHead p}
-                <body>
-                    $maybe msg <- mmsg
-                        <p .message>#{msg}
-                    <h1>Admin section
-                    ^{pageBody p}
-            |]
-
-    getUserName :: HandlerT master IO Text
-    isLoggedIn :: HandlerT master IO Bool
-
-type CoreHandler a = forall master. LambdaCmsAdmin master => HandlerT Core (HandlerT master IO) a
-
-getAdminHomeR :: CoreHandler Html
-getAdminHomeR = lift $ adminLayout [whamlet|Welcome to the admin section!|]
-
-getAdminUsersR :: CoreHandler Html
-getAdminUsersR =
-    lift $ adminLayout [whamlet|Welcome to the admin's user section!|]
---    do users <- runDB $ selectList [] [] :: [Entity User]
---       lift $ adminLayout [whamlet|Welcome to the admin users section! #{strU}|]
 
 
 instance (Yesod master, LambdaCmsAdmin master) => YesodSubDispatch Core (HandlerT master IO) where
 --instance LambdaCmsAdmin master => YesodSubDispatch Core (HandlerT master IO) where
     yesodSubDispatch = $(mkYesodSubDispatch resourcesCore)
-
-
--- This instance is required to use forms. You can modify renderMessage to
--- achieve customized and internationalized form validation messages.
-instance RenderMessage Core FormMessage where
-    renderMessage _ _ = defaultFormMessage

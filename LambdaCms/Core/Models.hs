@@ -1,27 +1,29 @@
-{-# LANGUAGE EmptyDataDecls    #-}
-{-# LANGUAGE FlexibleContexts  #-}
-{-# LANGUAGE GADTs             #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE QuasiQuotes       #-}
-{-# LANGUAGE TemplateHaskell   #-}
-{-# LANGUAGE TypeFamilies      #-}
+{-# LANGUAGE EmptyDataDecls     #-}
+{-# LANGUAGE FlexibleContexts   #-}
+{-# LANGUAGE GADTs              #-}
+{-# LANGUAGE OverloadedStrings  #-}
+{-# LANGUAGE QuasiQuotes        #-}
+{-# LANGUAGE TemplateHaskell    #-}
+{-# LANGUAGE TypeFamilies       #-}
+{-# LANGUAGE DeriveDataTypeable #-}
 
 module LambdaCms.Core.Models where
 
 import Yesod
---import Data.Text (Text)
+import Data.Text (Text)
 --import Database.Persist.Quasi
---import Data.Typeable (Typeable)
+import Data.Typeable (Typeable)
 import Prelude
 
--- Just some test models for now, this should also contian the User/Email thingy...
 share [mkPersist sqlOnlySettings, mkMigrate "migrateLambdaCmsCore"] [persistLowerCase|
-Person
-    name String
-    age Int Maybe
-    deriving Show
-BlogPost
-    title String
-    authorId PersonId
-    deriving Show
+User
+    ident Text
+    password Text Maybe
+    UniqueUser ident
+    deriving Typeable Show
+Email
+    email Text
+    user UserId Maybe
+    verkey Text Maybe
+    UniqueEmail email
 |]
