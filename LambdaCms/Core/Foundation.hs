@@ -5,6 +5,9 @@
 {-# LANGUAGE RankNTypes            #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE OverloadedStrings     #-}
+-- {- # LANGUAGE FlexibleContexts      #-}
+-- {- # LANGUAGE ConstraintKinds       #-}
+-- {- # LANGUAGE UndecidableInstances  #-}
 
 module LambdaCms.Core.Foundation where
 
@@ -15,8 +18,17 @@ import           LambdaCms.Core.Models
 import           LambdaCms.Core.Routes
 
 
-class (Yesod master, RenderRoute master, YesodPersist master) => LambdaCmsAdmin master where
-    -- | Applies some form of layout to the contents of an admin section page.
+class ( Yesod master
+      , RenderRoute master
+      , YesodPersist master
+      --, PersistQuery (YesodPersistBackend master (HandlerT master IO))
+      --, YesodPersistBackend master (HandlerT master IO)
+      --, PersistMonadBackend (YesodPersistBackend master (HandlerT master IO))
+      ) => LambdaCmsAdmin master where
+
+    --runDB :: YesodPersistBackend master (HandlerT master IO) a -> HandlerT master IO a
+
+       -- | Applies some form of layout to the contents of an admin section page.
     adminLayout :: WidgetT master IO () -> HandlerT master IO Html
     adminLayout w = do
         p <- widgetToPageContent w

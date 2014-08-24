@@ -19,36 +19,6 @@ module LambdaCms.Core.Handler.User
 
 import LambdaCms.Core.Import
 
--- getHomeR = do
---     (formWidget, formEnctype) <- generateFormPost sampleForm
---     let submission = Nothing :: Maybe (FileInfo, Text)
---         handlerName = "getHomeR" :: Text
---     adminLayout $ do
---         aDomId <- newIdent
---         setTitle "Welcome To Yesod!"
---         $(widgetFile "homepage")
-
--- getUserAdminsR :: CoreHandler Html
--- getUserAdminsR =
---     do users <- lift $ runDB $ selectList [] [] :: [Entity User]
---        let strU = show users
---        lift $ adminLayout [whamlet|Welcome to the admin users section! #{strU}|]
-
-
--- import Import
--- import Widgets
--- import qualified Data.Text as DT
-
--- sampleForm :: Form (FileInfo, Text)
--- sampleForm = renderDivs $ (,)
---     <$> fileAFormReq "Choose a file"
---     <*> areq textField "What's on the file?" Nothing
-
--- userForm :: Maybe User -> Form User
--- userForm mUser = renderDivs $ User
---     <$> areq textField   "ident" (userIdent <$> mUser)
-    -- <*> areq textField   "pass"  (userPassword <$> mUser)
-
 
 getUserAdminR        :: CoreHandler Html
 getUserAdminNewR     :: CoreHandler Html
@@ -59,8 +29,8 @@ postUserAdminEditR   :: UserId -> CoreHandler Html
 postUserAdminDeleteR :: UserId -> CoreHandler Html
 
 getUserAdminR = do
+    -- (allUsers :: [Entity User]) <- lift $ runDB $ selectList [] []
     lift $ adminLayout [whamlet|Welcome to the admin's user section!|]
-  -- (allUsers :: [Entity User]) <- runDB $ selectList [] []
   -- adminLayout $(widgetFile "user/index")
 
 getUserAdminNewR = do
