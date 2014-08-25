@@ -5,13 +5,12 @@
 {-# LANGUAGE RankNTypes            #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE OverloadedStrings     #-}
--- {- # LANGUAGE FlexibleContexts      #-}
--- {- # LANGUAGE ConstraintKinds       #-}
--- {- # LANGUAGE UndecidableInstances  #-}
+{-# LANGUAGE FlexibleContexts      #-}
 
 module LambdaCms.Core.Foundation where
 
 import           Yesod
+import           Database.Persist.Sql (SqlBackend)
 import           Data.Text (Text)
 
 import           LambdaCms.Core.Models
@@ -21,9 +20,6 @@ import           LambdaCms.Core.Routes
 class ( Yesod master
       , RenderRoute master
       , YesodPersist master
-      --, PersistQuery (YesodPersistBackend master (HandlerT master IO))
-      --, YesodPersistBackend master (HandlerT master IO)
-      --, PersistMonadBackend (YesodPersistBackend master (HandlerT master IO))
       ) => LambdaCmsAdmin master where
 
     --runDB :: YesodPersistBackend master (HandlerT master IO) a -> HandlerT master IO a
@@ -85,8 +81,12 @@ class ( Yesod master
         ma <- maybeAuthId'
         return $ maybe False (const True) ma
 
-
-type CoreHandler a = forall master. LambdaCmsAdmin master => HandlerT Core (HandlerT master IO) a
+-- Fairly complex "handler" type, allowing persistent queries on the master's db connection, hereby simplified
+type CoreHandler a = forall master.
+    ( LambdaCmsAdmin master
+    , PersistQuery (YesodPersistBackend master (HandlerT master IO))
+    , PersistMonadBackend (YesodPersistBackend master (HandlerT master IO)) ~ SqlBackend
+    ) => HandlerT Core (HandlerT master IO) a
 
 
 type Form x = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT master IO) (FormResult x, WidgetT master IO ())

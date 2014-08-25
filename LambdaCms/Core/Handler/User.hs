@@ -5,7 +5,8 @@
 {-# LANGUAGE TemplateHaskell     #-}
 {-# LANGUAGE QuasiQuotes         #-}
 {-# LANGUAGE RankNTypes          #-}
-
+{-# LANGUAGE TypeFamilies        #-}
+{-# LANGUAGE FlexibleContexts    #-}
 
 module LambdaCms.Core.Handler.User
   ( getUserAdminR
@@ -29,8 +30,9 @@ postUserAdminEditR   :: UserId -> CoreHandler Html
 postUserAdminDeleteR :: UserId -> CoreHandler Html
 
 getUserAdminR = do
-    -- (allUsers :: [Entity User]) <- lift $ runDB $ selectList [] []
-    lift $ adminLayout [whamlet|Welcome to the admin's user section!|]
+    (allUsers :: [Entity User]) <- lift $ runDB $ selectList [] []
+    let a = show allUsers
+    lift $ adminLayout [whamlet|Welcome to the admin's user section! #{a}|]
   -- adminLayout $(widgetFile "user/index")
 
 getUserAdminNewR = do

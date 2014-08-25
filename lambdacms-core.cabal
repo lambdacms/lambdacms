@@ -31,6 +31,7 @@ library
                   , LambdaCms.Core.Handler.User
   build-depends:    base
                   , yesod
+                  , persistent
                   , text
   ghc-options:      -Wall
                     -O2
