@@ -12,7 +12,7 @@ description:        Content Management System (CMS)
 stability:          alpha
 category:           web
 build-type:         Simple
-cabal-version:      >= 1.20
+cabal-version:      >= 1.18
 tested-with:        GHC >= 7.6
 extra-source-files: README.md
 
@@ -33,5 +33,4 @@ library
                   , yesod
                   , persistent
                   , text
-  ghc-options:      -Wall
-                    -O2
+  ghc-options:      -Wall -O2
