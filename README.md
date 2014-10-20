@@ -135,7 +135,7 @@ Further steps to add:
 # Links of interest
 
 Obviously the [Yesod book](http://www.yesodweb.com/book) is a must read,
-beyond that docs may sommetimes be scarse.
+beyond that docs may sometimes be scarse.
 Therefore this collection of links that may shed some light on corners of Yesod
 that are of particular interest when hacking on LambdaCms.
 
