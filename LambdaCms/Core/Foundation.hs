@@ -30,7 +30,7 @@ class ( Yesod master
         p <- widgetToPageContent w
         mmsg <- getMessage
         user <- getUserName
-        giveUrlRenderer [hamlet|
+        withUrlRenderer [hamlet|
             $newline never
             $doctype 5
             <html>
@@ -49,7 +49,7 @@ class ( Yesod master
     defaultLambdaCmsAdminAuthLayout w = do
         p <- widgetToPageContent w
         mmsg <- getMessage
-        giveUrlRenderer [hamlet|
+        withUrlRenderer [hamlet|
             $newline never
             $doctype 5
             <html>
@@ -84,8 +84,8 @@ class ( Yesod master
 -- Fairly complex "handler" type, allowing persistent queries on the master's db connection, hereby simplified
 type CoreHandler a = forall master.
     ( LambdaCmsAdmin master
-    , PersistQuery (YesodPersistBackend master (HandlerT master IO))
-    , PersistMonadBackend (YesodPersistBackend master (HandlerT master IO)) ~ SqlBackend
+    , PersistQuery (YesodPersistBackend master)
+    , YesodPersistBackend master ~ SqlBackend
     ) => HandlerT Core (HandlerT master IO) a
 
 

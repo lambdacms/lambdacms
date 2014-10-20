@@ -5,6 +5,8 @@
 {-# LANGUAGE RankNTypes            #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
+{-# LANGUAGE ViewPatterns          #-}
+{-# LANGUAGE OverloadedStrings     #-}
 
 module LambdaCms.Core
     ( module Export
@@ -27,7 +29,7 @@ import           LambdaCms.Core.Handler.User as Export
 
 instance ( Yesod master
          , LambdaCmsAdmin master
-         , SqlBackend ~ PersistMonadBackend (YesodPersistBackend master (HandlerT master IO))
-         , PersistQuery (YesodPersistBackend master (HandlerT master IO))
+         , SqlBackend ~ (YesodPersistBackend master)
+         , PersistQuery (YesodPersistBackend master)
          ) => YesodSubDispatch Core (HandlerT master IO) where
     yesodSubDispatch = $(mkYesodSubDispatch resourcesCore)

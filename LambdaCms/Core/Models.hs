@@ -1,11 +1,13 @@
-{-# LANGUAGE EmptyDataDecls     #-}
-{-# LANGUAGE FlexibleContexts   #-}
-{-# LANGUAGE GADTs              #-}
-{-# LANGUAGE OverloadedStrings  #-}
-{-# LANGUAGE QuasiQuotes        #-}
-{-# LANGUAGE TemplateHaskell    #-}
-{-# LANGUAGE TypeFamilies       #-}
-{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE EmptyDataDecls             #-}
+{-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE GADTs                      #-}
+{-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE MultiParamTypeClasses      #-}
+{-# LANGUAGE QuasiQuotes                #-}
+{-# LANGUAGE TemplateHaskell            #-}
+{-# LANGUAGE TypeFamilies               #-}
+{-# LANGUAGE DeriveDataTypeable         #-}
 
 module LambdaCms.Core.Models where
 
@@ -15,7 +17,7 @@ import Data.Text (Text)
 import Data.Typeable (Typeable)
 import Prelude
 
-share [mkPersist sqlOnlySettings, mkMigrate "migrateLambdaCmsCore"] [persistLowerCase|
+share [mkPersist sqlSettings, mkMigrate "migrateLambdaCmsCore"] [persistLowerCase|
 User
     ident Text
     password Text Maybe
