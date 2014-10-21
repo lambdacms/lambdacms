@@ -14,7 +14,6 @@ module LambdaCms.Core
     , maybeAuth'
     , maybeAuthId'
     , authLoginDest
-    , Core
     ) where
 
 import           Database.Persist.Sql (SqlBackend)
