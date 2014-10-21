@@ -141,8 +141,8 @@ And change the following lines in `Foundation.hs`:
 
 to:
 
-   loginDest _ = CoreR AdminHomeR
-   logoutDest _ = CoreR AdminHomeR
+    loginDest _ = CoreR AdminHomeR
+    logoutDest _ = CoreR AdminHomeR
 
 In `Application.hs` the following lines should be added:
 
