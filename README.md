@@ -46,13 +46,27 @@ instructions that follow).
 
 ## Haskell & co
 
-Make sure to have **GHC** 7.6+, **cabal-install** 1.20+, **happy** and **alex**
-installed, and their binaries available to your shell's `$PATH`.
+Make sure to have **GHC** 7.6+, **cabal-install** 1.18+, **happy**, **alex**
+and **yesod-bin** 1.4+ installed, and their binaries available to your shell's `$PATH`.
 
-[Haskell Platform](https://www.haskell.org/platform/) provides a convenient way
-to install these dependencies. Alternatively you can follow the "leaner" route
-of installing Haskell by following
-[these installation instructions](http://haskell-lang.org/downloads) for Linux and OSX.
+To get GHC and Cabal ready we used Yann Esposito's [Safer Haskell Install](http://yannesposito.com/Scratch/en/blog/Safer-Haskell-Install/)
+script. This script can be used for Linux and OSX and will install GHC and Cabal.
+It also enables the usage of stackage to make sure all libraries which are
+installed are compatible. We are currently using the following stackage repository:
+
+    remote-repo: stackage:http://www.stackage.org/stackage/1ee16e7b56ea1e1ac4e15ce7a1cc72018b2117c1
+
+We recommend using this same stackage repository when working with LambdaCms. To
+do so you should change the stackage url currently used by the install script to
+this one. Already working with a different stackage or not using stackage at all?
+Don't worry! Switching to a different stackage repositories is documented on the
+[stackage information page](http://www.stackage.org/stackage/1ee16e7b56ea1e1ac4e15ce7a1cc72018b2117c1)
+with 4 easy steps. To start using stackage those same 4 steps can be used.
+
+After installing GHC and Cabal just run the following command to install happy, alex
+and yesod-bin:
+
+    cabal install happy alex yesod-bin
 
 To check that you are good to go:
 
@@ -60,26 +74,17 @@ To check that you are good to go:
     cabal -V
     happy -V
     alex -V
+    yesod version
 
 
-## Yesod in a cabal sandbox
+## Yesod with Stackage
 
-Setup a cabal sandbox for your master application.
+Scaffold the master application, this interactively takes some configuration values and
+initializes a new yesod project inside a folder. This folder's name is based on the project
+name you picked, we used `ponycms`. After scaffolding move into the project folder.
 
-    mkdir ponycms
+    yesod init
     cd ponycms
-    cabal update
-    cabal sandbox init
-    cabal install yesod-platform yesod-bin
-
-Make sure `.cabal-sandbox/bin` is in the `$PATH`.
-
-    export PATH=.cabal-sandbox/bin:$PATH
-
-Scaffold the master application, this interactively takes some configuration values.
-The `--bare` flag omits creating subdir.
-
-    yesod init --bare
 
 If you have chosen a database other then Sqlite, then configure it in one of the `.yml` files
 the can be found in the `config/` directory.  Also make sure the database can be accessed with
@@ -99,29 +104,51 @@ If all goes well you can procede to the next step: adding LambdaCms to your app.
 
 At some point the `lambdacms-core` package will be distributed from Hackage.
 Currently this is not the case so we install it from github and register it
-with the `cabal sandbox add-source` command.
+locally.
 
     cd ..
     git clone git@github.com:lambdacms/lambdacms-core.git
-    cd ponycms
-    cabal sandbox add-source ../lambdacms-core
+    cd lambdacms-core
+    cabal install
+    cd ../ponycms
 
 Add the following line to the `build-depends` of the `library` section of the
 `ponycms.cabal` file (the version bounds may need to be raised):
 
                      , lambdacms-core                >= 0.0.7      && < 0.1
 
-Add the following line to `config/routes`:
+Add the following lines to `config/routes`:
 
-    /admin         CoreR      Core        getLambdaCms
+    /admin/core         CoreR                  Core        getLambdaCms
+    /admin/auth         AuthR                  Auth        getAuth
+    /admin              AdminHomeRedirectR     GET
 
-Add the following line to the imports of both `Foundation.hs` *and* `Application.hs`:
+Add the following lines to the imports of both `Foundation.hs` *and* `Application.hs`:
 
     import LambdaCms
 
-And to `Foundation.hs` add the line:
+And to `Foundation.hs` add the lines:
 
     instance LambdaCmsAdmin App
+        maybeAuth' = maybeAuth
+        maybeAuthId' = maybeAuthId
+        authLoginDest _ = AuthR LoginR
+
+And change the following lines in `Foundation.hs`:
+
+    loginDest _ = HomeR
+    logoutDest _ = HomeR
+
+to:
+
+   loginDest _ = CoreR AdminHomeR
+   logoutDest _ = CoreR AdminHomeR
+
+In `Application.hs` the following lines should be added:
+
+    getAdminHomeRedirectR :: Handler Html
+    getAdminHomeRedirectR = do
+        redirect $ CoreR AdminHomeR
 
 **NOTE:** From here it is pretty much work in progress... You're on your own, good luck.
 
