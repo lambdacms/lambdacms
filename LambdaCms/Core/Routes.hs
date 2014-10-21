@@ -6,11 +6,12 @@
 {-# LANGUAGE TemplateHaskell    #-}
 {-# LANGUAGE TypeFamilies       #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE ViewPatterns       #-}
 
 module LambdaCms.Core.Routes where
 
 import Yesod
-import           LambdaCms.Core.Models
+import LambdaCms.Core.Models
 
 data Core = Core
 
