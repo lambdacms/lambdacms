@@ -8,6 +8,7 @@ import           Yesod                      as Import hiding (Route (..))
 
 import           Control.Applicative        as Import (pure, (<$>), (<*>))
 import           Data.Text                  as Import (Text)
+import           Text.Hamlet                as Import (hamletFile)
 
 --import           Foundation           as Import
 import           LambdaCms.Core.Foundation  as Import

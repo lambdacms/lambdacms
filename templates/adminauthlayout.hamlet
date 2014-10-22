@@ -1,0 +1,11 @@
+$newline never
+$doctype 5
+<html>
+    <head>
+        <title>#{pageTitle p} :: admin login
+        ^{pageHead p}
+    <body>
+        $maybe msg <- mmsg
+            <p .message>#{msg}
+        <h1>admin section
+        ^{pageBody p}

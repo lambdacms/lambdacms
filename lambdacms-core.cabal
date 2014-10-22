@@ -15,6 +15,7 @@ build-type:         Simple
 cabal-version:      >= 1.18
 tested-with:        GHC >= 7.6
 extra-source-files: README.md
+                  , tempalates/*.hamlet
 
 source-repository head
   type:             git
@@ -33,4 +34,5 @@ library
                   , yesod
                   , persistent
                   , text
+                  , shakespeare
   ghc-options:      -Wall -O2

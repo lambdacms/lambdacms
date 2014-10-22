@@ -15,4 +15,4 @@ module LambdaCms.Core.Handler.Home
 import LambdaCms.Core.Import
 
 getAdminHomeR :: CoreHandler Html
-getAdminHomeR = lift $ adminLayout [whamlet|Welcome to the admin section!|]
+getAdminHomeR = lift $ adminLayout $(whamletFile "templates/adminhome.hamlet")

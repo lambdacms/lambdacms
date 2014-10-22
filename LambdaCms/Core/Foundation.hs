@@ -12,6 +12,7 @@ module LambdaCms.Core.Foundation where
 import           Yesod
 import           Database.Persist.Sql (SqlBackend)
 import           Data.Text (Text)
+import           Text.Hamlet (hamletFile)
 
 import           LambdaCms.Core.Models
 import           LambdaCms.Core.Routes
@@ -30,38 +31,13 @@ class ( Yesod master
         p <- widgetToPageContent w
         mmsg <- getMessage
         user <- getUserName
-        withUrlRenderer [hamlet|
-            $newline never
-            $doctype 5
-            <html>
-                <head>
-                    <title>#{pageTitle p} :: Admin
-                    ^{pageHead p}
-                <body>
-                    <p>#{user}
-                    $maybe msg <- mmsg
-                        <p .message>#{msg}
-                    <h1>Admin section
-                    ^{pageBody p}
-            |]
+        withUrlRenderer $(hamletFile "templates/adminlayout.hamlet")
 
     defaultLambdaCmsAdminAuthLayout :: WidgetT master IO () -> HandlerT master IO Html
     defaultLambdaCmsAdminAuthLayout w = do
         p <- widgetToPageContent w
         mmsg <- getMessage
-        withUrlRenderer [hamlet|
-            $newline never
-            $doctype 5
-            <html>
-                <head>
-                    <title>#{pageTitle p} :: Admin Login
-                    ^{pageHead p}
-                <body>
-                    $maybe msg <- mmsg
-                        <p .message>#{msg}
-                    <h1>Admin section
-                    ^{pageBody p}
-            |]
+        withUrlRenderer $(hamletFile "templates/adminauthlayout.hamlet")
 
     maybeAuth' :: HandlerT master IO (Maybe (Entity User))
     maybeAuthId' :: HandlerT master IO (Maybe UserId)

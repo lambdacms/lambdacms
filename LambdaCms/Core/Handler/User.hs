@@ -32,16 +32,14 @@ postUserAdminDeleteR :: UserId -> CoreHandler Html
 getUserAdminR = do
     (allUsers :: [Entity User]) <- lift $ runDB $ selectList [] []
     let a = show allUsers
-    lift $ adminLayout [whamlet|Welcome to the admin's user section! #{a}|]
-  -- adminLayout $(widgetFile "user/index")
+    lift $ adminLayout $(whamletFile "templates/user/index.hamlet")
 
 getUserAdminNewR = do
-    lift $ adminLayout [whamlet|Welcome to the admin's user section!|]
   -- (formWidget, enctype) <- generateFormPost $ userForm Nothing
-  -- adminLayout $(widgetFile "user/new")
+    lift $ adminLayout $(whamletFile "templates/user/new.hamlet")
 
 postUserAdminNewR = do
-    lift $ adminLayout [whamlet|Welcome to the admin's user section!|]
+    lift $ adminLayout $(whamletFile "templates/user/show.hamlet")
   -- ((formResult, _), _) <- runFormPost $ userForm Nothing
   -- case formResult of
   --   FormSuccess user -> do
@@ -53,18 +51,18 @@ postUserAdminNewR = do
   --     redirectUltDest UserAdminNewR
 
 getUserAdminDetailR userId = do
-    lift $ adminLayout [whamlet|Welcome to the admin's user section!|]
+    lift $ adminLayout $(whamletFile "templates/user/show.hamlet")
   -- user <- runDB $ get404 userId
   -- adminLayout $(widgetFile "user/show")
 
 getUserAdminEditR userId = do
-    lift $ adminLayout [whamlet|Welcome to the admin's user section!|]
+    lift $ adminLayout $(whamletFile "templates/user/edit.hamlet")
   -- user <- runDB $ get404 userId
   -- (formWidget, enctype) <- generateFormPost $ userForm (Just user)
   -- adminLayout $(widgetFile "user/edit")
 
 postUserAdminEditR userId = do
-    lift $ adminLayout [whamlet|Welcome to the admin's user section!|]
+    lift $ adminLayout $(whamletFile "templates/user/show.hamlet")
   -- ((formResult, _), _) <- runFormPost $ userForm Nothing
   -- case formResult of
   --   FormSuccess user -> do
@@ -74,7 +72,7 @@ postUserAdminEditR userId = do
   -- redirectUltDest $ UserAdminDetailR userId
 
 postUserAdminDeleteR userId = do
-    lift $ adminLayout [whamlet|Welcome to the admin's user section!|]
+    lift $ adminLayout $(whamletFile "templates/user/show.hamlet")
   -- _ <- runDB $ get404 userId
   -- runDB $ delete userId
   -- setMessage . toHtml $ DT.concat ["Deleted User with id: ", toPathPiece userId]
