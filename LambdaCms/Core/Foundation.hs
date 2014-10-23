@@ -13,6 +13,8 @@ import           Yesod
 import           Database.Persist.Sql (SqlBackend)
 import           Data.Text (Text)
 import           Text.Hamlet (hamletFile)
+import           Text.Lucius (luciusFile)
+import           Text.Julius (juliusFile)
 
 import           LambdaCms.Core.Models
 import           LambdaCms.Core.Routes
@@ -27,15 +29,21 @@ class ( Yesod master
 
        -- | Applies some form of layout to the contents of an admin section page.
     adminLayout :: WidgetT master IO () -> HandlerT master IO Html
-    adminLayout w = do
-        p <- widgetToPageContent w
+    adminLayout widget = do
+        p <- widgetToPageContent $ do
+            widget
+            toWidget $(luciusFile "templates/adminlayout.lucius")
+            -- toWidget $(juliusFile "templates/admin.lucius")
         mmsg <- getMessage
         user <- getUserName
         withUrlRenderer $(hamletFile "templates/adminlayout.hamlet")
 
     defaultLambdaCmsAdminAuthLayout :: WidgetT master IO () -> HandlerT master IO Html
-    defaultLambdaCmsAdminAuthLayout w = do
-        p <- widgetToPageContent w
+    defaultLambdaCmsAdminAuthLayout widget = do
+        p <- widgetToPageContent $ do
+            widget
+            toWidget $(luciusFile "templates/adminauthlayout.lucius")
+            -- toWidget $(juliusFile "templates/adminauth.lucius")
         mmsg <- getMessage
         withUrlRenderer $(hamletFile "templates/adminauthlayout.hamlet")
 

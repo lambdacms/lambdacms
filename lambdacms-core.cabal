@@ -15,7 +15,9 @@ build-type:         Simple
 cabal-version:      >= 1.18
 tested-with:        GHC >= 7.6
 extra-source-files: README.md
-                  , tempalates/*.hamlet
+                  , templates/*.hamlet
+                  , templates/*.lucius
+                  , templates/*.julius
 
 source-repository head
   type:             git

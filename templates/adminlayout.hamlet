@@ -1,12 +1,22 @@
 $newline never
 $doctype 5
 <html>
-     <head>
-         <title>#{pageTitle p} :: Admin
-         ^{pageHead p}
-     <body>
-         <p>#{user}
-         $maybe msg <- mmsg
-             <p .message>#{msg}
-         <h1>Admin section
-         ^{pageBody p}
+    <head>
+        <title>#{pageTitle p} :: Admin
+        <meta charset=utf-8>
+        ^{pageHead p}
+    <body>
+        <header>
+        <main>
+            <aside #menu-wrapper>
+                <menu>
+                    <ul>
+                        <li #user-menu>
+                            $#<a href=@{toParent UserAdminR}>Users
+                            <ul #user-sub-menu .sub-menu>
+                                $#<li><a href=@{toParent UserAdminNewR}>New User
+            <p>#{user}
+                $maybe msg <- mmsg
+                    <p .message>#{msg}
+            <h1>Admin section
+            ^{pageBody p}
