@@ -13,6 +13,7 @@ import           Text.Hamlet                as Import (hamletFile)
 --import           Foundation           as Import
 import           LambdaCms.Core.Foundation  as Import
 import           LambdaCms.Core.Models      as Import
+import           LambdaCms.Core.Routes      as Import
 --import           Settings             as Import
 --import           Settings.Development as Import
 --import           Settings.StaticFiles as Import

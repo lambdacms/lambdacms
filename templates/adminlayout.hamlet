@@ -8,13 +8,6 @@ $doctype 5
     <body>
         <header>
         <main>
-            <aside #menu-wrapper>
-                <menu>
-                    <ul>
-                        <li #user-menu>
-                            $#<a href=@{toParent UserAdminR}>Users
-                            <ul #user-sub-menu .sub-menu>
-                                $#<li><a href=@{toParent UserAdminNewR}>New User
             <p>#{user}
                 $maybe msg <- mmsg
                     <p .message>#{msg}

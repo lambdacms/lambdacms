@@ -1,0 +1,9 @@
+<nav .admin-main-menu>
+  <ul>
+    <li>
+      <a href=@{toParent AdminHomeR}>Dashboard
+    <li>
+      <a href=@{toParent UserAdminR}>Users
+      <ul .sub-menu>
+        <li>
+          <a href=@{toParent UserAdminNewR}>New User

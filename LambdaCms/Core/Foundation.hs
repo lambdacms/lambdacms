@@ -33,7 +33,7 @@ class ( Yesod master
         p <- widgetToPageContent $ do
             widget
             toWidget $(luciusFile "templates/adminlayout.lucius")
-            -- toWidget $(juliusFile "templates/admin.lucius")
+            toWidget $(juliusFile "templates/admin.julius")
         mmsg <- getMessage
         user <- getUserName
         withUrlRenderer $(hamletFile "templates/adminlayout.hamlet")
@@ -43,7 +43,7 @@ class ( Yesod master
         p <- widgetToPageContent $ do
             widget
             toWidget $(luciusFile "templates/adminauthlayout.lucius")
-            -- toWidget $(juliusFile "templates/adminauth.lucius")
+            toWidget $(juliusFile "templates/adminauth.julius")
         mmsg <- getMessage
         withUrlRenderer $(hamletFile "templates/adminauthlayout.hamlet")
 
@@ -80,3 +80,6 @@ type Form x = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT ma
 -- achieve customized and internationalized form validation messages.
 instance RenderMessage Core FormMessage where
     renderMessage _ _ = defaultFormMessage
+
+lambdaAdminMenuWidget :: LambdaCmsAdmin master => (Route Core -> Route master) -> WidgetT master IO ()
+lambdaAdminMenuWidget toParent = $(whamletFile "templates/adminmenu.hamlet")
