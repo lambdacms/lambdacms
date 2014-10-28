@@ -1,1 +1,12 @@
-Welcome to the admin's user section!
+<label>
+  User name
+<p>
+  #{userName user}
+
+<label>
+  Email address:
+<p>
+  #{userEmail user}
+
+<a href=@{toParent $ UserAdminEditR userId}>
+  Edit information

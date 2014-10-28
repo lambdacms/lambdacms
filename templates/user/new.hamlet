@@ -1,1 +1,6 @@
 Welcome to the admin's user section!
+<form method=post action=@{toParent $ UserAdminNewR} enctype=#{enctype}>
+      ^{formWidget}
+      <p>
+          It also doesn't include the submit button.
+      <input type=submit>

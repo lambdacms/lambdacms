@@ -1,1 +1,11 @@
-Welcome to the admin's user section! #{a}
+$if null users
+    <p>There are no entries.
+$else
+    <table>
+        $forall (Entity userId user) <- users
+            <tr>
+                <td>
+                  <a href=@{toParent $ UserAdminDetailR userId}>
+                    #{userIdent user}
+                <td>#{userName user}
+                <td>#{userEmail user}

@@ -1,1 +1,6 @@
 Welcome to the admin's user section!
+
+<form method=post action=@{toParent $ UserAdminEditR userId} enctype=#{enctype}>
+      ^{formWidget}
+      <input type="submit">
+        

@@ -23,6 +23,7 @@ import           LambdaCms.Core.Models as Export
 import           LambdaCms.Core.Routes as Export
 import           LambdaCms.Core.Handler.Home as Export
 import           LambdaCms.Core.Handler.User as Export
+import           LambdaCms.Core.AuthHelper as Export
 
 
 

@@ -21,6 +21,7 @@ import           LambdaCms.Core.Routes
 class ( Yesod master
       , RenderRoute master
       , YesodPersist master
+      , RenderMessage master FormMessage
       ) => LambdaCmsAdmin master where
 
     --runDB :: YesodPersistBackend master (HandlerT master IO) a -> HandlerT master IO a
@@ -51,7 +52,8 @@ class ( Yesod master
             Nothing -> do
                 setMessage "Not logged in"
                 redirect $ authLoginDest y
-            Just uid -> return . userIdent $ entityVal uid
+            Just uid -> return . userEmail $ entityVal uid
+
     isLoggedIn :: HandlerT master IO Bool
     isLoggedIn = do
         ma <- maybeAuthId'
