@@ -90,6 +90,7 @@ instance RenderMessage Core FormMessage where
 lambdaCoreLayout :: CoreWidget -> CoreHandler Html
 lambdaCoreLayout widget = do
   toParent <- getRouteToParent
+  curR <- lift getCurrentRoute
   lift $ adminLayout $ do
     $(whamletFile "templates/adminmenu.hamlet")
     widget

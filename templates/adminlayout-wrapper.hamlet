@@ -1,9 +1,14 @@
 $newline never
 $doctype 5
 <html>
-    <head>
-        <title>#{pageTitle p} :: Admin
-        <meta charset=utf-8>
-        ^{pageHead p}
-    <body>
-        ^{pageBody p}
+  <head>
+    <title>#{pageTitle p} :: Admin
+    <meta charset=utf-8>
+    $# change this to include stylesheet from code
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel=stylesheet>
+    ^{pageHead p}
+  <body>
+    ^{pageBody p}
+    $# change this to include scripts from code
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js">

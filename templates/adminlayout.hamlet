@@ -1,7 +1,7 @@
 <header>
-  <p>#{user}
-    $maybe msg <- mmsg
-      <p .message>#{msg}
   <h1>Admin section
+  <p>#{user}
 <main>
+  $maybe msg <- mmsg
+    <p .message>#{msg}
   ^{widget}
