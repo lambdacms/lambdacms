@@ -13,6 +13,8 @@ import           Yesod
 import           Database.Persist.Sql (SqlBackend)
 import           Data.Text (Text)
 import           Text.Hamlet (hamletFile)
+import           Text.Lucius (luciusFile)
+import           Text.Julius (juliusFile)
 
 import           LambdaCms.Core.Models
 import           LambdaCms.Core.Routes
@@ -28,15 +30,21 @@ class ( Yesod master
 
        -- | Applies some form of layout to the contents of an admin section page.
     adminLayout :: WidgetT master IO () -> HandlerT master IO Html
-    adminLayout w = do
-        p <- widgetToPageContent w
+    adminLayout widget = do
         mmsg <- getMessage
         user <- getUserName
-        withUrlRenderer $(hamletFile "templates/adminlayout.hamlet")
+        p <- widgetToPageContent $ do
+            $(whamletFile "templates/adminlayout.hamlet")
+            toWidget $(luciusFile "templates/adminlayout.lucius")
+            toWidget $(juliusFile "templates/adminlayout.julius")
+        withUrlRenderer $(hamletFile "templates/adminlayout-wrapper.hamlet")
 
     defaultLambdaCmsAdminAuthLayout :: WidgetT master IO () -> HandlerT master IO Html
-    defaultLambdaCmsAdminAuthLayout w = do
-        p <- widgetToPageContent w
+    defaultLambdaCmsAdminAuthLayout widget = do
+        p <- widgetToPageContent $ do
+            widget
+            toWidget $(luciusFile "templates/adminauthlayout.lucius")
+            toWidget $(juliusFile "templates/adminauthlayout.julius")
         mmsg <- getMessage
         withUrlRenderer $(hamletFile "templates/adminauthlayout.hamlet")
 
@@ -66,6 +74,11 @@ type CoreHandler a = forall master.
     , YesodPersistBackend master ~ SqlBackend
     ) => HandlerT Core (HandlerT master IO) a
 
+type CoreWidget = forall master.
+    ( LambdaCmsAdmin master
+    , PersistQuery (YesodPersistBackend master)
+    , YesodPersistBackend master ~ SqlBackend
+    ) => WidgetT master IO ()
 
 type Form x = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT master IO) (FormResult x, WidgetT master IO ())
 
@@ -74,3 +87,15 @@ type Form x = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT ma
 -- achieve customized and internationalized form validation messages.
 instance RenderMessage Core FormMessage where
     renderMessage _ _ = defaultFormMessage
+
+-- Maybe place this in the LambdaCmsAdmin class if thats possible
+lambdaCoreLayout :: forall master.
+                    LambdaCmsAdmin master
+                    => WidgetT master IO ()
+                    -> HandlerT Core (HandlerT master IO) Html
+lambdaCoreLayout widget = do
+  toParent <- getRouteToParent
+  curR <- lift getCurrentRoute
+  lift $ adminLayout $ do
+    $(whamletFile "templates/adminmenu.hamlet")
+    widget

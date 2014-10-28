@@ -74,15 +74,15 @@ passwordConfirmField = Field
     }
 
 getUserAdminR = do
-    (users :: [Entity User]) <- lift $ runDB $ selectList [] []
     toParent <- getRouteToParent
-    lift $ adminLayout $(whamletFile "templates/user/index.hamlet")
+    (users :: [Entity User]) <- lift $ runDB $ selectList [] []
+    lambdaCoreLayout $(whamletFile "templates/user/index.hamlet")
 
 getUserAdminNewR = do
+    toParent <- getRouteToParent
     eu <- liftIO emptyUser
     (formWidget, enctype) <- lift . generateFormPost . userForm $ eu
-    toParent <- getRouteToParent
-    lift $ adminLayout $(whamletFile "templates/user/new.hamlet")
+    lambdaCoreLayout $(whamletFile "templates/user/new.hamlet")
 
 postUserAdminNewR = do
     eu <- liftIO emptyUser
@@ -97,15 +97,15 @@ postUserAdminNewR = do
         redirectUltDest UserAdminNewR
 
 getUserAdminDetailR userId = do
-    user <- lift . runDB $ get404 userId
     toParent <- getRouteToParent
-    lift $ adminLayout $(whamletFile "templates/user/show.hamlet")
+    user <- lift . runDB $ get404 userId
+    lambdaCoreLayout $(whamletFile "templates/user/show.hamlet")
 
 getUserAdminEditR userId = do
-    user <- lift $ runDB $ get404 userId
     toParent <- getRouteToParent
+    user <- lift $ runDB $ get404 userId
     (formWidget, enctype) <- lift . generateFormPost . userForm $ user
-    lift $ adminLayout $(whamletFile "templates/user/edit.hamlet")
+    lambdaCoreLayout $(whamletFile "templates/user/edit.hamlet")
 
 postUserAdminEditR userId = do
     eu <- liftIO emptyUser
@@ -123,7 +123,7 @@ postUserAdminEditR userId = do
           redirectUltDest $ UserAdminDetailR userId
 
 postUserAdminDeleteR userId = do
-    lift $ adminLayout [whamlet|temp|] -- $(whamletFile "templates/user/show.hamlet")
+    lambdaCoreLayout [whamlet|temp|] -- $(whamletFile "templates/user/show.hamlet")
   -- _ <- runDB $ get404 userId
   -- runDB $ delete userId
   -- setMessage . toHtml $ DT.concat ["Deleted User with id: ", toPathPiece userId]
