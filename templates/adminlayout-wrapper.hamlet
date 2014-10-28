@@ -1,0 +1,9 @@
+$newline never
+$doctype 5
+<html>
+    <head>
+        <title>#{pageTitle p} :: Admin
+        <meta charset=utf-8>
+        ^{pageHead p}
+    <body>
+        ^{pageBody p}

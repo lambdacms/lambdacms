@@ -30,20 +30,20 @@ class ( Yesod master
        -- | Applies some form of layout to the contents of an admin section page.
     adminLayout :: WidgetT master IO () -> HandlerT master IO Html
     adminLayout widget = do
-        p <- widgetToPageContent $ do
-            widget
-            toWidget $(luciusFile "templates/adminlayout.lucius")
-            toWidget $(juliusFile "templates/admin.julius")
         mmsg <- getMessage
         user <- getUserName
-        withUrlRenderer $(hamletFile "templates/adminlayout.hamlet")
+        p <- widgetToPageContent $ do
+            $(whamletFile "templates/adminlayout.hamlet")
+            toWidget $(luciusFile "templates/adminlayout.lucius")
+            toWidget $(juliusFile "templates/adminlayout.julius")
+        withUrlRenderer $(hamletFile "templates/adminlayout-wrapper.hamlet")
 
     defaultLambdaCmsAdminAuthLayout :: WidgetT master IO () -> HandlerT master IO Html
     defaultLambdaCmsAdminAuthLayout widget = do
         p <- widgetToPageContent $ do
             widget
             toWidget $(luciusFile "templates/adminauthlayout.lucius")
-            toWidget $(juliusFile "templates/adminauth.julius")
+            toWidget $(juliusFile "templates/adminauthlayout.julius")
         mmsg <- getMessage
         withUrlRenderer $(hamletFile "templates/adminauthlayout.hamlet")
 
@@ -72,6 +72,11 @@ type CoreHandler a = forall master.
     , YesodPersistBackend master ~ SqlBackend
     ) => HandlerT Core (HandlerT master IO) a
 
+type CoreWidget = forall master.
+    ( LambdaCmsAdmin master
+    , PersistQuery (YesodPersistBackend master)
+    , YesodPersistBackend master ~ SqlBackend
+    ) => WidgetT master IO ()
 
 type Form x = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT master IO) (FormResult x, WidgetT master IO ())
 
@@ -81,5 +86,10 @@ type Form x = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT ma
 instance RenderMessage Core FormMessage where
     renderMessage _ _ = defaultFormMessage
 
-lambdaAdminMenuWidget :: LambdaCmsAdmin master => (Route Core -> Route master) -> WidgetT master IO ()
-lambdaAdminMenuWidget toParent = $(whamletFile "templates/adminmenu.hamlet")
+-- Maybe place this in the LambdaCmsAdmin class if thats possible
+lambdaCoreLayout :: CoreWidget -> CoreHandler Html
+lambdaCoreLayout widget = do
+  toParent <- getRouteToParent
+  lift $ adminLayout $ do
+    $(whamletFile "templates/adminmenu.hamlet")
+    widget

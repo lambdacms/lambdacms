@@ -29,26 +29,24 @@ getUserAdminEditR    :: UserId -> CoreHandler Html
 postUserAdminEditR   :: UserId -> CoreHandler Html
 postUserAdminDeleteR :: UserId -> CoreHandler Html
 
+-- getUserAdminR = do
+--     (allUsers :: [Entity User]) <- lift $ runDB $ selectList [] []
+--     let a = show allUsers
+--     toParent <- getRouteToParent
+--     lift $ adminLayout $ do
+--       lambdaAdminMenuWidget toParent
+--       $(whamletFile "templates/user/index.hamlet")
 getUserAdminR = do
-    (allUsers :: [Entity User]) <- lift $ runDB $ selectList [] []
-    let a = show allUsers
-    toParent <- getRouteToParent
-    lift $ adminLayout $ do
-      lambdaAdminMenuWidget toParent
-      $(whamletFile "templates/user/index.hamlet")
+  (allUsers :: [Entity User]) <- lift $ runDB $ selectList [] []
+  let a = show allUsers
+  lambdaCoreLayout $(whamletFile "templates/user/index.hamlet")
 
 getUserAdminNewR = do
   -- (formWidget, enctype) <- generateFormPost $ userForm Nothing
-    toParent <- getRouteToParent
-    lift $ adminLayout $ do
-      lambdaAdminMenuWidget toParent
-      $(whamletFile "templates/user/new.hamlet")
+  lambdaCoreLayout $(whamletFile "templates/user/new.hamlet")
 
 postUserAdminNewR = do
-    toParent <- getRouteToParent
-    lift $ adminLayout $ do
-      lambdaAdminMenuWidget toParent
-      $(whamletFile "templates/user/show.hamlet")
+  lambdaCoreLayout $(whamletFile "templates/user/show.hamlet")
   -- ((formResult, _), _) <- runFormPost $ userForm Nothing
   -- case formResult of
   --   FormSuccess user -> do
@@ -60,27 +58,18 @@ postUserAdminNewR = do
   --     redirectUltDest UserAdminNewR
 
 getUserAdminDetailR userId = do
-    toParent <- getRouteToParent
-    lift $ adminLayout $ do
-      lambdaAdminMenuWidget toParent
-      $(whamletFile "templates/user/show.hamlet")
+  lambdaCoreLayout $(whamletFile "templates/user/show.hamlet")
   -- user <- runDB $ get404 userId
-  -- adminLayout $(widgetFile "user/show")
+  -- layout $(widgetFile "user/s
 
 getUserAdminEditR userId = do
-    toParent <- getRouteToParent
-    lift $ adminLayout $ do
-      lambdaAdminMenuWidget toParent
-      $(whamletFile "templates/user/edit.hamlet")
+  lambdaCoreLayout $(whamletFile "templates/user/edit.hamlet")
   -- user <- runDB $ get404 userId
   -- (formWidget, enctype) <- generateFormPost $ userForm (Just user)
-  -- adminLayout $(widgetFile "user/edit")
+  -- layout $(widgetFile "user/e
 
 postUserAdminEditR userId = do
-    toParent <- getRouteToParent
-    lift $ adminLayout $ do
-      lambdaAdminMenuWidget toParent
-      $(whamletFile "templates/user/show.hamlet")
+  lambdaCoreLayout $(whamletFile "templates/user/show.hamlet")
   -- ((formResult, _), _) <- runFormPost $ userForm Nothing
   -- case formResult of
   --   FormSuccess user -> do
@@ -90,10 +79,7 @@ postUserAdminEditR userId = do
   -- redirectUltDest $ UserAdminDetailR userId
 
 postUserAdminDeleteR userId = do
-    toParent <- getRouteToParent
-    lift $ adminLayout $ do
-      lambdaAdminMenuWidget toParent
-      $(whamletFile "templates/user/show.hamlet")
+  lambdaCoreLayout $(whamletFile "templates/user/show.hamlet")
   -- _ <- runDB $ get404 userId
   -- runDB $ delete userId
   -- setMessage . toHtml $ DT.concat ["Deleted User with id: ", toPathPiece userId]

@@ -1,15 +1,7 @@
-$newline never
-$doctype 5
-<html>
-    <head>
-        <title>#{pageTitle p} :: Admin
-        <meta charset=utf-8>
-        ^{pageHead p}
-    <body>
-        <header>
-        <main>
-            <p>#{user}
-                $maybe msg <- mmsg
-                    <p .message>#{msg}
-            <h1>Admin section
-            ^{pageBody p}
+<header>
+  <p>#{user}
+    $maybe msg <- mmsg
+      <p .message>#{msg}
+  <h1>Admin section
+<main>
+  ^{widget}
