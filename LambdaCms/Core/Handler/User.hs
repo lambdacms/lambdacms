@@ -15,13 +15,12 @@ module LambdaCms.Core.Handler.User
   , getUserAdminDetailR
   , getUserAdminEditR
   , postUserAdminEditR
-  , postUserAdminDeleteR
+  , deleteUserAdminDeleteR
   ) where
 
 import LambdaCms.Core.Import
-import LambdaCms.Core.Routes
 import LambdaCms.Core.AuthHelper
-import qualified Data.Text as T (breakOn)
+import qualified Data.Text as T (breakOn, concat)
 
 getUserAdminR        :: CoreHandler Html
 getUserAdminNewR     :: CoreHandler Html
@@ -29,7 +28,7 @@ postUserAdminNewR    :: CoreHandler Html
 getUserAdminDetailR  :: UserId -> CoreHandler Html
 getUserAdminEditR    :: UserId -> CoreHandler Html
 postUserAdminEditR   :: UserId -> CoreHandler Html
-postUserAdminDeleteR :: UserId -> CoreHandler Html
+deleteUserAdminDeleteR :: UserId -> CoreHandler Html
 
 userForm :: User -> Form User
 userForm u = renderDivs $ User
@@ -122,9 +121,8 @@ postUserAdminEditR userId = do
         FormMissing -> do
           redirectUltDest $ UserAdminDetailR userId
 
-postUserAdminDeleteR userId = do
-    lambdaCoreLayout [whamlet|temp|] -- $(whamletFile "templates/user/show.hamlet")
-  -- _ <- runDB $ get404 userId
-  -- runDB $ delete userId
-  -- setMessage . toHtml $ DT.concat ["Deleted User with id: ", toPathPiece userId]
-  -- redirectUltDest UserAdminR
+deleteUserAdminDeleteR userId = do
+  _ <- lift . runDB $ get404 userId
+  lift . runDB $ delete userId
+  setMessage . toHtml $ T.concat ["Deleted User with id: ", toPathPiece userId]
+  redirectUltDest UserAdminR

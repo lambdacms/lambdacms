@@ -3,4 +3,7 @@ Welcome to the admin's user section!
 <form method=post action=@{toParent $ UserAdminEditR userId} enctype=#{enctype}>
       ^{formWidget}
       <input type="submit">
-        
+
+<form method=post action=@{toParent $ UserAdminDeleteR userId}>
+  <input name="_method" type="hidden" value="DELETE" />
+  <input type="submit" value="delete account" />
