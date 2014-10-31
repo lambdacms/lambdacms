@@ -117,4 +117,4 @@ deleteUserAdminR userId = do
   _ <- lift . runDB $ get404 userId
   lift . runDB $ delete userId
   setMessage . toHtml $ T.concat ["Deleted User with id: ", toPathPiece userId]
-  redirectUltDest UserAdminR
+  redirectUltDest UserAdminOverviewR
