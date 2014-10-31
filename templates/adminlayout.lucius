@@ -9,3 +9,7 @@ body {
 .display-inline {
   display: inline;
 }
+
+.alert-top {
+  margin-bottom: -15px;
+}
