@@ -9,13 +9,12 @@
 {-# LANGUAGE FlexibleContexts    #-}
 
 module LambdaCms.Core.Handler.User
-  ( getUserAdminR
+  ( getUserAdminOverviewR
   , getUserAdminNewR
   , postUserAdminNewR
-  , getUserAdminDetailR
-  , getUserAdminEditR
-  , postUserAdminEditR
-  , postUserAdminDeleteR
+  , getUserAdminR
+  , postUserAdminR
+  , deleteUserAdminR
   ) where
 
 import LambdaCms.Core.Import
@@ -23,20 +22,19 @@ import LambdaCms.Core.Routes
 import LambdaCms.Core.AuthHelper
 import qualified Data.Text as T (breakOn)
 
-getUserAdminR        :: CoreHandler Html
-getUserAdminNewR     :: CoreHandler Html
-postUserAdminNewR    :: CoreHandler Html
-getUserAdminDetailR  :: UserId -> CoreHandler Html
-getUserAdminEditR    :: UserId -> CoreHandler Html
-postUserAdminEditR   :: UserId -> CoreHandler Html
-postUserAdminDeleteR :: UserId -> CoreHandler Html
+getUserAdminOverviewR :: CoreHandler Html
+getUserAdminNewR      :: CoreHandler Html
+postUserAdminNewR     :: CoreHandler Html
+getUserAdminR         :: UserId -> CoreHandler Html
+postUserAdminR        :: UserId -> CoreHandler Html
+deleteUserAdminR      :: UserId -> CoreHandler Html
 
 userForm :: User -> Form User
-userForm u = renderDivs $ User
+userForm u = renderBootstrap3 BootstrapBasicForm $ User
              <$> pure (userIdent u) -- areq textField "Ident" (Just $ userIdent u)
-             <*> areq textField "Name"         (Just $ userName     u)
-             <*> areq passwordConfirmField "Password" Nothing
-             <*> areq textField "Email"        (Just $ userEmail    u)
+             <*> areq textField (bfs' "username") (Just $ userName     u)
+             <*> pure (userPassword u)--passwordConfirmField "Password" Nothing
+             <*> areq textField (bfs' "email address") (Just $ userEmail    u)
              <*> pure (userToken u) -- aopt textField "Token" (Just $ userToken    u)
 
 -- | Helper to create a user with email address
@@ -73,7 +71,7 @@ passwordConfirmField = Field
     , fieldEnctype = UrlEncoded
     }
 
-getUserAdminR = do
+getUserAdminOverviewR = do
     toParent <- getRouteToParent
     (users :: [Entity User]) <- lift $ runDB $ selectList [] []
     lambdaCoreLayout $(whamletFile "templates/user/index.hamlet")
@@ -91,38 +89,32 @@ postUserAdminNewR = do
       FormSuccess user -> do
         userId <- lift $ runDB $ insert user
         setMessage "successfully added"
-        redirectUltDest $ UserAdminDetailR userId
+        redirectUltDest $ UserAdminR userId
       _ -> do
         setMessage "form error"
         redirectUltDest UserAdminNewR
 
-getUserAdminDetailR userId = do
-    toParent <- getRouteToParent
-    user <- lift . runDB $ get404 userId
-    lambdaCoreLayout $(whamletFile "templates/user/show.hamlet")
-
-getUserAdminEditR userId = do
+getUserAdminR userId = do
     toParent <- getRouteToParent
     user <- lift $ runDB $ get404 userId
     (formWidget, enctype) <- lift . generateFormPost . userForm $ user
     lambdaCoreLayout $(whamletFile "templates/user/edit.hamlet")
 
-postUserAdminEditR userId = do
+postUserAdminR userId = do
     eu <- liftIO emptyUser
     ((formResult, _), _) <- lift . runFormPost . userForm $ eu
     case formResult of
         FormSuccess user -> do
           _ <- lift $ runDB $ replace userId user
           setMessage "successfully replaced"
-          lift $ adminLayout [whamlet|#{show user}|]
-          -- redirect UserAdminR
+          redirect $ UserAdminR userId
         FormFailure f -> do
           setMessage (toHtml $ show f) -- "form error"
-          redirectUltDest $ UserAdminDetailR userId
+          redirectUltDest $ UserAdminR userId
         FormMissing -> do
-          redirectUltDest $ UserAdminDetailR userId
+          redirectUltDest $ UserAdminR userId
 
-postUserAdminDeleteR userId = do
+deleteUserAdminR userId = do
     lambdaCoreLayout [whamlet|temp|] -- $(whamletFile "templates/user/show.hamlet")
   -- _ <- runDB $ get404 userId
   -- runDB $ delete userId

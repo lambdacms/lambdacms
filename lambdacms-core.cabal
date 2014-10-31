@@ -35,6 +35,7 @@ library
                   , LambdaCms.Core.AuthHelper
   build-depends:    base
                   , yesod
+                  , yesod-form
                   , persistent
                   , text
                   , shakespeare

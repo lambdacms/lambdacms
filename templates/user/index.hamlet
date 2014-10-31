@@ -1,11 +1,39 @@
-$if null users
-    <p>There are no entries.
-$else
-    <table>
-        $forall (Entity userId user) <- users
+<div .page-header>
+  <h1>User Overview
+<div .row>
+  <div .col-xs-12>
+    <a .btn .btn-primary href=@{toParent AdminHomeR}>
+      <span .glyphicon .glyphicon-arrow-left>
+      Back
+    <a .btn .btn-primary href=@{toParent UserAdminNewR}>
+      <span .glyphicon .glyphicon-plus>
+      Add User
+<div .row>
+  <div .col-xs-12>
+    <h2>Users
+    $if null users
+      <p .bg-info>No users found.
+    $else
+      <div .table-responsive>
+        <table .table .table-striped .table-hover>
+          <thead>
             <tr>
+              <th>username
+              <th>email address
+              <th>activation token
+              <th>actions
+          <tbody>
+            $forall (Entity userId user) <- users
+              <tr>
                 <td>
-                  <a href=@{toParent $ UserAdminDetailR userId}>
-                    #{userIdent user}
-                <td>#{userName user}
+                  <a href=@{toParent $ UserAdminR userId}> #{userName user}
                 <td>#{userEmail user}
+                <td>
+                  $maybe token <- userToken user
+                    #{token}
+                  $nothing
+                    -
+                <td>
+                  <form .form-inline method=post action=@{toParent $ UserAdminR userId}>
+                    <input name="_method" type="hidden" value="DELETE" />
+                    <input .btn .btn-danger .btn-xs type=submit value=remove />

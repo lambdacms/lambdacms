@@ -1,7 +1,7 @@
-<header>
-  <h1>Admin section
-  <p>#{user}
-<main>
-  $maybe msg <- mmsg
-    <p .message>#{msg}
-  ^{widget}
+<header .navbar .navbar-inverse .navbar-fixed-top>
+  <div .container-fluid>
+    <div .navbar-header>
+      <a .navbar-brand href="#">LambdaCms
+    <div .collapse .navbar-collapse>
+      <p .navbar-text .navbar-right>Signed in as #{user}
+^{widget}

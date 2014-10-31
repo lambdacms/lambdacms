@@ -1,4 +1,11 @@
-html, body {
-     margin:  0;
-     padding: 0;
+body {
+  padding-top: 70px;
+}
+
+.navbar-fixed-top {
+  padding-right: 15px;
+}
+
+.display-inline {
+  display: inline;
 }

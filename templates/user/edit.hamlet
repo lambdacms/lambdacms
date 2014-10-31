@@ -1,6 +1,21 @@
-Welcome to the admin's user section!
-
-<form method=post action=@{toParent $ UserAdminEditR userId} enctype=#{enctype}>
+<div .page-header>
+  <h1>Edit User: #{userName user}
+<div .row>
+  <div .col-xs-12>
+    <a .btn .btn-primary href=@{toParent UserAdminOverviewR}>
+      <span .glyphicon .glyphicon-arrow-left>
+      Back
+    <a .btn .btn-primary href=@{toParent UserAdminNewR}>
+      <span .glyphicon .glyphicon-plus>
+      Add User
+    <form .form-inline .display-inline method=post action=@{toParent $ UserAdminR userId}>
+      <input name="_method" type="hidden" value="DELETE" />
+      <button .btn .btn-danger type=submit>
+        <span .glyphicon .glyphicon-remove>
+        Remove
+<div .row>
+  <div .col-sm-10 .col-md-7 .col-lg-4>
+    <h2>Primary Fields
+    <form role=form method=post action=@{toParent $ UserAdminR userId} enctype=#{enctype}>
       ^{formWidget}
-      <input type="submit">
-        
+      <input .btn .btn-success type=submit value=Save>

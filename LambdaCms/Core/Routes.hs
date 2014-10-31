@@ -16,10 +16,8 @@ import LambdaCms.Core.Models
 data Core = Core
 
 mkYesodSubData "Core" [parseRoutes|
-/                     AdminHomeR        GET
-/users                UserAdminR        GET
-/users/new            UserAdminNewR     GET POST
-/user/#UserId         UserAdminDetailR  GET
-/user/#UserId/edit    UserAdminEditR    GET POST
-/user/#UserId/delete  UserAdminDeleteR  POST
+/                     AdminHomeR            GET
+/users                UserAdminOverviewR    GET
+/user/new             UserAdminNewR         GET POST
+!/user/#UserId        UserAdminR            GET POST DELETE
 |]

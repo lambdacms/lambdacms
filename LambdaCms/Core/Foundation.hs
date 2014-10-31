@@ -10,6 +10,7 @@
 module LambdaCms.Core.Foundation where
 
 import           Yesod
+import           Yesod.Form.Bootstrap3
 import           Database.Persist.Sql (SqlBackend)
 import           Data.Text (Text)
 import           Text.Hamlet (hamletFile)
@@ -31,7 +32,6 @@ class ( Yesod master
        -- | Applies some form of layout to the contents of an admin section page.
     adminLayout :: WidgetT master IO () -> HandlerT master IO Html
     adminLayout widget = do
-        mmsg <- getMessage
         user <- getUserName
         p <- widgetToPageContent $ do
             $(whamletFile "templates/adminlayout.hamlet")
@@ -88,6 +88,10 @@ type Form x = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT ma
 instance RenderMessage Core FormMessage where
     renderMessage _ _ = defaultFormMessage
 
+-- Fix for bfs (Bootstrap3 Field Settings)
+bfs' :: Text -> FieldSettings master
+bfs' = bfs . toMessage
+
 -- Maybe place this in the LambdaCmsAdmin class if thats possible
 lambdaCoreLayout :: forall master.
                     LambdaCmsAdmin master
@@ -96,6 +100,9 @@ lambdaCoreLayout :: forall master.
 lambdaCoreLayout widget = do
   toParent <- getRouteToParent
   curR <- lift getCurrentRoute
+  mmsg <- getMessage
   lift $ adminLayout $ do
-    $(whamletFile "templates/adminmenu.hamlet")
-    widget
+    addScriptRemote "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
+    addScriptRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/js/bootstrap.min.js"
+    addStylesheetRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap.min.css"
+    $(whamletFile "templates/lambdacorelayout.hamlet")

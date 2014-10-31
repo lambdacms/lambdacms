@@ -4,11 +4,8 @@ $doctype 5
   <head>
     <title>#{pageTitle p} :: Admin
     <meta charset=utf-8>
-    $# change this to include stylesheet from code
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel=stylesheet>
+    <meta http-equiv=X-UA-Compatible content="IE=edge">
+    <meta name=viewport content="width=device-width, initial-scale=1">
     ^{pageHead p}
   <body>
     ^{pageBody p}
-    $# change this to include scripts from code
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js">

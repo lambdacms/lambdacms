@@ -1,9 +1,0 @@
-<nav .admin-main-menu>
-  <ul>
-    <li>
-      <a href=@{toParent AdminHomeR} :Just (toParent AdminHomeR) == curR:.active>Dashboard
-    <li>
-      <a href=@{toParent UserAdminR} :Just (toParent UserAdminR) == curR:.active>Users
-      <ul .sub-menu>
-        <li>
-          <a href=@{toParent UserAdminNewR} :Just (toParent UserAdminNewR) == curR:.active>New User
