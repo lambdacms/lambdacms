@@ -18,9 +18,8 @@ module LambdaCms.Core.Handler.User
   ) where
 
 import LambdaCms.Core.Import
-import LambdaCms.Core.Routes
 import LambdaCms.Core.AuthHelper
-import qualified Data.Text as T (breakOn)
+import qualified Data.Text as T (breakOn, concat)
 
 getUserAdminOverviewR :: CoreHandler Html
 getUserAdminNewR      :: CoreHandler Html
@@ -115,8 +114,7 @@ postUserAdminR userId = do
           redirectUltDest $ UserAdminR userId
 
 deleteUserAdminR userId = do
-    lambdaCoreLayout [whamlet|temp|] -- $(whamletFile "templates/user/show.hamlet")
-  -- _ <- runDB $ get404 userId
-  -- runDB $ delete userId
-  -- setMessage . toHtml $ DT.concat ["Deleted User with id: ", toPathPiece userId]
-  -- redirectUltDest UserAdminR
+  _ <- lift . runDB $ get404 userId
+  lift . runDB $ delete userId
+  setMessage . toHtml $ T.concat ["Deleted User with id: ", toPathPiece userId]
+  redirectUltDest UserAdminR
