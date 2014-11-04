@@ -13,6 +13,7 @@ import           Yesod
 import           Yesod.Form.Bootstrap3
 import           Database.Persist.Sql (SqlBackend)
 import           Data.Text (Text)
+import           Data.Maybe (fromMaybe)
 import           Text.Hamlet (hamletFile)
 import           Text.Lucius (luciusFile)
 import           Text.Julius (juliusFile)
@@ -91,6 +92,14 @@ instance RenderMessage Core FormMessage where
 -- Fix for bfs (Bootstrap3 Field Settings)
 bfs' :: Text -> FieldSettings master
 bfs' = bfs . toMessage
+
+-- Wrapper around BootstrapSubmit
+bss :: Maybe Text -> BootstrapSubmit Text
+bss submit = (BootstrapSubmit (fromMaybe "Submit" submit) " btn-success " [])
+
+-- Extension for bootstrap (give a name to input field)
+withName :: Text -> FieldSettings site -> FieldSettings site
+withName name fs = fs { fsName = Just name }
 
 -- Maybe place this in the LambdaCmsAdmin class if thats possible
 lambdaCoreLayout :: forall master.

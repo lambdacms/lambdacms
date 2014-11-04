@@ -10,4 +10,3 @@
     <h2>Primary Fields
     <form method=post action=@{toParent $ UserAdminNewR} enctype=#{enctype}>
       ^{formWidget}
-      <input .btn .btn-success type=submit value=Create>

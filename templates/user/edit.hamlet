@@ -18,4 +18,8 @@
     <h2>Primary Fields
     <form role=form method=post action=@{toParent $ UserAdminR userId} enctype=#{enctype}>
       ^{formWidget}
-      <input .btn .btn-success type=submit value=Save>
+<div .row>
+  <div .col-sm-10 .col-md-7 .col-lg-4>
+    <h2>Change Password
+    <form role=form method=post action=@{toParent $ UserAdminChangePasswordR userId} enctype=#{pwEnctype}>
+      ^{pwFormWidget}
