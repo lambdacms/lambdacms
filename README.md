@@ -159,6 +159,16 @@ Further steps to add:
 * Test
 
 
+## Other Packages
+Not every package is included in the stackage. One of these packages is
+[friendly-time](https://github.com/pbrisbin/friendly-time) (see also the [hackage](http://hackage.haskell.org/package/friendly-time) page).
+
+Clone the repo, cd into it and simply run `cabal install`.
+
+Listing of other packages:
+
+* friendly-time
+
 # Links of interest
 
 Obviously the [Yesod book](http://www.yesodweb.com/book) is a must read,

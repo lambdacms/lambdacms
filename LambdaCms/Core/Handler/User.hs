@@ -22,6 +22,8 @@ import LambdaCms.Core.Import
 import LambdaCms.Core.AuthHelper
 import qualified Data.Text as T (breakOn, concat, length)
 import Data.Maybe (fromMaybe)
+import Data.Time.Clock
+import Data.Time.Format.Human
 
 -- data type for a form to change a user's password
 data ComparePassword = ComparePassword { originalPassword :: Text
@@ -38,18 +40,20 @@ deleteUserAdminR             :: UserId -> CoreHandler Html
 
 userForm :: User -> Maybe Text -> Form User
 userForm u submit = renderBootstrap3 BootstrapBasicForm $ User
-             <$> pure (userIdent u)
-             <*> areq textField (bfs' "username") (Just $ userName u)
-             <*> pure (userPassword u)
-             <*> areq emailField (bfs' "email address") (Just $ userEmail u)
-             <*> pure (userToken u)
+             <$> pure            (userIdent u)
+             <*> areq textField  (bfs' "username")        (Just $ userName u)
+             <*> pure            (userPassword u)
+             <*> areq emailField (bfs' "email address")   (Just $ userEmail u)
+             <*> pure            (userToken u)
+             <*> pure            (userCreatedAt u)
+             <*> pure            (userLastLogin u)
              <*  bootstrapSubmit (bss submit)
 
 userChangePasswordForm :: Maybe Text -> Maybe Text -> Form ComparePassword
 userChangePasswordForm original submit = renderBootstrap3 BootstrapBasicForm $ ComparePassword
-  <$> areq validatePasswordField (withName "original-pw" $ bfs' "password") Nothing --(originalPassword <$> u)
-  <*> areq comparePasswordField (bfs' "confirm") Nothing -- (confirmPassword <$> u)
-  <*  bootstrapSubmit (bss submit)
+  <$> areq validatePasswordField (withName "original-pw" $ bfs' "password") Nothing
+  <*> areq comparePasswordField  (bfs' "confirm") Nothing
+  <*  bootstrapSubmit            (bss submit)
   where
     validatePasswordField = check validatePassword passwordField
     comparePasswordField = check comparePasswords passwordField
@@ -67,11 +71,14 @@ userChangePasswordForm original submit = renderBootstrap3 BootstrapBasicForm $ C
 generateUserWithEmail :: Text -> IO User
 generateUserWithEmail e = do
   uuid <- generateUUID
-  return $ User { userIdent = uuid
-                , userName = fst $ T.breakOn "@" e
-                , userPassword = Nothing
-                , userEmail = e
-                , userToken = Nothing
+  timeNow <- getCurrentTime
+  return $ User { userIdent     = uuid
+                , userName      = fst $ T.breakOn "@" e
+                , userPassword  = Nothing
+                , userEmail     = e
+                , userToken     = Nothing
+                , userCreatedAt = timeNow
+                , userLastLogin = timeNow
                 }
 
 -- | Helper to create an empty user
@@ -80,6 +87,7 @@ emptyUser = generateUserWithEmail ""
 
 getUserAdminOverviewR = do
     toParent <- getRouteToParent
+    timeNow <- liftIO getCurrentTime
     (users :: [Entity User]) <- lift $ runDB $ selectList [] []
     lambdaCoreLayout $(whamletFile "templates/user/index.hamlet")
 

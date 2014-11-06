@@ -14,6 +14,7 @@ module LambdaCms.Core.Models where
 import Yesod
 import Data.Text (Text)
 --import Database.Persist.Quasi
+import Data.Time.Clock
 import Data.Typeable (Typeable)
 import Prelude
 
@@ -24,6 +25,8 @@ User
     password Text Maybe
     email Text
     token Text Maybe
+    createdAt UTCTime
+    lastLogin UTCTime
     UniqueUser ident
     UniqueName name
     UniqueEmail email
