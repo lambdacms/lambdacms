@@ -13,3 +13,15 @@ body {
 .alert-top {
   margin-bottom: -15px;
 }
+
+.table-hover tbody tr:hover {
+  cursor: pointer;
+}
+
+.table-hover tbody tr:hover a {
+  text-decoration: underline;
+}
+
+.button-toolbar {
+  padding-bottom: 17px;
+}
