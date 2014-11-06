@@ -17,6 +17,12 @@
             $#     <a href=@{toParent UserAdminOverviewR}>Overview
             $#   <li :Just (toParent UserAdminNewR) == curR:.active>
             $#     <a href=@{toParent UserAdminNewR}>New User
+          $forall le <- exts
+            $maybe (label, route) <- extensionMenuItem le
+              <li role=presentation :Just route == curR:.active>
+                <a href=@{route}>
+                  <span .glyphicon .glyphicon-pushpin>
+                  #{label}
     <main .col-sm-8 .col-md-9 .col-lg-10>
       $# <ol .breadcrumb>
       $#   <li :Just (toParent AdminHomeR) == curR:.active>

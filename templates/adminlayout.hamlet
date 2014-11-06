@@ -1,7 +1,9 @@
 <header .navbar .navbar-inverse .navbar-fixed-top>
   <div .container-fluid>
     <div .navbar-header>
-      <a .navbar-brand href="#">LambdaCms
+      <a .navbar-brand href=@{masterHomeRoute y}>LambdaCms
     <div .collapse .navbar-collapse>
-      <p .navbar-text .navbar-right>Signed in as #{user}
+      <p .navbar-text .navbar-right>
+        Signed in as #{user}
+        <a .btn .btn-danger .btn-xs href=@{authLogoutRoute y}>Logout
 ^{widget}
