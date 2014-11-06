@@ -1,0 +1,43 @@
+name:               lambdacms-media
+version:            0.0.0
+license:            MIT
+license-file:       LICENSE
+author:             Mats Rietdijk
+maintainer:         mats@AT-hoppinger.com
+copyright:          (c) 2014 Hoppinger
+bug-reports:        https://github.com/lambdacms/lambdacms-media
+homepage:           http://lambdacms.org/media
+synopsis:           LambdaCms Media
+description:        Content Management System (CMS) Media Extension
+stability:          alpha
+category:           web
+build-type:         Simple
+cabal-version:      >= 1.18
+tested-with:        GHC >= 7.6
+extra-source-files: README.md
+
+source-repository head
+  type:             git
+  location:         git://github.com/lambdacms/lambdacms-media.git
+
+library
+  default-language: Haskell2010
+
+  exposed-modules:  LambdaCms.Media
+
+  other-modules:    LambdaCms.Media.Foundation
+                  , LambdaCms.Media.Models
+                  , LambdaCms.Media.Routes
+                  , LambdaCms.Media.Import
+                  , LambdaCms.Media.Handler.Home
+                  , LambdaCms.Media.Handler.MediaFile
+
+  build-depends:    base
+                  , yesod
+                  , yesod-form
+                  , lambdacms-core
+                  , persistent
+                  , text
+                  , shakespeare
+
+  ghc-options:      -Wall -O2
