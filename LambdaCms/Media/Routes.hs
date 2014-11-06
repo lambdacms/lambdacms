@@ -13,7 +13,7 @@ data Media = Media
 
 mkYesodSubData "Media" [parseRoutes|
 /                     MediaHomeR      GET
-/media                MediaOverviewR  GET
-/media/new            MediaNewR       GET POST
-!/media/#MediaFileId  MediaR          GET POST DELETE
+/media                MediaFileOverviewR  GET
+/media/new            MediaFileNewR       GET POST
+!/media/#MediaFileId  MediaFileR          GET POST DELETE
 |]

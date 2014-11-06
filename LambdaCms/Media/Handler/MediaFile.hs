@@ -2,26 +2,26 @@
 {-# LANGUAGE RankNTypes          #-}
 
 module LambdaCms.Media.Handler.MediaFile
-       ( getMediaOverviewR
-       , getMediaNewR
-       , postMediaNewR
-       , getMediaR
-       , postMediaR
-       , deleteMediaR
+       ( getMediaFileOverviewR
+       , getMediaFileNewR
+       , postMediaFileNewR
+       , getMediaFileR
+       , postMediaFileR
+       , deleteMediaFileR
        ) where
 
 import LambdaCms.Media.Import
 
-getMediaOverviewR :: MediaHandler Html
-getMediaNewR      :: MediaHandler Html
-postMediaNewR     :: MediaHandler Html
-getMediaR         :: MediaFileId -> MediaHandler Html
-postMediaR        :: MediaFileId -> MediaHandler Html
-deleteMediaR      :: MediaFileId -> MediaHandler Html
+getMediaFileOverviewR :: MediaHandler Html
+getMediaFileNewR      :: MediaHandler Html
+postMediaFileNewR     :: MediaHandler Html
+getMediaFileR         :: MediaFileId -> MediaHandler Html
+postMediaFileR        :: MediaFileId -> MediaHandler Html
+deleteMediaFileR      :: MediaFileId -> MediaHandler Html
 
-getMediaOverviewR = withUrlRenderer [hamlet|not yet implmented|]
-getMediaNewR = withUrlRenderer [hamlet|not yet implmented|]
-postMediaNewR = withUrlRenderer [hamlet|not yet implmented|]
-getMediaR _ = withUrlRenderer [hamlet|not yet implmented|]
-postMediaR _ = withUrlRenderer [hamlet|not yet implmented|]
-deleteMediaR _ = withUrlRenderer [hamlet|not yet implmented|]
+getMediaFileOverviewR = withUrlRenderer [hamlet|not yet implmented|]
+getMediaFileNewR = withUrlRenderer [hamlet|not yet implmented|]
+postMediaFileNewR = withUrlRenderer [hamlet|not yet implmented|]
+getMediaFileR _ = withUrlRenderer [hamlet|not yet implmented|]
+postMediaFileR _ = withUrlRenderer [hamlet|not yet implmented|]
+deleteMediaFileR _ = withUrlRenderer [hamlet|not yet implmented|]
