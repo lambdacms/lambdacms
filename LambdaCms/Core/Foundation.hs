@@ -6,6 +6,7 @@
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE GADTs                 #-}
 
 module LambdaCms.Core.Foundation where
 
@@ -20,11 +21,13 @@ import           Text.Julius (juliusFile)
 import           LambdaCms.Core.Models
 import           LambdaCms.Core.Routes
 
-
 class ( Yesod master
+      -- , YesodDispatch master
       , RenderRoute master
-      , YesodPersist master
       , RenderMessage master FormMessage
+      , YesodPersist master
+      , YesodPersistBackend master ~ SqlBackend
+      -- , PersistQuery (YesodPersistBackend master)
       ) => LambdaCmsAdmin master where
 
     --runDB :: YesodPersistBackend master (HandlerT master IO) a -> HandlerT master IO a
@@ -32,6 +35,7 @@ class ( Yesod master
        -- | Applies some form of layout to the contents of an admin section page.
     adminLayout :: WidgetT master IO () -> HandlerT master IO Html
     adminLayout widget = do
+        y <- getYesod
         user <- getUserName
         p <- widgetToPageContent $ do
             $(whamletFile "templates/adminlayout.hamlet")
@@ -51,6 +55,8 @@ class ( Yesod master
     maybeAuth' :: HandlerT master IO (Maybe (Entity User))
     maybeAuthId' :: HandlerT master IO (Maybe UserId)
     authLoginDest :: master -> Route master
+    authLogoutRoute :: master -> Route master
+    masterHomeRoute :: master -> Route master
 
     getUserName :: HandlerT master IO Text
     getUserName = do
@@ -67,18 +73,12 @@ class ( Yesod master
         ma <- maybeAuthId'
         return $ maybe False (const True) ma
 
--- Fairly complex "handler" type, allowing persistent queries on the master's db connection, hereby simplified
-type CoreHandler a = forall master.
-    ( LambdaCmsAdmin master
-    , PersistQuery (YesodPersistBackend master)
-    , YesodPersistBackend master ~ SqlBackend
-    ) => HandlerT Core (HandlerT master IO) a
+    lambdaExtensions :: master -> [LambdaCmsExtension master]
 
-type CoreWidget = forall master.
-    ( LambdaCmsAdmin master
-    , PersistQuery (YesodPersistBackend master)
-    , YesodPersistBackend master ~ SqlBackend
-    ) => WidgetT master IO ()
+-- Fairly complex "handler" type, allowing persistent queries on the master's db connection, hereby simplified
+type CoreHandler a = forall master. LambdaCmsAdmin master => HandlerT Core (HandlerT master IO) a
+
+type CoreWidget = forall master. LambdaCmsAdmin master => WidgetT master IO ()
 
 type Form x = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT master IO) (FormResult x, WidgetT master IO ())
 
@@ -98,6 +98,8 @@ lambdaCoreLayout :: forall master.
                     => WidgetT master IO ()
                     -> HandlerT Core (HandlerT master IO) Html
 lambdaCoreLayout widget = do
+  y <- lift getYesod
+  let exts = lambdaExtensions y
   toParent <- getRouteToParent
   curR <- lift getCurrentRoute
   mmsg <- getMessage
@@ -106,3 +108,11 @@ lambdaCoreLayout widget = do
     addScriptRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/js/bootstrap.min.js"
     addStylesheetRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap.min.css"
     $(whamletFile "templates/lambdacorelayout.hamlet")
+
+
+data LambdaCmsExtension master = LambdaCmsExtension
+                                 { extensionName :: Text
+                                 , extensionMenuItem :: Maybe (Text, Route master)
+                                 --, contentTypes
+                                 --, adminComponents
+                                 }
