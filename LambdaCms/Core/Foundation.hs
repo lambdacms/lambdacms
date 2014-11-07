@@ -75,6 +75,7 @@ class ( Yesod master
         return $ maybe False (const True) ma
 
     lambdaExtensions :: master -> [LambdaCmsExtension master]
+    lambdaExtensions _ = [] -- default to empty list to prevent runtime error (500)
 
 -- Fairly complex "handler" type, allowing persistent queries on the master's db connection, hereby simplified
 type CoreHandler a = forall master. LambdaCmsAdmin master => HandlerT Core (HandlerT master IO) a
