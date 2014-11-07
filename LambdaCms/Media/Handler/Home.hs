@@ -8,4 +8,4 @@ module LambdaCms.Media.Handler.Home
 import LambdaCms.Media.Import
 
 getMediaHomeR :: MediaHandler Html
-getMediaHomeR = withUrlRenderer [hamlet|not yet implemented|]
+getMediaHomeR = tryoutLayout [whamlet|not yet implemented|]

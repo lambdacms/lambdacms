@@ -12,6 +12,8 @@ import           Control.Applicative        as Import (pure, (<$>), (<*>), (<*))
 import           Data.Text                  as Import (Text)
 import           Text.Hamlet                as Import (hamletFile)
 
+import           LambdaCms.Core as Import
+
 import           LambdaCms.Media.Foundation  as Import
 import           LambdaCms.Media.Models      as Import
 import           LambdaCms.Media.Routes      as Import

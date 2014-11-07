@@ -19,9 +19,9 @@ getMediaFileR         :: MediaFileId -> MediaHandler Html
 postMediaFileR        :: MediaFileId -> MediaHandler Html
 deleteMediaFileR      :: MediaFileId -> MediaHandler Html
 
-getMediaFileOverviewR = withUrlRenderer [hamlet|not yet implmented|]
-getMediaFileNewR = withUrlRenderer [hamlet|not yet implmented|]
-postMediaFileNewR = withUrlRenderer [hamlet|not yet implmented|]
-getMediaFileR _ = withUrlRenderer [hamlet|not yet implmented|]
-postMediaFileR _ = withUrlRenderer [hamlet|not yet implmented|]
-deleteMediaFileR _ = withUrlRenderer [hamlet|not yet implmented|]
+getMediaFileOverviewR = tryoutLayout [whamlet|not yet implmented|]
+getMediaFileNewR = tryoutLayout [whamlet|not yet implmented|]
+postMediaFileNewR = tryoutLayout [whamlet|not yet implmented|]
+getMediaFileR _ = tryoutLayout [whamlet|not yet implmented|]
+postMediaFileR _ = tryoutLayout [whamlet|not yet implmented|]
+deleteMediaFileR _ = tryoutLayout [whamlet|not yet implmented|]
