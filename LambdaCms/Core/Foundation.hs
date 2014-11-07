@@ -116,3 +116,23 @@ data LambdaCmsExtension master = LambdaCmsExtension
                                  --, contentTypes
                                  --, adminComponents
                                  }
+
+tryoutLayout :: LambdaCmsAdmin parent =>
+                WidgetT child IO () ->
+                HandlerT child (HandlerT parent IO) Html
+tryoutLayout cwidget = do
+  widget <- widgetToParentWidget cwidget
+  lift $ do
+    y  <- getYesod
+    let exts = lambdaExtensions y
+    cr <- getCurrentRoute
+    un <- getUserName
+    mmsg <- getMessage
+    pc <- widgetToPageContent $ do
+      addScriptRemote "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
+      addScriptRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/js/bootstrap.min.js"
+      addStylesheetRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap.min.css"
+      $(whamletFile "templates/tryoutlayout.hamlet")
+      toWidget $(luciusFile "templates/adminlayout.lucius")
+      toWidget $(juliusFile "templates/adminlayout.julius")
+    withUrlRenderer $(hamletFile "templates/tryoutlayout-wrapper.hamlet")

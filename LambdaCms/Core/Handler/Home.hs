@@ -14,12 +14,15 @@ module LambdaCms.Core.Handler.Home
 
 import LambdaCms.Core.Import
 
--- getAdminHomeR :: CoreHandler Html
--- getAdminHomeR = do
---   toParent <- getRouteToParent
---   lift $ adminLayout $ do
---     lambdaAdminMenuWidget toParent
---     $(whamletFile "templates/adminhome.hamlet")
-
 getAdminHomeR :: CoreHandler Html
-getAdminHomeR = lambdaCoreLayout $(whamletFile "templates/adminhome.hamlet")
+-- getAdminHomeR = lambdaCoreLayout $(whamletFile "templates/adminhome.hamlet")
+getAdminHomeR = do
+  tp <- getRouteToParent
+  let route = tp AdminHomeR
+  mcr <- getCurrentRoute
+  tryoutLayout $(whamletFile "templates/adminhome.hamlet")
+  -- tryoutLayout [whamlet|
+  --               $# @{route}
+  --               $maybe cr <- mcr
+  --                 @{cr}
+  --               |]
