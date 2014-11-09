@@ -1,13 +1,10 @@
 <div .page-header>
-  <h1>Edit User: #{userName user}
-<div .row>
+  <h1>#{userName user}
+<div .row .button-toolbar>
   <div .col-xs-12>
     <a .btn .btn-primary href=@{tp UserAdminOverviewR}>
       <span .glyphicon .glyphicon-arrow-left>
       Back
-    <a .btn .btn-primary href=@{tp UserAdminNewR}>
-      <span .glyphicon .glyphicon-plus>
-      Add User
     <form .form-inline .display-inline method=post action=@{tp $ UserAdminR userId}>
       <input name="_method" type="hidden" value="DELETE" />
       <button .btn .btn-danger type=submit>
@@ -15,7 +12,9 @@
         Remove
 <div .row>
   <div .col-sm-10 .col-md-7 .col-lg-4>
-    <h2>Primary Fields
     <form role=form method=post action=@{tp $ UserAdminR userId} enctype=#{enctype}>
       ^{formWidget}
-      <input .btn .btn-success type=submit value=Save>
+<div .row>
+  <div .col-sm-10 .col-md-7 .col-lg-4>
+    <form role=form method=post action=@{tp $ UserAdminChangePasswordR userId} enctype=#{pwEnctype}>
+      ^{pwFormWidget}
