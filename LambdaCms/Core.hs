@@ -18,6 +18,7 @@ module LambdaCms.Core
     -- , authLoginDest
     -- , extensions
     , LambdaCmsExtension (..)
+    , AdminMenuItem (..)
     ) where
 
 import           Database.Persist.Sql (SqlBackend)

@@ -74,6 +74,8 @@ class ( Yesod master
         return $ maybe False (const True) ma
 
     lambdaExtensions :: master -> [LambdaCmsExtension master]
+    adminMenu :: master -> [AdminMenuItem master]
+    adminMenu _ = []
 
 -- Fairly complex "handler" type, allowing persistent queries on the master's db connection, hereby simplified
 type CoreHandler a = forall master. LambdaCmsAdmin master => HandlerT Core (HandlerT master IO) a
@@ -94,17 +96,23 @@ bfs' = bfs . toMessage
 
 data LambdaCmsExtension master = LambdaCmsExtension
                                  { extensionName :: Text
-                                 , extensionMenuItem :: Maybe (Text, Route master)
+                                 , extensionMenuItem :: Maybe (AdminMenuItem master)
                                  --, contentTypes
                                  --, adminComponents
                                  }
+
+data AdminMenuItem master = MenuItem
+                            { label :: Text
+                            , route :: Route master
+                            , icon :: Text -- make this type-safe?
+                            }
 
 lambdaCmsAdminLayout :: LambdaCmsAdmin parent =>
                         WidgetT parent IO () ->
                         HandlerT child (HandlerT parent IO) Html
 lambdaCmsAdminLayout widget = lift $ do
   y  <- getYesod
-  let exts = lambdaExtensions y
+  let mis = adminMenu y
   cr <- getCurrentRoute
   un <- getUserName
   mmsg <- getMessage

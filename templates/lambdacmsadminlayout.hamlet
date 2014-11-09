@@ -9,16 +9,15 @@
 <div .container-fluid>
   <div .row>
     <div .col-sm-4 .col-md-3 .col-lg-2>
-      $if null exts
+      $if null mis
       $else
         <nav .navbar .navbar-inverse role=navigation>
           <ul .nav .nav-pills .nav-stacked role=tablist>
-            $forall ext <- exts
-              $maybe (label, route) <- extensionMenuItem ext
-                <li role=presentation :Just route == cr:.active>
-                  <a href=@{route}>
-                    <span .glyphicon .glyphicon-pushpin>
-                    #{label}
+            $forall mi <- mis
+              <li role=presentation :Just (route mi) == cr:.active>
+                <a href=@{route mi}>
+                  <span .glyphicon .glyphicon-#{icon mi}>
+                  #{label mi}
     <main .col-sm-8 .col-md-9 .col-lg-10>
       $maybe msg <- mmsg
         <div .alert .alert-top .alert-info .alert-dismissible role=alert>
