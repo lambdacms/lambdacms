@@ -92,24 +92,6 @@ instance RenderMessage Core FormMessage where
 bfs' :: Text -> FieldSettings master
 bfs' = bfs . toMessage
 
--- Maybe place this in the LambdaCmsAdmin class if thats possible
-lambdaCoreLayout :: forall master.
-                    LambdaCmsAdmin master
-                    => WidgetT master IO ()
-                    -> HandlerT Core (HandlerT master IO) Html
-lambdaCoreLayout widget = do
-  y <- lift getYesod
-  let exts = lambdaExtensions y
-  toParent <- getRouteToParent
-  curR <- lift getCurrentRoute
-  mmsg <- getMessage
-  lift $ adminLayout $ do
-    addScriptRemote "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
-    addScriptRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/js/bootstrap.min.js"
-    addStylesheetRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap.min.css"
-    $(whamletFile "templates/lambdacorelayout.hamlet")
-
-
 data LambdaCmsExtension master = LambdaCmsExtension
                                  { extensionName :: Text
                                  , extensionMenuItem :: Maybe (Text, Route master)
@@ -117,22 +99,25 @@ data LambdaCmsExtension master = LambdaCmsExtension
                                  --, adminComponents
                                  }
 
-tryoutLayout :: LambdaCmsAdmin parent =>
-                WidgetT child IO () ->
-                HandlerT child (HandlerT parent IO) Html
-tryoutLayout cwidget = do
-  widget <- widgetToParentWidget cwidget
-  lift $ do
-    y  <- getYesod
-    let exts = lambdaExtensions y
-    cr <- getCurrentRoute
-    un <- getUserName
-    mmsg <- getMessage
-    pc <- widgetToPageContent $ do
-      addScriptRemote "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
-      addScriptRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/js/bootstrap.min.js"
-      addStylesheetRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap.min.css"
-      $(whamletFile "templates/tryoutlayout.hamlet")
-      toWidget $(luciusFile "templates/adminlayout.lucius")
-      toWidget $(juliusFile "templates/adminlayout.julius")
-    withUrlRenderer $(hamletFile "templates/tryoutlayout-wrapper.hamlet")
+lambdaCmsAdminLayout :: LambdaCmsAdmin parent =>
+                        WidgetT parent IO () ->
+                        HandlerT child (HandlerT parent IO) Html
+lambdaCmsAdminLayout widget = lift $ do
+  y  <- getYesod
+  let exts = lambdaExtensions y
+  cr <- getCurrentRoute
+  un <- getUserName
+  mmsg <- getMessage
+  pc <- widgetToPageContent $ do
+    addScriptRemote "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
+    addScriptRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/js/bootstrap.min.js"
+    addStylesheetRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap.min.css"
+    $(whamletFile "templates/lambdacmsadminlayout.hamlet")
+    toWidget $(luciusFile "templates/adminlayout.lucius")
+    toWidget $(juliusFile "templates/adminlayout.julius")
+  withUrlRenderer $(hamletFile "templates/lambdacmsadminlayout-wrapper.hamlet")
+
+lambdaCmsAdminLayoutSub :: LambdaCmsAdmin parent =>
+                           WidgetT child IO () ->
+                           HandlerT child (HandlerT parent IO) Html
+lambdaCmsAdminLayoutSub cwidget = widgetToParentWidget cwidget >>= lambdaCmsAdminLayout

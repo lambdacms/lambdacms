@@ -11,8 +11,8 @@
 module LambdaCms.Core
     ( module Export
     , LambdaCmsAdmin (..)
-    , tryoutLayout
-    , lambdaCoreLayout
+    , lambdaCmsAdminLayout
+    , lambdaCmsAdminLayoutSub
     -- , maybeAuth'
     -- , maybeAuthId'
     -- , authLoginDest

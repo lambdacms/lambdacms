@@ -8,5 +8,5 @@
 <p>
   #{userEmail user}
 
-<a href=@{toParent $ UserAdminEditR userId}>
+<a href=@{UserAdminEditR userId}>
   Edit information

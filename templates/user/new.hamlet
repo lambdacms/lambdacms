@@ -2,12 +2,12 @@
   <h1>New User
 <div .row>
   <div .col-xs-12>
-    <a .btn .btn-primary href=@{toParent UserAdminOverviewR}>
+    <a .btn .btn-primary href=@{tp UserAdminOverviewR}>
       <span .glyphicon .glyphicon-arrow-left>
       Back
 <div .row>
   <div .col-sm-10 .col-md-7 .col-lg-4>
     <h2>Primary Fields
-    <form method=post action=@{toParent $ UserAdminNewR} enctype=#{enctype}>
+    <form method=post action=@{tp UserAdminNewR} enctype=#{enctype}>
       ^{formWidget}
       <input .btn .btn-success type=submit value=Create>

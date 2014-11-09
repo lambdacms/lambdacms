@@ -2,10 +2,10 @@
   <h1>User Overview
 <div .row>
   <div .col-xs-12>
-    <a .btn .btn-primary href=@{toParent AdminHomeR}>
+    <a .btn .btn-primary href=@{AdminHomeR}>
       <span .glyphicon .glyphicon-arrow-left>
       Back
-    <a .btn .btn-primary href=@{toParent UserAdminNewR}>
+    <a .btn .btn-primary href=@{UserAdminNewR}>
       <span .glyphicon .glyphicon-plus>
       Add User
 <div .row>
@@ -26,7 +26,7 @@
             $forall (Entity userId user) <- users
               <tr>
                 <td>
-                  <a href=@{toParent $ UserAdminR userId}> #{userName user}
+                  <a href=@{UserAdminR userId}> #{userName user}
                 <td>#{userEmail user}
                 <td>
                   $maybe token <- userToken user
@@ -34,6 +34,6 @@
                   $nothing
                     -
                 <td>
-                  <form .form-inline method=post action=@{toParent $ UserAdminR userId}>
+                  <form .form-inline method=post action=@{UserAdminR userId}>
                     <input name="_method" type="hidden" value="DELETE" />
                     <input .btn .btn-danger .btn-xs type=submit value=remove />

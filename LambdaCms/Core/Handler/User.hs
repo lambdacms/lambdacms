@@ -71,15 +71,14 @@ passwordConfirmField = Field
     }
 
 getUserAdminOverviewR = do
-    toParent <- getRouteToParent
     (users :: [Entity User]) <- lift $ runDB $ selectList [] []
-    lambdaCoreLayout $(whamletFile "templates/user/index.hamlet")
+    lambdaCmsAdminLayoutSub $(whamletFile "templates/user/index.hamlet")
 
 getUserAdminNewR = do
-    toParent <- getRouteToParent
+    tp <- getRouteToParent
     eu <- liftIO emptyUser
     (formWidget, enctype) <- lift . generateFormPost . userForm $ eu
-    lambdaCoreLayout $(whamletFile "templates/user/new.hamlet")
+    lambdaCmsAdminLayout $(whamletFile "templates/user/new.hamlet")
 
 postUserAdminNewR = do
     eu <- liftIO emptyUser
@@ -94,10 +93,10 @@ postUserAdminNewR = do
         redirectUltDest UserAdminNewR
 
 getUserAdminR userId = do
-    toParent <- getRouteToParent
+    tp <- getRouteToParent
     user <- lift $ runDB $ get404 userId
     (formWidget, enctype) <- lift . generateFormPost . userForm $ user
-    lambdaCoreLayout $(whamletFile "templates/user/edit.hamlet")
+    lambdaCmsAdminLayout $(whamletFile "templates/user/edit.hamlet")
 
 postUserAdminR userId = do
     eu <- liftIO emptyUser
