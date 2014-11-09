@@ -13,6 +13,7 @@ module LambdaCms.Core
     , LambdaCmsAdmin (..)
     , lambdaCmsAdminLayout
     , lambdaCmsAdminLayoutSub
+    , defaultCoreAdminMenu
     -- , maybeAuth'
     -- , maybeAuthId'
     -- , authLoginDest

@@ -107,6 +107,10 @@ data AdminMenuItem master = MenuItem
                             , icon :: Text -- make this type-safe?
                             }
 
+defaultCoreAdminMenu :: LambdaCmsAdmin master => (Route Core -> Route master) -> [AdminMenuItem master]
+defaultCoreAdminMenu tp = [MenuItem "Dashboard" (tp AdminHomeR) "home",
+                           MenuItem "Users" (tp UserAdminOverviewR) "user"]
+
 lambdaCmsAdminLayout :: LambdaCmsAdmin parent =>
                         WidgetT parent IO () ->
                         HandlerT child (HandlerT parent IO) Html
