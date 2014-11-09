@@ -88,13 +88,17 @@ emptyUser = generateUserWithEmail ""
 getUserAdminOverviewR = do
     timeNow <- liftIO getCurrentTime
     (users :: [Entity User]) <- lift $ runDB $ selectList [] []
-    lambdaCmsAdminLayoutSub $(whamletFile "templates/user/index.hamlet")
+    lambdaCmsAdminLayoutSub $ do
+      setTitle "User overview"
+      $(whamletFile "templates/user/index.hamlet")
 
 getUserAdminNewR = do
     tp <- getRouteToParent
     eu <- liftIO emptyUser
     (formWidget, enctype) <- lift . generateFormPost $ userForm eu (Just "Create")
-    lambdaCmsAdminLayout $(whamletFile "templates/user/new.hamlet")
+    lambdaCmsAdminLayout $ do
+      setTitle "New user"
+      $(whamletFile "templates/user/new.hamlet")
 
 postUserAdminNewR = do
     eu <- liftIO emptyUser
@@ -106,14 +110,18 @@ postUserAdminNewR = do
         setMessage "successfully added"
         redirectUltDest $ UserAdminR userId
       _ -> do
-        lambdaCmsAdminLayout $(whamletFile "templates/user/new.hamlet")
+        lambdaCmsAdminLayout $ do
+          setTitle "New user"
+          $(whamletFile "templates/user/new.hamlet")
 
 getUserAdminR userId = do
     tp <- getRouteToParent
     user <- lift $ runDB $ get404 userId
     (formWidget, enctype) <- lift . generateFormPost $ userForm user (Just "Save")
     (pwFormWidget, pwEnctype) <- lift . generateFormPost $ userChangePasswordForm Nothing (Just "Change")
-    lambdaCmsAdminLayout $(whamletFile "templates/user/edit.hamlet")
+    lambdaCmsAdminLayout $ do
+      setTitle . toHtml $ userName user
+      $(whamletFile "templates/user/edit.hamlet")
 
 postUserAdminR userId = do
   user <- lift . runDB $ get404 userId
@@ -126,7 +134,9 @@ postUserAdminR userId = do
      setMessage "successfully replaced"
      redirect $ UserAdminR userId
    _ -> do
-    lambdaCmsAdminLayout $(whamletFile "templates/user/edit.hamlet")
+    lambdaCmsAdminLayout $ do
+      setTitle . toHtml $ userName user
+      $(whamletFile "templates/user/edit.hamlet")
 
 postUserAdminChangePasswordR userId = do
   user <- lift . runDB $ get404 userId
@@ -140,7 +150,9 @@ postUserAdminChangePasswordR userId = do
      setMessage "Successfully changed password"
      redirect $ UserAdminR userId
    _ -> do
-     lambdaCmsAdminLayout $(whamletFile "templates/user/edit.hamlet")
+     lambdaCmsAdminLayout $ do
+       setTitle . toHtml $ userName user
+       $(whamletFile "templates/user/edit.hamlet")
 
 deleteUserAdminR userId = do
   user <- lift . runDB $ get404 userId

@@ -15,4 +15,6 @@ module LambdaCms.Core.Handler.Home
 import LambdaCms.Core.Import
 
 getAdminHomeR :: CoreHandler Html
-getAdminHomeR = lambdaCmsAdminLayoutSub $(whamletFile "templates/adminhome.hamlet")
+getAdminHomeR = lambdaCmsAdminLayoutSub $ do
+  setTitle "Dashboard"
+  $(whamletFile "templates/adminhome.hamlet")
