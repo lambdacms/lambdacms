@@ -1,5 +1,6 @@
 {-# LANGUAGE QuasiQuotes         #-}
 {-# LANGUAGE RankNTypes          #-}
+{-# LANGUAGE TemplateHaskell     #-}
 
 module LambdaCms.Media.Handler.MediaFile
        ( getMediaFileOverviewR
@@ -19,9 +20,9 @@ getMediaFileR         :: MediaFileId -> MediaHandler Html
 postMediaFileR        :: MediaFileId -> MediaHandler Html
 deleteMediaFileR      :: MediaFileId -> MediaHandler Html
 
-getMediaFileOverviewR = tryoutLayout [whamlet|not yet implmented|]
-getMediaFileNewR = tryoutLayout [whamlet|not yet implmented|]
-postMediaFileNewR = tryoutLayout [whamlet|not yet implmented|]
-getMediaFileR _ = tryoutLayout [whamlet|not yet implmented|]
-postMediaFileR _ = tryoutLayout [whamlet|not yet implmented|]
-deleteMediaFileR _ = tryoutLayout [whamlet|not yet implmented|]
+getMediaFileOverviewR = lambdaCmsAdminLayoutSub $(whamletFile "templates/overview.hamlet")
+getMediaFileNewR = lambdaCmsAdminLayoutSub $(whamletFile "templates/new.hamlet")
+postMediaFileNewR = lambdaCmsAdminLayoutSub $(whamletFile "templates/new.hamlet")
+getMediaFileR _ = lambdaCmsAdminLayoutSub $(whamletFile "templates/edit.hamlet")
+postMediaFileR _ = lambdaCmsAdminLayoutSub $(whamletFile "templates/edit.hamlet")
+deleteMediaFileR _ = lambdaCmsAdminLayoutSub $(whamletFile "templates/edit.hamlet")

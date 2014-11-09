@@ -12,8 +12,7 @@ import LambdaCms.Media.Models
 data Media = Media
 
 mkYesodSubData "Media" [parseRoutes|
-/                     MediaHomeR      GET
-/media                MediaFileOverviewR  GET
-/media/new            MediaFileNewR       GET POST
-!/media/#MediaFileId  MediaFileR          GET POST DELETE
+/               MediaFileOverviewR  GET
+/new            MediaFileNewR       GET POST
+!/#MediaFileId  MediaFileR          GET POST DELETE
 |]

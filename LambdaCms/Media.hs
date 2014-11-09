@@ -12,7 +12,6 @@ module LambdaCms.Media
 import LambdaCms.Media.Import
 import LambdaCms.Media.Models            as Export
 import LambdaCms.Media.Routes            as Export
-import LambdaCms.Media.Handler.Home      as Export
 import LambdaCms.Media.Handler.MediaFile as Export
 
 instance LambdaCmsMedia master => YesodSubDispatch Media (HandlerT master IO) where

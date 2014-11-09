@@ -29,7 +29,6 @@ library
                   , LambdaCms.Media.Models
                   , LambdaCms.Media.Routes
                   , LambdaCms.Media.Import
-                  , LambdaCms.Media.Handler.Home
                   , LambdaCms.Media.Handler.MediaFile
 
   build-depends:    base
