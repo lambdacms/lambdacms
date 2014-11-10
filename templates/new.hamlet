@@ -6,7 +6,6 @@
       <span .glyphicon .glyphicon-arrow-left>
       _{MsgBack}
 <div .row>
-  <div .col-xs-12>
-    <form method=POST action=@{MediaFileNewR} enctype=#{enctype}>
+  <div .col-sm-10 .col-md-7 .col-lg-4>
+    <form role=form method=POST action=@{MediaFileNewR} enctype=#{enctype}>
       ^{fwidget}
-      <button type=submit>_{MsgUpload}

@@ -30,10 +30,11 @@ deleteMediaFileR      :: MediaFileId -> MediaHandler Html
 
 uploadForm :: Form (FileInfo, Text, Text, Maybe Textarea)
 uploadForm = renderBootstrap3 BootstrapBasicForm $ (,,,)
-             <$> areq fileField "location" Nothing
-             <*> areq textField "new file name" Nothing
-             <*> areq textField "label" Nothing
-             <*> aopt textareaField "description" Nothing
+             <$> areq fileField (bfs MsgLocation) Nothing
+             <*> areq textField (bfs MsgNewFilename) Nothing
+             <*> areq textField (bfs MsgLabel) Nothing
+             <*> aopt textareaField (bfs MsgDescription) Nothing
+             <*  bootstrapSubmit (BootstrapSubmit MsgUpload " btn-success " [])
 
 upload :: FileInfo -> FilePath -> MediaHandler FilePath
 upload f nm = do
@@ -59,9 +60,10 @@ deleteFile mf = do
 mediaFileForm :: MediaFile -> Form MediaFile
 mediaFileForm mf = renderBootstrap3 BootstrapBasicForm $ MediaFile
                    <$> pure (mediaFileLocation mf)
-                   <*> areq textField "label" (Just $ mediaFileLabel mf)
-                   <*> aopt textareaField "description" (Just $ mediaFileDescription mf)
+                   <*> areq textField (bfs MsgLabel) (Just $ mediaFileLabel mf)
+                   <*> aopt textareaField (bfs MsgDescription) (Just $ mediaFileDescription mf)
                    <*> pure (mediaFileUploadedAt mf)
+                   <*  bootstrapSubmit (BootstrapSubmit MsgSave " btn-success " [])
 
 getMediaFileOverviewR = do
   (files :: [Entity MediaFile]) <- lift . runDB $ selectList [] []

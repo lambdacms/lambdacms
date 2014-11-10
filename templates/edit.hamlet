@@ -15,7 +15,6 @@
     #{mediaFileLocation file}
     $# <img .img-responsive .img-rounded src=#{mediaFileLocation file} alt=#{mediaFileLabel file}>
 <div .row>
-  <div .col-xs-12>
-    <form method=POST action=@{MediaFileR fileId} enctype=#{enctype}>
+  <div .col-sm-10 .col-md-7 .col-lg-4>
+    <form role=form method=POST action=@{MediaFileR fileId} enctype=#{enctype}>
       ^{fwidget}
-      <button type=submit>_{MsgSave}
