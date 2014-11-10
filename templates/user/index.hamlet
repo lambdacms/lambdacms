@@ -1,26 +1,26 @@
 <div .page-header>
-  <h1>User Overview
+  <h1>_{MsgUserOverview}
 <div .row>
   <div .col-xs-12>
     <a .btn .btn-primary href=@{AdminHomeR}>
       <span .glyphicon .glyphicon-arrow-left>
-      Back
+      _{MsgBack}
     <a .btn .btn-primary href=@{UserAdminNewR}>
       <span .glyphicon .glyphicon-plus>
-      Add User
+      _{MsgAddUser}
 <div .row>
   <div .col-xs-12>
     $if null users
-      <p .bg-info>No users found.
+      <p .bg-info>_{MsgNoUsers}
     $else
       <div .table-responsive>
         <table .table .table-striped .table-hover>
           <thead>
             <tr>
-              <th>username
-              <th>email address
-              <th>created on
-              <th>last login
+              <th>_{MsgUsername}
+              <th>_{MsgEmailAddress}
+              <th>_{MsgCreatedOn}
+              <th>_{MsgLastLogin}
           <tbody>
             $forall (Entity userId user) <- users
               <tr onclick="document.location.href='@{UserAdminR userId}'">
@@ -28,4 +28,4 @@
                   <a href=@{UserAdminR userId}> #{userName user}
                 <td>#{userEmail user}
                 <td>#{show $ utctDay $ userCreatedAt user}
-                <td>#{humanReadableTime' timeNow $ userLastLogin user}
+                <td>#{humanReadableTimeI18N' hrtLocale timeNow $ userLastLogin user}

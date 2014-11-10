@@ -1,0 +1,41 @@
+UserOverview: User overview
+EmailAddress: E-mail address
+
+PasswordTooShort: Password is too short
+PasswordMismatch: Passwords don't match
+
+Username: Username
+Password: Password
+Confirm: Confirm
+Create: Create
+Save: Save
+Submit: Submit
+Change: Change
+Back: Back
+Remove: Remove
+AddUser: Add user
+NewUser: New user
+CreatedOn: Created on
+LastLogin: Last login
+
+NoUsers: No users found
+NoTUsers: There are no users
+
+SuccessReplace: Successfully replaced
+SuccessUpdate:  Successfully updated
+SuccessChgPwd:  Successfully changed password
+
+DeletedUser u@Text: User #{u} deleted
+
+TimeJustNow: Just now
+TimeSecondsAgo time@String: #{time} seconds ago
+TimeOneMinuteAgo: a minute ago
+TimeMinutesAgo time@String: #{time} minutes ago
+TimeOneHourAgo: an hour ago
+TimeAboutHoursAgo time@String: about #{time} hours ago
+TimeAt time@String: At #{time}
+TimeDaysAgo time@String: #{time} days ago
+TimeWeekAgo time@String: #{time} week ago
+TimeWeeksAgo time@String: #{time} weeks ago
+TimeOnYear time@String: on #{time}
+DayOfWeekFmt: %l:%M %p on %A

@@ -13,14 +13,20 @@ module LambdaCms.Core.Foundation where
 import           Yesod
 import           Yesod.Form.Bootstrap3
 import           Database.Persist.Sql (SqlBackend)
-import           Data.Text (Text)
+import           Data.Text (Text, unpack)
+import           Data.Time.Format.Human
+import           Data.Time (utc)
+import           System.Locale
 import           Data.Maybe (fromMaybe)
+import           Data.Monoid (mappend)
 import           Text.Hamlet (hamletFile)
 import           Text.Lucius (luciusFile)
 import           Text.Julius (juliusFile)
 
 import           LambdaCms.Core.Models
 import           LambdaCms.Core.Routes
+
+mkMessage "Core" "messages" "en"
 
 class ( Yesod master
       -- , YesodDispatch master
@@ -85,7 +91,7 @@ type CoreHandler a = forall master. LambdaCmsAdmin master => HandlerT Core (Hand
 
 type CoreWidget = forall master. LambdaCmsAdmin master => WidgetT master IO ()
 
-type Form x = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT master IO) (FormResult x, WidgetT master IO ())
+type Form x = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT Core (HandlerT master IO)) (FormResult x, WidgetT Core IO ())
 
 
 -- This instance is required to use forms. You can modify renderMessage to
@@ -144,3 +150,49 @@ lambdaCmsAdminLayoutSub :: LambdaCmsAdmin parent =>
                            WidgetT child IO () ->
                            HandlerT child (HandlerT parent IO) Html
 lambdaCmsAdminLayoutSub cwidget = widgetToParentWidget cwidget >>= lambdaCmsAdminLayout
+
+
+-- | Wrapper for humanReadableTimeI18N'. It uses Yesod's own i18n functionality
+lambdaCmsHumanTimeLocale :: MonadHandler m => m HumanTimeLocale
+lambdaCmsHumanTimeLocale = do
+  langs <- languages
+  let rm = unpack . renderMessage Core langs
+  return $ HumanTimeLocale
+    { justNow       = rm MsgTimeJustNow
+    , secondsAgo    = rm . MsgTimeSecondsAgo
+    , oneMinuteAgo  = rm MsgTimeOneMinuteAgo
+    , minutesAgo    = rm . MsgTimeMinutesAgo
+    , oneHourAgo    = rm MsgTimeOneHourAgo
+    , aboutHoursAgo = rm . MsgTimeAboutHoursAgo
+    , at            = (\_ x -> rm $ MsgTimeAt x)
+    , daysAgo       = rm . MsgTimeDaysAgo
+    , weekAgo       = rm . MsgTimeWeekAgo
+    , weeksAgo      = rm . MsgTimeWeeksAgo
+    , onYear        = rm . MsgTimeOnYear
+    , locale        = defaultTimeLocale
+    , timeZone      = utc
+    , dayOfWeekFmt  = rm MsgDayOfWeekFmt
+    , thisYearFmt   = "%b %e"
+    , prevYearFmt   = "%b %e, %Y"
+    }
+
+-- | dutch form messages (definitely needs to go somewhere else)
+dutchFormMessage :: FormMessage -> Text
+dutchFormMessage (MsgInvalidInteger t) = "Ongeldig getal: " `mappend` t
+dutchFormMessage (MsgInvalidNumber t)  = "Ongeldig nummer: " `mappend` t
+dutchFormMessage (MsgInvalidEntry t)   = "Ongeldige invoer: " `mappend` t
+dutchFormMessage MsgInvalidTimeFormat  = "Ongeldige tijd, het juiste formaat is (UU:MM[:SS])"
+dutchFormMessage MsgInvalidDay         = "Ongeldige datum, het juiste formaat is (JJJJ-MM-DD)"
+dutchFormMessage (MsgInvalidUrl t)     = "Ongeldige URL: " `mappend` t
+dutchFormMessage (MsgInvalidEmail t)   = "Ongeldig e-mail adres: " `mappend` t
+dutchFormMessage (MsgInvalidHour t)    = "Ongeldig uur: " `mappend` t
+dutchFormMessage (MsgInvalidMinute t)  = "Ongeldige minuut: " `mappend` t
+dutchFormMessage (MsgInvalidSecond t)  = "Ongeldige seconde: " `mappend` t
+dutchFormMessage MsgCsrfWarning        = "Bevestig het indienen van het formulier a.u.b. (dit is veiligheidsmaatregel)."
+dutchFormMessage MsgValueRequired      = "Verplicht veld"
+dutchFormMessage (MsgInputNotFound t)  = "Geen invoer gevonden: " `mappend` t
+dutchFormMessage MsgSelectNone         = "<Geen>"
+dutchFormMessage (MsgInvalidBool t)    = "Ongeldige boolean: " `mappend` t
+dutchFormMessage MsgBoolYes            = "Ja"
+dutchFormMessage MsgBoolNo             = "Nee"
+dutchFormMessage MsgDelete             = "Verwijderen?"

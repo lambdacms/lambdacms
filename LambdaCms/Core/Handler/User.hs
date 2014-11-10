@@ -24,6 +24,7 @@ import qualified Data.Text as T (breakOn, concat, length)
 import Data.Maybe (fromMaybe)
 import Data.Time.Clock
 import Data.Time.Format.Human
+import System.Locale
 
 -- data type for a form to change a user's password
 data ComparePassword = ComparePassword { originalPassword :: Text
@@ -38,29 +39,29 @@ postUserAdminR               :: UserId -> CoreHandler Html
 postUserAdminChangePasswordR :: UserId -> CoreHandler Html
 deleteUserAdminR             :: UserId -> CoreHandler Html
 
-userForm :: User -> Maybe Text -> Form User
+userForm :: User -> Maybe CoreMessage -> Form User
 userForm u submit = renderBootstrap3 BootstrapBasicForm $ User
              <$> pure            (userIdent u)
-             <*> areq textField  (bfs' "username")        (Just $ userName u)
+             <*> areq textField  (bfs MsgUsername)        (Just $ userName u)
              <*> pure            (userPassword u)
-             <*> areq emailField (bfs' "email address")   (Just $ userEmail u)
+             <*> areq emailField (bfs MsgEmailAddress)   (Just $ userEmail u)
              <*> pure            (userToken u)
              <*> pure            (userCreatedAt u)
              <*> pure            (userLastLogin u)
-             <*  bootstrapSubmit (bss submit)
+             <*  bootstrapSubmit (BootstrapSubmit (fromMaybe MsgSubmit submit) " btn-success " [])
 
-userChangePasswordForm :: Maybe Text -> Maybe Text -> Form ComparePassword
+userChangePasswordForm :: Maybe Text -> Maybe CoreMessage -> Form ComparePassword
 userChangePasswordForm original submit = renderBootstrap3 BootstrapBasicForm $ ComparePassword
-  <$> areq validatePasswordField (withName "original-pw" $ bfs' "password") Nothing
-  <*> areq comparePasswordField  (bfs' "confirm") Nothing
-  <*  bootstrapSubmit            (bss submit)
+  <$> areq validatePasswordField (withName "original-pw" $ bfs MsgPassword) Nothing
+  <*> areq comparePasswordField  (bfs MsgConfirm) Nothing
+  <*  bootstrapSubmit (BootstrapSubmit (fromMaybe MsgSubmit submit) " btn-success " [])
   where
     validatePasswordField = check validatePassword passwordField
     comparePasswordField = check comparePasswords passwordField
 
     validatePassword pw
       | T.length pw >= 8 = Right pw
-      | otherwise = Left ("Password too short" :: Text)
+      | otherwise = Left MsgPasswordTooShort
 
     comparePasswords pw
       | pw == fromMaybe "" original = Right pw
@@ -87,70 +88,66 @@ emptyUser = generateUserWithEmail ""
 
 getUserAdminOverviewR = do
     timeNow <- liftIO getCurrentTime
+    hrtLocale <- lift lambdaCmsHumanTimeLocale
     (users :: [Entity User]) <- lift $ runDB $ selectList [] []
     lambdaCmsAdminLayoutSub $ do
       setTitle "User overview"
       $(whamletFile "templates/user/index.hamlet")
 
 getUserAdminNewR = do
-    tp <- getRouteToParent
     eu <- liftIO emptyUser
-    (formWidget, enctype) <- lift . generateFormPost $ userForm eu (Just "Create")
-    lambdaCmsAdminLayout $ do
+    (formWidget, enctype) <- generateFormPost $ userForm eu (Just MsgCreate)
+    lambdaCmsAdminLayoutSub $ do
       setTitle "New user"
       $(whamletFile "templates/user/new.hamlet")
 
 postUserAdminNewR = do
     eu <- liftIO emptyUser
-    tp <- getRouteToParent
-    ((formResult, formWidget), enctype) <- lift . runFormPost $ userForm eu (Just "Create")
+    ((formResult, formWidget), enctype) <- runFormPost $ userForm eu (Just MsgCreate)
     case formResult of
       FormSuccess user -> do
         userId <- lift $ runDB $ insert user
         setMessage "successfully added"
         redirectUltDest $ UserAdminR userId
       _ -> do
-        lambdaCmsAdminLayout $ do
+        lambdaCmsAdminLayoutSub $ do
           setTitle "New user"
           $(whamletFile "templates/user/new.hamlet")
 
 getUserAdminR userId = do
-    tp <- getRouteToParent
     user <- lift $ runDB $ get404 userId
-    (formWidget, enctype) <- lift . generateFormPost $ userForm user (Just "Save")
-    (pwFormWidget, pwEnctype) <- lift . generateFormPost $ userChangePasswordForm Nothing (Just "Change")
-    lambdaCmsAdminLayout $ do
+    (formWidget, enctype) <- generateFormPost $ userForm user (Just MsgSave)
+    (pwFormWidget, pwEnctype) <- generateFormPost $ userChangePasswordForm Nothing (Just MsgChange)
+    lambdaCmsAdminLayoutSub $ do
       setTitle . toHtml $ userName user
       $(whamletFile "templates/user/edit.hamlet")
 
 postUserAdminR userId = do
   user <- lift . runDB $ get404 userId
-  tp <- getRouteToParent
-  ((formResult, formWidget), enctype) <- lift . runFormPost $ userForm user (Just "Save")
-  (pwFormWidget, pwEnctype) <- lift . generateFormPost $ userChangePasswordForm Nothing (Just "Change")
+  ((formResult, formWidget), enctype) <- runFormPost $ userForm user (Just MsgSave)
+  (pwFormWidget, pwEnctype) <- generateFormPost $ userChangePasswordForm Nothing (Just MsgChange)
   case formResult of
    FormSuccess updatedUser -> do
      _ <- lift $ runDB $ update userId [UserName =. userName updatedUser, UserEmail =. userEmail updatedUser]
      setMessage "successfully replaced"
      redirect $ UserAdminR userId
    _ -> do
-    lambdaCmsAdminLayout $ do
+    lambdaCmsAdminLayoutSub $ do
       setTitle . toHtml $ userName user
       $(whamletFile "templates/user/edit.hamlet")
 
 postUserAdminChangePasswordR userId = do
   user <- lift . runDB $ get404 userId
-  tp <- getRouteToParent
-  (formWidget, enctype) <- lift . generateFormPost $ userForm user (Just "Save")
+  (formWidget, enctype) <- generateFormPost $ userForm user (Just MsgSave)
   opw <- lookupPostParam "original-pw"
-  ((formResult, pwFormWidget), pwEnctype) <- lift . runFormPost $ userChangePasswordForm opw (Just "Change")
+  ((formResult, pwFormWidget), pwEnctype) <- runFormPost $ userChangePasswordForm opw (Just MsgChange)
   case formResult of
    FormSuccess f -> do
      _ <- lift . runDB $ update userId [UserPassword =. Just (originalPassword f)]
      setMessage "Successfully changed password"
      redirect $ UserAdminR userId
    _ -> do
-     lambdaCmsAdminLayout $ do
+     lambdaCmsAdminLayoutSub $ do
        setTitle . toHtml $ userName user
        $(whamletFile "templates/user/edit.hamlet")
 
