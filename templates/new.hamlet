@@ -4,4 +4,4 @@
   <div .col-xs-12>
     <form method=POST action=@{MediaFileNewR} enctype=#{enctype}>
       ^{fwidget}
-      <button type=submit value=upload>
+      <button type=submit>upload
