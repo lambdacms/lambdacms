@@ -39,6 +39,7 @@ library
                   , text
                   , time
                   , filepath
+                  , directory
                   , shakespeare
 
   ghc-options:      -Wall -O2

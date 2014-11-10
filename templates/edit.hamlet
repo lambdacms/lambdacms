@@ -1,5 +1,21 @@
 <div .page-header>
-  <h1>Edit media
+  <h1>#{mediaFileLabel file}
 <div .row>
   <div .col-xs-12>
-    <p>Edit media not yet implemented
+    <a .btn .btn-primary href=@{MediaFileOverviewR}>
+      <span .glyphicon .glyphicon-arrow-left>
+      Back
+    <form .form-inline .display-inline method=POST action=@{MediaFileR fileId}>
+      <input name="_method" type="hidden" value="DELETE" />
+      <button .btn .btn-danger type=submit>
+        <span .glyphicon .glyphicon-remove>
+        Remove
+<div .row>
+  <div .col-xs-12>
+    #{mediaFileLocation file}
+    $# <img .img-responsive .img-rounded src=#{mediaFileLocation file} alt=#{mediaFileLabel file}>
+<div .row>
+  <div .col-xs-12>
+    <form method=POST action=@{MediaFileR fileId} enctype=#{enctype}>
+      ^{fwidget}
+      <button type=submit>Save
