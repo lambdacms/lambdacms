@@ -2,4 +2,27 @@
   <h1>Media overview
 <div .row>
   <div .col-xs-12>
-    <p>Media overview not yet implemented
+    <a .btn .btn-primary href=@{MediaFileNewR}>
+      <span .glyphicon .glyphicon-plus>
+      Add media
+<div .row>
+  <div .col-xs-12>
+    $if null files
+      <p .bg-info>No media found.
+    $else
+      <div .table-responsive>
+        <table .table .table-striped .table-hover>
+          <thead>
+            <tr>
+              <th>preview
+              <th>name
+              <th>uploaded on
+          <tbody>
+            $forall (Entity fileId file) <- files
+              <tr onclick="document.location.href='@{MediaFileR fileId}'">
+                <td>
+                  <a href=@{MediaFileR fileId}>
+                    #{mediaFileLocation file}
+                    $# <img .img-responsive .img-thumbnail src=/#{(mediaFileLocation file)} alt=#{mediaFileLabel file}>
+                <td>#{mediaFileLabel file}
+                <td>#{show $ utctDay $ mediaFileUploadedAt file}
