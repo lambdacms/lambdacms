@@ -2,4 +2,6 @@
   <h1>New media
 <div .row>
   <div .col-xs-12>
-    <p>New media not yet implemented
+    <form method=POST action=@{MediaFileNewR} enctype=#{enctype}>
+      ^{fwidget}
+      <button type=submit value=upload>

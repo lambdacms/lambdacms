@@ -37,6 +37,8 @@ library
                   , lambdacms-core
                   , persistent
                   , text
+                  , time
+                  , filepath
                   , shakespeare
 
   ghc-options:      -Wall -O2

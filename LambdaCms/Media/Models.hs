@@ -11,10 +11,13 @@ module LambdaCms.Media.Models where
 import Yesod
 import Data.Text (Text)
 import Data.Typeable (Typeable)
+import Data.Time (UTCTime)
 
 share [mkPersist sqlSettings, mkMigrate "migrateLambdaCmsMedia"] [persistLowerCase|
 MediaFile
+  location FilePath
   name Text
-  location Text
+  description Textarea Maybe
+  uploadedAt UTCTime
   deriving Typeable Show
 |]
