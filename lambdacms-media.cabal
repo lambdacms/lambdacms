@@ -15,6 +15,7 @@ build-type:         Simple
 cabal-version:      >= 1.18
 tested-with:        GHC >= 7.6
 extra-source-files: README.md
+                  , messages/*.msg
 
 source-repository head
   type:             git

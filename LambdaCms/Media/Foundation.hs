@@ -1,14 +1,19 @@
 {-# LANGUAGE RankNTypes            #-}
+{-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 
 module LambdaCms.Media.Foundation where
 
 import Yesod
+import Data.Text
 
 import LambdaCms.Core
 
 -- import LambdaCms.Media.Models
 import LambdaCms.Media.Routes
+
+mkMessage "Media" "messages" "en"
 
 class LambdaCmsAdmin master => LambdaCmsMedia master where
   uploadDir :: master -> FilePath

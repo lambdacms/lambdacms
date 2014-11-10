@@ -66,13 +66,13 @@ mediaFileForm mf = renderBootstrap3 BootstrapBasicForm $ MediaFile
 getMediaFileOverviewR = do
   (files :: [Entity MediaFile]) <- lift . runDB $ selectList [] []
   lambdaCmsAdminLayoutSub $ do
-    setTitle "Media overview"
+    setTitleI MsgMediaOverview
     $(whamletFile "templates/overview.hamlet")
 
 getMediaFileNewR = do
   (fwidget, enctype) <- generateFormPost uploadForm
   lambdaCmsAdminLayoutSub $ do
-    setTitle "New media"
+    setTitleI MsgNewMedia
     $(whamletFile "templates/new.hamlet")
 
 postMediaFileNewR = do
@@ -82,11 +82,11 @@ postMediaFileNewR = do
      ct <- liftIO getCurrentTime
      location <- upload file (unpack name)
      _ <- lift . runDB . insert $ MediaFile location label description ct
-     setMessage $ "Successfully created"
+     setMessageI $ MsgSaveSuccess label
      redirect MediaFileOverviewR
    _ ->
      lambdaCmsAdminLayoutSub $ do
-       setTitle "New media"
+       setTitleI MsgNewMedia
        $(whamletFile "templates/new.hamlet")
 
 getMediaFileR fileId = do
@@ -102,7 +102,7 @@ postMediaFileR fileId = do
   case results of
    FormSuccess mf -> do
      _ <- lift $ runDB $ update fileId [MediaFileLabel =. mediaFileLabel mf, MediaFileDescription =. mediaFileDescription mf]
-     setMessage "Succesfully updated"
+     setMessageI $ MsgUpdateSuccess (mediaFileLabel mf)
      redirect $ MediaFileR fileId
    _ ->
      lambdaCmsAdminLayoutSub $ do
@@ -115,8 +115,8 @@ deleteMediaFileR fileId = do
   case fileExists of
    False -> do
      lift . runDB $ delete fileId
-     setMessage "Deleted media"
+     setMessageI $ MsgDeleteSuccess (mediaFileLabel file)
      redirect MediaFileOverviewR
    True -> do
-     setMessage "Failed to delete media"
+     setMessageI $ MsgDeleteFail (mediaFileLabel file)
      redirect $ MediaFileR fileId

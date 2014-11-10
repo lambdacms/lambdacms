@@ -1,22 +1,22 @@
 <div .page-header>
-  <h1>Media overview
+  <h1>_{MsgMediaOverview}
 <div .row>
   <div .col-xs-12>
     <a .btn .btn-primary href=@{MediaFileNewR}>
       <span .glyphicon .glyphicon-plus>
-      Add media
+      _{MsgAddMedia}
 <div .row>
   <div .col-xs-12>
     $if null files
-      <p .bg-info>No media found.
+      <p .bg-info>_{MsgNoMediaFound}
     $else
       <div .table-responsive>
         <table .table .table-striped .table-hover>
           <thead>
             <tr>
-              <th>preview
-              <th>name
-              <th>uploaded on
+              <th>_{MsgPreview}
+              <th>_{MsgLabel}
+              <th>_{MsgUploadedOn}
           <tbody>
             $forall (Entity fileId file) <- files
               <tr onclick="document.location.href='@{MediaFileR fileId}'">

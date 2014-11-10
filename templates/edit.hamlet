@@ -4,12 +4,12 @@
   <div .col-xs-12>
     <a .btn .btn-primary href=@{MediaFileOverviewR}>
       <span .glyphicon .glyphicon-arrow-left>
-      Back
+      _{MsgBack}
     <form .form-inline .display-inline method=POST action=@{MediaFileR fileId}>
       <input name="_method" type="hidden" value="DELETE" />
       <button .btn .btn-danger type=submit>
         <span .glyphicon .glyphicon-remove>
-        Remove
+        _{MsgRemove}
 <div .row>
   <div .col-xs-12>
     #{mediaFileLocation file}
@@ -18,4 +18,4 @@
   <div .col-xs-12>
     <form method=POST action=@{MediaFileR fileId} enctype=#{enctype}>
       ^{fwidget}
-      <button type=submit>Save
+      <button type=submit>_{MsgSave}

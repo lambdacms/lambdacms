@@ -1,12 +1,12 @@
 <div .page-header>
-  <h1>New media
+  <h1>_{MsgNewMedia}
 <div .row>
   <div .col-xs-12>
     <a .btn .btn-primary href=@{MediaFileOverviewR}>
       <span .glyphicon .glyphicon-arrow-left>
-      Back
+      _{MsgBack}
 <div .row>
   <div .col-xs-12>
     <form method=POST action=@{MediaFileNewR} enctype=#{enctype}>
       ^{fwidget}
-      <button type=submit>upload
+      <button type=submit>_{MsgUpload}
