@@ -14,12 +14,13 @@
   <div .col-lg-7>
     <div .panel .panel-default>
       <div .panel-body>
-        $if isImageFile file
-          <img .img-responsive .img-rounded src=#{sr </> mediaFileLocation file} alt=#{mediaFileLabel file}>
-        $elseif isApplicationFile file
-          _{MsgCantDisplayFileType}
-        $else
-          _{MsgUnknownFileType}
+        <a href=#{sr </> mediaFileLocation file}>
+          $if isImageFile file
+            <img .img-responsive .img-rounded src=#{sr </> mediaFileLocation file} alt=#{mediaFileLabel file}>
+          $elseif isApplicationFile file
+            _{MsgCantDisplayFileType}
+          $else
+            _{MsgUnknownFileType}
   <div .col-sm-10 .col-md-7 .col-lg-4>
     <form role=form method=POST action=@{MediaFileR fileId} enctype=#{enctype}>
       ^{fwidget}
@@ -28,7 +29,7 @@
         <strong> _{MsgInformation}
       <li .list-group-item .clearfix>
         _{MsgFilename}
-        <span .pull-right>#{takeFileName $ mediaFileLocation file}
+        <a .pull-right href=#{sr </> mediaFileLocation file}>#{takeFileName $ mediaFileLocation file}
       <li .list-group-item .clearfix>
         _{MsgFileContentType}
         <span .pull-right>#{mediaFileContentType file}
