@@ -7,7 +7,7 @@
       _{MsgBack}
     <a .btn .btn-primary href=@{UserAdminNewR}>
       <span .glyphicon .glyphicon-plus>
-      _{MsgAddUser}
+      _{MsgNewUser}
 <div .row>
   <div .col-xs-12>
     $if null users

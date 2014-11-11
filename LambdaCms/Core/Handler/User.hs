@@ -65,7 +65,7 @@ userChangePasswordForm original submit = renderBootstrap3 BootstrapBasicForm $ C
 
     comparePasswords pw
       | pw == fromMaybe "" original = Right pw
-      | otherwise = Left ("Passwords don't match" :: Text)
+      | otherwise = Left MsgPasswordMismatch
 
 
 -- | Helper to create a user with email address
@@ -91,14 +91,14 @@ getUserAdminOverviewR = do
     hrtLocale <- lift lambdaCmsHumanTimeLocale
     (users :: [Entity User]) <- lift $ runDB $ selectList [] []
     lambdaCmsAdminLayoutSub $ do
-      setTitle "User overview"
+      setTitleI MsgUserOverview
       $(whamletFile "templates/user/index.hamlet")
 
 getUserAdminNewR = do
     eu <- liftIO emptyUser
     (formWidget, enctype) <- generateFormPost $ userForm eu (Just MsgCreate)
     lambdaCmsAdminLayoutSub $ do
-      setTitle "New user"
+      setTitleI MsgNewUser
       $(whamletFile "templates/user/new.hamlet")
 
 postUserAdminNewR = do
@@ -107,11 +107,11 @@ postUserAdminNewR = do
     case formResult of
       FormSuccess user -> do
         userId <- lift $ runDB $ insert user
-        setMessage "successfully added"
+        setMessageI MsgSuccessCreate
         redirectUltDest $ UserAdminR userId
       _ -> do
         lambdaCmsAdminLayoutSub $ do
-          setTitle "New user"
+          setTitleI MsgNewUser
           $(whamletFile "templates/user/new.hamlet")
 
 getUserAdminR userId = do
@@ -129,7 +129,7 @@ postUserAdminR userId = do
   case formResult of
    FormSuccess updatedUser -> do
      _ <- lift $ runDB $ update userId [UserName =. userName updatedUser, UserEmail =. userEmail updatedUser]
-     setMessage "successfully replaced"
+     setMessageI MsgSuccessReplace
      redirect $ UserAdminR userId
    _ -> do
     lambdaCmsAdminLayoutSub $ do
@@ -144,7 +144,7 @@ postUserAdminChangePasswordR userId = do
   case formResult of
    FormSuccess f -> do
      _ <- lift . runDB $ update userId [UserPassword =. Just (originalPassword f)]
-     setMessage "Successfully changed password"
+     setMessageI MsgSuccessChgPwd
      redirect $ UserAdminR userId
    _ -> do
      lambdaCmsAdminLayoutSub $ do

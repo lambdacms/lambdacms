@@ -1,5 +1,6 @@
 UserOverview: Gebruikers overzicht
 EmailAddress: E-mailadres
+NewUser: Nieuwe gebruiker
 
 PasswordTooShort: Wachtwoord te kort
 PasswordMismatch: Wachtwoorden komen niet overeen
@@ -13,17 +14,17 @@ Submit: Verzenden
 Change: Aanpassen
 Back: Terug
 Remove: Verwijderen
-AddUser: Gebruiker toevoegen
-NewUser: Nieuwe gebruiker
 CreatedOn: Geregistreerd op
 LastLogin: Laatst ingelogd
 
 NoUsers: Geen gebruikers gevonden
 NoTUsers: Er zijn geen gebruikers
 
+SuccessCreate:  Succesvol aangemaakt
 SuccessReplace: Succesvol aangepast
 SuccessUpdate:  Succesvol geüpdatet
 SuccessChgPwd:  Wachtwoord succesvol aangepast
+SuccessDelete:  Succesvol verwijdert
 
 DeletedUser u@Text: Gebruiker #{u} verwijderd
 

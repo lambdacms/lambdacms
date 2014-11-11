@@ -1,5 +1,6 @@
 UserOverview: User overview
 EmailAddress: E-mail address
+NewUser: New user
 
 PasswordTooShort: Password is too short
 PasswordMismatch: Passwords don't match
@@ -13,17 +14,17 @@ Submit: Submit
 Change: Change
 Back: Back
 Remove: Remove
-AddUser: Add user
-NewUser: New user
 CreatedOn: Created on
 LastLogin: Last login
 
 NoUsers: No users found
 NoTUsers: There are no users
 
+SuccessCreate: successfully created
 SuccessReplace: Successfully replaced
 SuccessUpdate:  Successfully updated
 SuccessChgPwd:  Successfully changed password
+SuccessDelete: Successfully deleted
 
 DeletedUser u@Text: User #{u} deleted
 
