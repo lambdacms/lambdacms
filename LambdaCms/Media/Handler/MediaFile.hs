@@ -15,6 +15,7 @@ module LambdaCms.Media.Handler.MediaFile
 
 import LambdaCms.Media.Import
 
+import Text.Lucius (luciusFile)
 import Data.Time (UTCTime, utctDay, getCurrentTime)
 import Data.Text (unpack)
 import Data.Maybe (fromMaybe)
@@ -71,6 +72,7 @@ getMediaFileOverviewR = do
   (files :: [Entity MediaFile]) <- lift . runDB $ selectList [] []
   lambdaCmsAdminLayoutSub $ do
     setTitleI MsgMediaOverview
+    toWidget $(luciusFile "templates/media.lucius")
     $(whamletFile "templates/overview.hamlet")
 
 getMediaFileNewR = do

@@ -10,19 +10,11 @@
     $if null files
       <p .bg-info>_{MsgNoMediaFound}
     $else
-      <div .table-responsive>
-        <table .table .table-striped .table-hover>
-          <thead>
-            <tr>
-              <th>_{MsgPreview}
-              <th>_{MsgLabel}
-              <th>_{MsgUploadedOn}
-          <tbody>
-            $forall (Entity fileId file) <- files
-              <tr onclick="document.location.href='@{MediaFileR fileId}'">
-                <td>
-                  <a href=@{MediaFileR fileId}>
-                    $# #{mediaFileLocation file}
-                    <img .img-responsive .img-thumbnail src=#{sr </> (mediaFileLocation file)} alt=#{mediaFileLabel file}>
-                <td>#{mediaFileLabel file}
-                <td>#{show $ utctDay $ mediaFileUploadedAt file}
+      <div .row>
+        $forall (Entity fileId file) <- files
+          <div .col-xs-6 .col-md-3 .col-lg-2>
+            <a href=@{MediaFileR fileId}>
+              <div .panel .panel-default>
+                <div .panel-body .gallery-panel-body>
+                  <img .img-responsive .img-rounded src=#{sr </> (mediaFileLocation file)} alt=#{mediaFileLabel file}>
+                <div .panel-footer>#{mediaFileLabel file}
