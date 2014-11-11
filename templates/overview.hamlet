@@ -16,5 +16,10 @@
             <a href=@{MediaFileR fileId}>
               <div .panel .panel-default>
                 <div .panel-body .gallery-panel-body>
-                  <img .img-responsive .img-rounded src=#{sr </> (mediaFileLocation file)} alt=#{mediaFileLabel file}>
+                  $if isImageFile file
+                    <img .img-responsive .img-rounded src=#{sr </> (mediaFileLocation file)} alt=#{mediaFileLabel file}>
+                  $elseif isApplicationFile file
+                    _{MsgCantDisplayFileType}
+                  $else
+                    _{MsgUnknownFileType}
                 <div .panel-footer>#{mediaFileLabel file}

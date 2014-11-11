@@ -6,6 +6,8 @@ Upload: Upload
 AddMedia: Add media
 
 NoMediaFound: No media found.
+CantDisplayFileType: Can't display file
+UnknownFileType: Unknown file type
 
 MediaOverview: Media overview
 NewMedia: New media

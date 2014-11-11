@@ -18,6 +18,7 @@ import LambdaCms.Media.Import
 import Text.Lucius (luciusFile)
 import Data.Time (UTCTime, utctDay, getCurrentTime)
 import Data.Text (unpack)
+import qualified Data.Text as T (split, concat)
 import Data.Maybe (fromMaybe)
 import System.FilePath ((</>), (<.>), takeExtension, dropExtension, takeDirectory, takeFileName, normalise)
 import System.Directory (removeFile, doesFileExist)
@@ -132,3 +133,18 @@ deleteFile mf = do
      fileStillExists <- liftIO $ doesFileExist path
      return fileStillExists
    False -> return False
+
+splitContentType :: Text -> (Text, Text)
+splitContentType ct = (c, t)
+  where parts = T.split (== '/') ct
+        c = head parts
+        t = T.concat $ tail parts
+
+isFileType :: MediaFile -> Text -> Bool
+isFileType mf t = (fst $ splitContentType $ mediaFileContentType mf) == t
+
+isImageFile :: MediaFile -> Bool
+isImageFile = flip isFileType "image"
+
+isApplicationFile :: MediaFile -> Bool
+isApplicationFile = flip isFileType "application"
