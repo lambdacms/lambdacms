@@ -1,6 +1,6 @@
 <div .page-header>
   <h1>_{MsgUserOverview}
-<div .row>
+<div .row .button-toolbar>
   <div .col-xs-12>
     <a .btn .btn-primary href=@{AdminHomeR}>
       <span .glyphicon .glyphicon-arrow-left>
