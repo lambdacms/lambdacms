@@ -160,14 +160,15 @@ Further steps to add:
 
 
 ## Other Packages
-Not every package is included in the stackage. One of these packages is
-[friendly-time](https://github.com/pbrisbin/friendly-time) (see also the [hackage](http://hackage.haskell.org/package/friendly-time) page).
+Not every package is included in the stackage. These packages will be listed here.
 
 Clone the repo, cd into it and simply run `cabal install`.
 
 Listing of other packages:
 
-* friendly-time
+* [friendly-time](https://github.com/pbrisbin/friendly-time)
+* [yesod-form-nl](https://github.com/lambdacms/yesod-form-nl)
+
 
 # Links of interest
 

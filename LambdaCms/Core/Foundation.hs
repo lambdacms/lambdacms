@@ -12,6 +12,7 @@ module LambdaCms.Core.Foundation where
 
 import           Yesod
 import           Yesod.Form.Bootstrap3
+import           Yesod.Form.I18n.Dutch
 import           Database.Persist.Sql (SqlBackend)
 import           Data.Text (Text, unpack)
 import           Data.Time.Format.Human
@@ -97,7 +98,7 @@ type Form x = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT Co
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.
 instance RenderMessage Core FormMessage where
-    renderMessage _ _ = defaultFormMessage
+    renderMessage _ _ = dutchFormMessage
 
 -- Fix for bfs (Bootstrap3 Field Settings)
 bfs' :: Text -> FieldSettings master
@@ -175,24 +176,3 @@ lambdaCmsHumanTimeLocale = do
     , thisYearFmt   = "%b %e"
     , prevYearFmt   = "%b %e, %Y"
     }
-
--- | dutch form messages (definitely needs to go somewhere else)
-dutchFormMessage :: FormMessage -> Text
-dutchFormMessage (MsgInvalidInteger t) = "Ongeldig getal: " `mappend` t
-dutchFormMessage (MsgInvalidNumber t)  = "Ongeldig nummer: " `mappend` t
-dutchFormMessage (MsgInvalidEntry t)   = "Ongeldige invoer: " `mappend` t
-dutchFormMessage MsgInvalidTimeFormat  = "Ongeldige tijd, het juiste formaat is (UU:MM[:SS])"
-dutchFormMessage MsgInvalidDay         = "Ongeldige datum, het juiste formaat is (JJJJ-MM-DD)"
-dutchFormMessage (MsgInvalidUrl t)     = "Ongeldige URL: " `mappend` t
-dutchFormMessage (MsgInvalidEmail t)   = "Ongeldig e-mail adres: " `mappend` t
-dutchFormMessage (MsgInvalidHour t)    = "Ongeldig uur: " `mappend` t
-dutchFormMessage (MsgInvalidMinute t)  = "Ongeldige minuut: " `mappend` t
-dutchFormMessage (MsgInvalidSecond t)  = "Ongeldige seconde: " `mappend` t
-dutchFormMessage MsgCsrfWarning        = "Bevestig het indienen van het formulier a.u.b. (dit is veiligheidsmaatregel)."
-dutchFormMessage MsgValueRequired      = "Verplicht veld"
-dutchFormMessage (MsgInputNotFound t)  = "Geen invoer gevonden: " `mappend` t
-dutchFormMessage MsgSelectNone         = "<Geen>"
-dutchFormMessage (MsgInvalidBool t)    = "Ongeldige boolean: " `mappend` t
-dutchFormMessage MsgBoolYes            = "Ja"
-dutchFormMessage MsgBoolNo             = "Nee"
-dutchFormMessage MsgDelete             = "Verwijderen?"

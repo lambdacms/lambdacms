@@ -37,6 +37,7 @@ library
   build-depends:    base
                   , yesod
                   , yesod-form
+                  , yesod-form-nl
                   , persistent
                   , text
                   , shakespeare
