@@ -1,6 +1,6 @@
 <div .page-header>
   <h1>_{MsgMediaOverview}
-<div .row>
+<div .row .button-toolbar>
   <div .col-xs-12>
     <a .btn .btn-primary href=@{MediaFileNewR}>
       <span .glyphicon .glyphicon-plus>
@@ -22,7 +22,7 @@
               <tr onclick="document.location.href='@{MediaFileR fileId}'">
                 <td>
                   <a href=@{MediaFileR fileId}>
-                    #{mediaFileLocation file}
-                    $# <img .img-responsive .img-thumbnail src=/#{(mediaFileLocation file)} alt=#{mediaFileLabel file}>
+                    $# #{mediaFileLocation file}
+                    <img .img-responsive .img-thumbnail src=#{sr </> (mediaFileLocation file)} alt=#{mediaFileLabel file}>
                 <td>#{mediaFileLabel file}
                 <td>#{show $ utctDay $ mediaFileUploadedAt file}

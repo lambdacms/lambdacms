@@ -16,8 +16,8 @@ import LambdaCms.Media.Routes
 mkMessage "Media" "messages" "en"
 
 class LambdaCmsAdmin master => LambdaCmsMedia master where
-  uploadDir :: master -> FilePath
-  uploadDir _ = "static"
+  staticDir :: master -> FilePath
+  staticRoot :: master -> Text
 
 type MediaHandler a = forall master. LambdaCmsMedia master => HandlerT Media (HandlerT master IO) a
 

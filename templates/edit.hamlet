@@ -1,6 +1,6 @@
 <div .page-header>
   <h1>#{mediaFileLabel file}
-<div .row>
+<div .row .button-toolbar>
   <div .col-xs-12>
     <a .btn .btn-primary href=@{MediaFileOverviewR}>
       <span .glyphicon .glyphicon-arrow-left>
@@ -11,10 +11,8 @@
         <span .glyphicon .glyphicon-remove>
         _{MsgRemove}
 <div .row>
-  <div .col-xs-12>
-    #{mediaFileLocation file}
-    $# <img .img-responsive .img-rounded src=#{mediaFileLocation file} alt=#{mediaFileLabel file}>
-<div .row>
+  <div .col-lg-7>
+    <img .img-responsive .img-rounded src=#{sr </> mediaFileLocation file} alt=#{mediaFileLabel file}>
   <div .col-sm-10 .col-md-7 .col-lg-4>
     <form role=form method=POST action=@{MediaFileR fileId} enctype=#{enctype}>
       ^{fwidget}

@@ -41,14 +41,14 @@ upload f nm = do
   y <- lift getYesod
   let filename = unpack $ fileName f
       nfm = (dropExtension nm) <.> (takeExtension filename)
-      path = (uploadDir y) </> nfm
+      path = (staticDir y) </> nfm
   liftIO $ fileMove f path
   return nfm
 
 deleteFile :: MediaFile -> MediaHandler Bool
 deleteFile mf = do
   y <- lift getYesod
-  let path = (uploadDir y) </> (mediaFileLocation mf)
+  let path = (staticDir y) </> (mediaFileLocation mf)
   fileExists <- liftIO $ doesFileExist path
   case fileExists of
    True -> do
@@ -66,6 +66,8 @@ mediaFileForm mf = renderBootstrap3 BootstrapBasicForm $ MediaFile
                    <*  bootstrapSubmit (BootstrapSubmit MsgSave " btn-success " [])
 
 getMediaFileOverviewR = do
+  y <- lift $ getYesod
+  let sr = unpack $ staticRoot y
   (files :: [Entity MediaFile]) <- lift . runDB $ selectList [] []
   lambdaCmsAdminLayoutSub $ do
     setTitleI MsgMediaOverview
@@ -92,6 +94,8 @@ postMediaFileNewR = do
        $(whamletFile "templates/new.hamlet")
 
 getMediaFileR fileId = do
+  y <- lift $ getYesod
+  let sr = unpack $ staticRoot y
   file <- lift . runDB $ get404 fileId
   (fwidget, enctype) <- generateFormPost $ mediaFileForm file
   lambdaCmsAdminLayoutSub $ do
@@ -106,7 +110,9 @@ postMediaFileR fileId = do
      _ <- lift $ runDB $ update fileId [MediaFileLabel =. mediaFileLabel mf, MediaFileDescription =. mediaFileDescription mf]
      setMessageI $ MsgUpdateSuccess (mediaFileLabel mf)
      redirect $ MediaFileR fileId
-   _ ->
+   _ -> do
+     y <- lift $ getYesod
+     let sr = unpack $ staticRoot y
      lambdaCmsAdminLayoutSub $ do
        setTitle . toHtml $ mediaFileLabel file
        $(whamletFile "templates/edit.hamlet")
