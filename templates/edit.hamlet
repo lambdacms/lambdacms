@@ -25,6 +25,9 @@
         _{MsgFilename}
         <span .pull-right>#{takeFileName $ mediaFileLocation file}
       <li .list-group-item .clearfix>
+        _{MsgFileContentType}
+        <span .pull-right>#{mediaFileContentType file}
+      <li .list-group-item .clearfix>
         _{MsgFileLocation}
         <span .pull-right>#{normalise $ (staticDir y) </> (takeDirectory $ mediaFileLocation file)}
       <li .list-group-item .clearfix>

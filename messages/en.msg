@@ -18,6 +18,7 @@ Label: Label
 Description: Description
 UploadedOn: Uploaded on
 Filename: Filename
+FileContentType: Content type
 FileLocation: File location
 
 SaveSuccess label@Text: Successfully created: #{label}

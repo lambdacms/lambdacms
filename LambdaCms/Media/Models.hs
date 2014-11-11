@@ -16,6 +16,7 @@ import Data.Time (UTCTime)
 share [mkPersist sqlSettings, mkMigrate "migrateLambdaCmsMedia"] [persistLowerCase|
 MediaFile
   location FilePath
+  contentType Text
   label Text
   description Textarea Maybe
   uploadedAt UTCTime
