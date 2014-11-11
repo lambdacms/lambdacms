@@ -19,7 +19,7 @@ import Text.Lucius (luciusFile)
 import Data.Time (UTCTime, utctDay, getCurrentTime)
 import Data.Text (unpack)
 import Data.Maybe (fromMaybe)
-import System.FilePath ((</>), (<.>), takeExtension, dropExtension)
+import System.FilePath ((</>), (<.>), takeExtension, dropExtension, takeDirectory, takeFileName, normalise)
 import System.Directory (removeFile, doesFileExist)
 
 getMediaFileOverviewR :: MediaHandler Html

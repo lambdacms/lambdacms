@@ -18,3 +18,15 @@
   <div .col-sm-10 .col-md-7 .col-lg-4>
     <form role=form method=POST action=@{MediaFileR fileId} enctype=#{enctype}>
       ^{fwidget}
+    <ul .list-group>
+      <li .list-group-item .list-group-item-info>
+        <strong> _{MsgInformation}
+      <li .list-group-item .clearfix>
+        _{MsgFilename}
+        <span .pull-right>#{takeFileName $ mediaFileLocation file}
+      <li .list-group-item .clearfix>
+        _{MsgFileLocation}
+        <span .pull-right>#{normalise $ (staticDir y) </> (takeDirectory $ mediaFileLocation file)}
+      <li .list-group-item .clearfix>
+        _{MsgUploadedOn}
+        <span .pull-right>#{show $ utctDay $ mediaFileUploadedAt file}
