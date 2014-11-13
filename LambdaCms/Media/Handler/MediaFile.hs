@@ -88,7 +88,7 @@ postMediaFileR fileId = do
 
 deleteMediaFileR fileId = do
   file <- lift . runDB $ get404 fileId
-  fileExists <- deleteFile file
+  fileExists <- deleteMediaFile file
   case fileExists of
    False -> do
      lift . runDB $ delete fileId
@@ -102,8 +102,8 @@ postMediaFileRenameR fileId = do
   file <- lift . runDB $ get404 fileId
   ((results, rfWidget), rEnctype) <- runFormPost . renameForm $ mediaFilename file
   case results of
-   FormSuccess (nn, on)
-     | nn == on -> do
+   FormSuccess nn
+     | nn == (mediaFilename file) -> do
          setMessageI MsgRenameSuccess
          redirect $ MediaFileR fileId
      | otherwise -> do
@@ -141,10 +141,9 @@ mediaFileForm mf = renderBootstrap3 BootstrapBasicForm $ MediaFile
                    <*> pure (mediaFileUploadedAt mf)
                    <*  bootstrapSubmit (BootstrapSubmit MsgSave " btn-success " [])
 
-renameForm :: Text -> Form (Text, Text)
-renameForm fp = renderBootstrap3 BootstrapBasicForm $ (,)
-                <$> areq textField (bfs MsgNewFilename) (Just fp)
-                <*> pure fp
+renameForm :: Text -> Form Text
+renameForm fp = renderBootstrap3 BootstrapBasicForm $
+                areq textField (bfs MsgNewFilename) (Just fp)
                 <*  bootstrapSubmit (BootstrapSubmit MsgRename " btn-success " [])
 
 upload :: FileInfo -> FilePath -> MediaHandler (FilePath, Text)
@@ -171,8 +170,8 @@ renameMediaFile mf nn = do
      return (True, nlocation)
    False -> return (False, clocation)
 
-deleteFile :: MediaFile -> MediaHandler Bool
-deleteFile mf = do
+deleteMediaFile :: MediaFile -> MediaHandler Bool
+deleteMediaFile mf = do
   y <- lift getYesod
   let path = (staticDir y) </> (mediaFileLocation mf)
   fileExists <- liftIO $ doesFileExist path
