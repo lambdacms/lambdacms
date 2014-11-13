@@ -65,7 +65,7 @@ getMediaFileR fileId = do
   let sr = unpack $ staticRoot y
   file <- lift . runDB $ get404 fileId
   (fWidget, enctype) <- generateFormPost $ mediaFileForm file
-  (rfWidget, rEnctype) <- generateFormPost . renameForm $ mediaFilename file
+  (rfWidget, rEnctype) <- generateFormPost . renameForm $ mediaFileBaseName file
   lambdaCmsAdminLayoutSub $ do
     setTitle . toHtml $ mediaFileLabel file
     $(whamletFile "templates/edit.hamlet")
@@ -81,7 +81,7 @@ postMediaFileR fileId = do
    _ -> do
      y <- lift $ getYesod
      let sr = unpack $ staticRoot y
-     (rfWidget, rEnctype) <- generateFormPost . renameForm $ mediaFilename file
+     (rfWidget, rEnctype) <- generateFormPost . renameForm $ mediaFileBaseName file
      lambdaCmsAdminLayoutSub $ do
        setTitle . toHtml $ mediaFileLabel file
        $(whamletFile "templates/edit.hamlet")
@@ -100,10 +100,10 @@ deleteMediaFileR fileId = do
 
 postMediaFileRenameR fileId = do
   file <- lift . runDB $ get404 fileId
-  ((results, rfWidget), rEnctype) <- runFormPost . renameForm $ mediaFilename file
+  ((results, rfWidget), rEnctype) <- runFormPost . renameForm $ mediaFileBaseName file
   case results of
    FormSuccess nn
-     | nn == (mediaFilename file) -> do
+     | nn == (mediaFileBaseName file) -> do
          setMessageI MsgRenameSuccess
          redirect $ MediaFileR fileId
      | otherwise -> do
@@ -182,8 +182,8 @@ deleteMediaFile mf = do
      return fileStillExists
    False -> return False
 
-mediaFilename :: MediaFile -> Text
-mediaFilename = pack . takeBaseName . mediaFileLocation
+mediaFileBaseName :: MediaFile -> Text
+mediaFileBaseName = pack . takeBaseName . mediaFileLocation
 
 splitContentType :: Text -> (Text, Text)
 splitContentType ct = (c, t)
