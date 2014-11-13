@@ -34,6 +34,8 @@ library
                   , LambdaCms.Core.Handler.Home
                   , LambdaCms.Core.Handler.User
                   , LambdaCms.Core.AuthHelper
+                  , LambdaCms.I18n
+                  , LambdaCms.I18n.Dutch
   build-depends:    base
                   , yesod
                   , yesod-form

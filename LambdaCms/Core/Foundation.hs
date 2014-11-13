@@ -26,6 +26,7 @@ import           Text.Julius (juliusFile)
 
 import           LambdaCms.Core.Models
 import           LambdaCms.Core.Routes
+import           LambdaCms.I18n
 
 mkMessage "Core" "messages" "en"
 
@@ -170,7 +171,7 @@ lambdaCmsHumanTimeLocale = do
     , weekAgo       = rm . MsgTimeWeekAgo
     , weeksAgo      = rm . MsgTimeWeeksAgo
     , onYear        = rm . MsgTimeOnYear
-    , locale        = defaultTimeLocale
+    , locale        = lambdaCmsTimeLocale langs
     , timeZone      = utc
     , dayOfWeekFmt  = rm MsgDayOfWeekFmt
     , thisYearFmt   = "%b %e"
