@@ -14,7 +14,24 @@
   <div .col-sm-10 .col-md-7 .col-lg-4>
     <form role=form method=post action=@{UserAdminR userId} enctype=#{enctype}>
       ^{formWidget}
-<div .row>
-  <div .col-sm-10 .col-md-7 .col-lg-4>
     <form role=form method=post action=@{UserAdminChangePasswordR userId} enctype=#{pwEnctype}>
       ^{pwFormWidget}
+  <div .col-sm-10 .col-md-7 .col-lg-4>
+    <ul .list-group>
+      <li .list-group-item .list-group-item-info>
+        <strong>User information
+      <li .list-group-item .clearfix>
+        _{MsgCreatedOn}
+        <span .pull-right>#{show $ utctDay $ userCreatedAt user}
+      <li .list-group-item .clearfix>
+        _{MsgLastLogin}
+        <span .pull-right>#{humanReadableTimeI18N' hrtLocale timeNow $ userLastLogin user}
+
+      $maybe ut <- userToken user
+        <li .list-group-item .list-group-item-warning .clearfix>
+          Account status
+          <span .pull-right>_{MsgAccountActivationPending}
+      $nothing
+        <li .list-group-item .list-group-item-success .clearfix>
+          Account status
+          <span .pull-right>_{MsgAccountActivationSuccess}

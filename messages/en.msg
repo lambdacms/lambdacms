@@ -16,6 +16,8 @@ Back: Back
 Remove: Remove
 CreatedOn: Created on
 LastLogin: Last login
+AccountActivationPending: Pending
+AccountActivationSuccess: Activated
 
 NoUsers: No users found
 NoTUsers: There are no users

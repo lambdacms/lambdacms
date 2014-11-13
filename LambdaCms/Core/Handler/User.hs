@@ -20,6 +20,8 @@ module LambdaCms.Core.Handler.User
 
 import LambdaCms.Core.Import
 import LambdaCms.Core.AuthHelper
+import LambdaCms.I18n
+import Data.Time.Format
 import qualified Data.Text as T (breakOn, concat, length)
 import Data.Maybe (fromMaybe)
 import Data.Time.Clock
@@ -116,6 +118,8 @@ postUserAdminNewR = do
 
 getUserAdminR userId = do
     user <- lift $ runDB $ get404 userId
+    timeNow <- liftIO getCurrentTime
+    hrtLocale <- lift lambdaCmsHumanTimeLocale
     (formWidget, enctype) <- generateFormPost $ userForm user (Just MsgSave)
     (pwFormWidget, pwEnctype) <- generateFormPost $ userChangePasswordForm Nothing (Just MsgChange)
     lambdaCmsAdminLayoutSub $ do
@@ -124,6 +128,8 @@ getUserAdminR userId = do
 
 postUserAdminR userId = do
   user <- lift . runDB $ get404 userId
+  timeNow <- liftIO getCurrentTime
+  hrtLocale <- lift lambdaCmsHumanTimeLocale
   ((formResult, formWidget), enctype) <- runFormPost $ userForm user (Just MsgSave)
   (pwFormWidget, pwEnctype) <- generateFormPost $ userChangePasswordForm Nothing (Just MsgChange)
   case formResult of
@@ -138,6 +144,8 @@ postUserAdminR userId = do
 
 postUserAdminChangePasswordR userId = do
   user <- lift . runDB $ get404 userId
+  timeNow <- liftIO getCurrentTime
+  hrtLocale <- lift lambdaCmsHumanTimeLocale
   (formWidget, enctype) <- generateFormPost $ userForm user (Just MsgSave)
   opw <- lookupPostParam "original-pw"
   ((formResult, pwFormWidget), pwEnctype) <- runFormPost $ userChangePasswordForm opw (Just MsgChange)

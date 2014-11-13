@@ -16,6 +16,8 @@ Back: Terug
 Remove: Verwijderen
 CreatedOn: Geregistreerd op
 LastLogin: Laatst ingelogd
+AccountActivationPending: In afwachting
+AccountActivationSuccess: Geactiveerd
 
 NoUsers: Geen gebruikers gevonden
 NoTUsers: Er zijn geen gebruikers
