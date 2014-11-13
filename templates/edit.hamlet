@@ -37,7 +37,7 @@
         <span .pull-right>#{mediaFileContentType file}
       <li .list-group-item .clearfix>
         _{MsgFileLocation}
-        <span .pull-right>#{normalise $ (staticDir y) </> (takeDirectory $ mediaFileLocation file)}
+        <span .pull-right>#{mediaFileFullLocation (staticDir y) file}
       <li .list-group-item .clearfix>
         _{MsgUploadedOn}
         <span .pull-right>#{show $ utctDay $ mediaFileUploadedAt file}

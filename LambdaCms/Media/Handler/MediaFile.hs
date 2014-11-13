@@ -21,7 +21,7 @@ import Data.Time (utctDay, getCurrentTime)
 import Data.Text (pack, unpack)
 import qualified Data.Text as T (split, concat)
 import System.FilePath
-import System.Directory (renameFile, removeFile, doesFileExist)
+import System.Directory
 
 getMediaFileOverviewR :: MediaHandler Html
 getMediaFileNewR      :: MediaHandler Html
@@ -151,8 +151,9 @@ upload f nn = do
   y <- lift getYesod
   let filename = unpack $ fileName f
       ctype = fileContentType f
-      location = (dropExtension nn) <.> (takeExtension filename)
+      location = normalise $ (uploadDir y) </> (dropExtension nn) <.> (takeExtension filename)
       path = (staticDir y) </> location
+  liftIO . createDirectoryIfMissing True $ dropFileName path
   liftIO $ fileMove f path
   return (location, ctype)
 
@@ -184,6 +185,9 @@ deleteMediaFile mf = do
 
 mediaFileBaseName :: MediaFile -> Text
 mediaFileBaseName = pack . takeBaseName . mediaFileLocation
+
+mediaFileFullLocation :: FilePath -> MediaFile -> FilePath
+mediaFileFullLocation sd = dropTrailingPathSeparator . normalise . (sd </>) . takeDirectory . mediaFileLocation
 
 splitContentType :: Text -> (Text, Text)
 splitContentType ct = (c, t)

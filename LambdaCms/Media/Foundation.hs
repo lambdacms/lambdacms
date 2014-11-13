@@ -18,6 +18,8 @@ mkMessage "Media" "messages" "en"
 class LambdaCmsAdmin master => LambdaCmsMedia master where
   staticDir :: master -> FilePath
   staticRoot :: master -> Text
+  uploadDir :: master -> FilePath
+  uploadDir _ = "uploads"
 
 type MediaHandler a = forall master. LambdaCmsMedia master => HandlerT Media (HandlerT master IO) a
 
