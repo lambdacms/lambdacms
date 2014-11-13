@@ -8,4 +8,4 @@
 <div .row>
   <div .col-sm-10 .col-md-7 .col-lg-4>
     <form role=form method=POST action=@{MediaFileNewR} enctype=#{enctype}>
-      ^{fwidget}
+      ^{fWidget}

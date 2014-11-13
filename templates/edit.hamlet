@@ -23,7 +23,9 @@
             _{MsgUnknownFileType}
   <div .col-sm-10 .col-md-7 .col-lg-4>
     <form role=form method=POST action=@{MediaFileR fileId} enctype=#{enctype}>
-      ^{fwidget}
+      ^{fWidget}
+    <form role=form method=POST action=@{MediaFileRenameR fileId} enctype=#{rEnctype}>
+      ^{rfWidget}
     <ul .list-group>
       <li .list-group-item .list-group-item-info>
         <strong> _{MsgInformation}

@@ -11,17 +11,17 @@ module LambdaCms.Media.Handler.MediaFile
        , getMediaFileR
        , postMediaFileR
        , deleteMediaFileR
+       , postMediaFileRenameR
        ) where
 
 import LambdaCms.Media.Import
 
 import Text.Lucius (luciusFile)
-import Data.Time (UTCTime, utctDay, getCurrentTime)
-import Data.Text (unpack)
+import Data.Time (utctDay, getCurrentTime)
+import Data.Text (pack, unpack)
 import qualified Data.Text as T (split, concat)
-import Data.Maybe (fromMaybe)
-import System.FilePath ((</>), (<.>), takeExtension, dropExtension, takeDirectory, takeFileName, normalise)
-import System.Directory (removeFile, doesFileExist)
+import System.FilePath
+import System.Directory (renameFile, removeFile, doesFileExist)
 
 getMediaFileOverviewR :: MediaHandler Html
 getMediaFileNewR      :: MediaHandler Html
@@ -29,6 +29,7 @@ postMediaFileNewR     :: MediaHandler Html
 getMediaFileR         :: MediaFileId -> MediaHandler Html
 postMediaFileR        :: MediaFileId -> MediaHandler Html
 deleteMediaFileR      :: MediaFileId -> MediaHandler Html
+postMediaFileRenameR  :: MediaFileId -> MediaHandler Html
 
 getMediaFileOverviewR = do
   y <- lift $ getYesod
@@ -40,13 +41,13 @@ getMediaFileOverviewR = do
     $(whamletFile "templates/overview.hamlet")
 
 getMediaFileNewR = do
-  (fwidget, enctype) <- generateFormPost uploadForm
+  (fWidget, enctype) <- generateFormPost uploadForm
   lambdaCmsAdminLayoutSub $ do
     setTitleI MsgNewMedia
     $(whamletFile "templates/new.hamlet")
 
 postMediaFileNewR = do
-  ((results, fwidget), enctype) <- runFormPost uploadForm
+  ((results, fWidget), enctype) <- runFormPost uploadForm
   case results of
    FormSuccess (file, name, label, description) -> do
      ct <- liftIO getCurrentTime
@@ -63,14 +64,15 @@ getMediaFileR fileId = do
   y <- lift $ getYesod
   let sr = unpack $ staticRoot y
   file <- lift . runDB $ get404 fileId
-  (fwidget, enctype) <- generateFormPost $ mediaFileForm file
+  (fWidget, enctype) <- generateFormPost $ mediaFileForm file
+  (rfWidget, rEnctype) <- generateFormPost . renameForm $ mediaFilename file
   lambdaCmsAdminLayoutSub $ do
     setTitle . toHtml $ mediaFileLabel file
     $(whamletFile "templates/edit.hamlet")
 
 postMediaFileR fileId = do
   file <- lift . runDB $ get404 fileId
-  ((results, fwidget), enctype) <- runFormPost $ mediaFileForm file
+  ((results, fWidget), enctype) <- runFormPost $ mediaFileForm file
   case results of
    FormSuccess mf -> do
      _ <- lift $ runDB $ update fileId [MediaFileLabel =. mediaFileLabel mf, MediaFileDescription =. mediaFileDescription mf]
@@ -79,6 +81,7 @@ postMediaFileR fileId = do
    _ -> do
      y <- lift $ getYesod
      let sr = unpack $ staticRoot y
+     (rfWidget, rEnctype) <- generateFormPost . renameForm $ mediaFilename file
      lambdaCmsAdminLayoutSub $ do
        setTitle . toHtml $ mediaFileLabel file
        $(whamletFile "templates/edit.hamlet")
@@ -94,6 +97,32 @@ deleteMediaFileR fileId = do
    True -> do
      setMessageI $ MsgDeleteFail (mediaFileLabel file)
      redirect $ MediaFileR fileId
+
+postMediaFileRenameR fileId = do
+  file <- lift . runDB $ get404 fileId
+  ((results, rfWidget), rEnctype) <- runFormPost . renameForm $ mediaFilename file
+  case results of
+   FormSuccess (nn, on)
+     | nn == on -> do
+         setMessageI MsgRenameSuccess
+         redirect $ MediaFileR fileId
+     | otherwise -> do
+         (isRenamed, location) <- renameMediaFile file nn
+         case isRenamed of
+          True -> do
+            _ <- lift . runDB $ update fileId [MediaFileLocation =. location]
+            setMessageI MsgRenameSuccess
+            redirect $ MediaFileR fileId
+          False -> do
+            setMessageI MsgRenameFail
+            redirect $ MediaFileR fileId
+   _ -> do
+     y <- lift $ getYesod
+     let sr = unpack $ staticRoot y
+     (fWidget, enctype) <- generateFormPost $ mediaFileForm file
+     lambdaCmsAdminLayoutSub $ do
+       setTitle . toHtml $ mediaFileLabel file
+       $(whamletFile "templates/edit.hamlet")
 
 uploadForm :: Form (FileInfo, Text, Text, Maybe Textarea)
 uploadForm = renderBootstrap3 BootstrapBasicForm $ (,,,)
@@ -112,15 +141,35 @@ mediaFileForm mf = renderBootstrap3 BootstrapBasicForm $ MediaFile
                    <*> pure (mediaFileUploadedAt mf)
                    <*  bootstrapSubmit (BootstrapSubmit MsgSave " btn-success " [])
 
+renameForm :: Text -> Form (Text, Text)
+renameForm fp = renderBootstrap3 BootstrapBasicForm $ (,)
+                <$> areq textField (bfs MsgNewFilename) (Just fp)
+                <*> pure fp
+                <*  bootstrapSubmit (BootstrapSubmit MsgRename " btn-success " [])
+
 upload :: FileInfo -> FilePath -> MediaHandler (FilePath, Text)
-upload f nm = do
+upload f nn = do
   y <- lift getYesod
   let filename = unpack $ fileName f
       ctype = fileContentType f
-      location = (dropExtension nm) <.> (takeExtension filename)
+      location = (dropExtension nn) <.> (takeExtension filename)
       path = (staticDir y) </> location
   liftIO $ fileMove f path
   return (location, ctype)
+
+renameMediaFile :: MediaFile -> Text -> MediaHandler (Bool, FilePath)
+renameMediaFile mf nn = do
+  y <- lift getYesod
+  let clocation = mediaFileLocation mf
+      nlocation = replaceBaseName clocation $ unpack nn
+      cpath = (staticDir y) </> clocation
+      npath = (staticDir y) </> nlocation
+  fileExists <- liftIO $ doesFileExist cpath
+  case fileExists of
+   True -> do
+     liftIO $ renameFile (cpath) (npath)
+     return (True, nlocation)
+   False -> return (False, clocation)
 
 deleteFile :: MediaFile -> MediaHandler Bool
 deleteFile mf = do
@@ -133,6 +182,9 @@ deleteFile mf = do
      fileStillExists <- liftIO $ doesFileExist path
      return fileStillExists
    False -> return False
+
+mediaFilename :: MediaFile -> Text
+mediaFilename = pack . takeBaseName . mediaFileLocation
 
 splitContentType :: Text -> (Text, Text)
 splitContentType ct = (c, t)
