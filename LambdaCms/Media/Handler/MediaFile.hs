@@ -88,13 +88,12 @@ postMediaFileR fileId = do
 
 deleteMediaFileR fileId = do
   file <- lift . runDB $ get404 fileId
-  fileExists <- deleteMediaFile file
-  case fileExists of
-   False -> do
-     lift . runDB $ delete fileId
+  isDeleted <- deleteMediaFile file fileId
+  case isDeleted of
+   True -> do
      setMessageI $ MsgDeleteSuccess (mediaFileLabel file)
      redirect MediaFileOverviewR
-   True -> do
+   False -> do
      setMessageI $ MsgDeleteFail (mediaFileLabel file)
      redirect $ MediaFileR fileId
 
@@ -107,10 +106,9 @@ postMediaFileRenameR fileId = do
          setMessageI MsgRenameSuccess
          redirect $ MediaFileR fileId
      | otherwise -> do
-         (isRenamed, location) <- renameMediaFile file nn
+         isRenamed <- renameMediaFile file fileId nn
          case isRenamed of
           True -> do
-            _ <- lift . runDB $ update fileId [MediaFileLocation =. location]
             setMessageI MsgRenameSuccess
             redirect $ MediaFileR fileId
           False -> do
@@ -157,8 +155,8 @@ upload f nn = do
   liftIO $ fileMove f path
   return (location, ctype)
 
-renameMediaFile :: MediaFile -> Text -> MediaHandler (Bool, FilePath)
-renameMediaFile mf nn = do
+renameMediaFile :: MediaFile -> MediaFileId -> Text -> MediaHandler Bool
+renameMediaFile mf fileId nn = do
   y <- lift getYesod
   let clocation = mediaFileLocation mf
       nlocation = replaceBaseName clocation $ unpack nn
@@ -168,11 +166,12 @@ renameMediaFile mf nn = do
   case fileExists of
    True -> do
      liftIO $ renameFile (cpath) (npath)
-     return (True, nlocation)
-   False -> return (False, clocation)
+     _ <- lift . runDB $ update fileId [MediaFileLocation =. nlocation]
+     return True
+   False -> return False
 
-deleteMediaFile :: MediaFile -> MediaHandler Bool
-deleteMediaFile mf = do
+deleteMediaFile :: MediaFile -> MediaFileId -> MediaHandler Bool
+deleteMediaFile mf fileId = do
   y <- lift getYesod
   let path = (staticDir y) </> (mediaFileLocation mf)
   fileExists <- liftIO $ doesFileExist path
@@ -180,8 +179,12 @@ deleteMediaFile mf = do
    True -> do
      liftIO $ removeFile path
      fileStillExists <- liftIO $ doesFileExist path
-     return fileStillExists
-   False -> return False
+     case fileStillExists of
+      True -> return False
+      False -> do
+        _ <- lift . runDB $ delete fileId
+        return True
+   False -> return True
 
 mediaFileBaseName :: MediaFile -> Text
 mediaFileBaseName = pack . takeBaseName . mediaFileLocation
