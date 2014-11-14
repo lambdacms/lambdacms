@@ -99,7 +99,8 @@ type Form x = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT Co
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.
 instance RenderMessage Core FormMessage where
-    renderMessage _ _ = dutchFormMessage
+    renderMessage _ ("nl":_) = dutchFormMessage
+    renderMessage _ _        = defaultFormMessage
 
 -- Fix for bfs (Bootstrap3 Field Settings)
 bfs' :: Text -> FieldSettings master
