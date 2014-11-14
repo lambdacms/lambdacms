@@ -1,0 +1,8 @@
+<h1>LambdaCms Registration
+
+<p>Hi #{userName user},
+<p>Someone just created an account for you
+
+<a href=@{UserAdminActivateR userId token}>Activate your account
+
+<p>...

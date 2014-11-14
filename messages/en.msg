@@ -16,8 +16,11 @@ Back: Back
 Remove: Remove
 CreatedOn: Created on
 LastLogin: Last login
+
 AccountActivationPending: Pending
 AccountActivationSuccess: Activated
+TokenMismatch: Invalid token
+AccountAlreadyActivated: This account has already been activated
 
 NoUsers: No users found
 NoTUsers: There are no users

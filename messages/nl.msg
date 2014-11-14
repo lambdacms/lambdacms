@@ -16,8 +16,11 @@ Back: Terug
 Remove: Verwijderen
 CreatedOn: Geregistreerd op
 LastLogin: Laatst ingelogd
+
 AccountActivationPending: In afwachting
 AccountActivationSuccess: Geactiveerd
+TokenMismatch: Ongeldige token
+AccountAlreadyActivated: Dit account is al geactiveerd
 
 NoUsers: Geen gebruikers gevonden
 NoTUsers: Er zijn geen gebruikers

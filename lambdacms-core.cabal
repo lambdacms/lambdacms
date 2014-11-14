@@ -47,4 +47,6 @@ library
                   , time                               >= 1.4.2    && < 1.5
                   , friendly-time                      >= 0.3      && < 1.0
                   , old-locale                         >= 1.0.0.5  && < 1.0.1.0
+                  , mime-mail                          >= 0.4.5.2  && < 0.5
+                  , blaze-markup
   ghc-options:      -Wall -O2

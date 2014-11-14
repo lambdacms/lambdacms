@@ -1,0 +1,2 @@
+    <form role=form method=post action=@{UserAdminActivateR userId token} enctype=#{pwEnctype}>
+      ^{pwFormWidget}
