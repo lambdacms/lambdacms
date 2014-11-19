@@ -40,12 +40,18 @@ class ( Yesod master
        -- | Applies some form of layout to the contents of an admin section page.
     adminLayout :: WidgetT master IO () -> HandlerT master IO Html
     adminLayout widget = do
-        y <- getYesod
-        user <- getUserName
-        p <- widgetToPageContent $ do
-            $(whamletFile "templates/adminlayout.hamlet")
-            toWidget $(luciusFile "templates/adminlayout.lucius")
-            toWidget $(juliusFile "templates/adminlayout.julius")
+        y  <- getYesod
+        let mis = adminMenu y
+        cr <- getCurrentRoute
+        un <- getUserName
+        mmsg <- getMessage
+        pc <- widgetToPageContent $ do
+          addScriptRemote "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
+          addScriptRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/js/bootstrap.min.js"
+          addStylesheetRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap.min.css"
+          $(whamletFile "templates/adminlayout.hamlet")
+          toWidget $(luciusFile "templates/adminlayout.lucius")
+          toWidget $(juliusFile "templates/adminlayout.julius")
         withUrlRenderer $(hamletFile "templates/adminlayout-wrapper.hamlet")
 
     defaultLambdaCmsAdminAuthLayout :: WidgetT master IO () -> HandlerT master IO Html
@@ -128,28 +134,11 @@ defaultCoreAdminMenu :: LambdaCmsAdmin master => (Route Core -> Route master) ->
 defaultCoreAdminMenu tp = [MenuItem "Dashboard" (tp AdminHomeR) "home",
                            MenuItem "Users" (tp UserAdminOverviewR) "user"]
 
-lambdaCmsAdminLayout :: LambdaCmsAdmin parent =>
-                        WidgetT parent IO () ->
-                        HandlerT child (HandlerT parent IO) Html
-lambdaCmsAdminLayout widget = lift $ do
-  y  <- getYesod
-  let mis = adminMenu y
-  cr <- getCurrentRoute
-  un <- getUserName
-  mmsg <- getMessage
-  pc <- widgetToPageContent $ do
-    addScriptRemote "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
-    addScriptRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/js/bootstrap.min.js"
-    addStylesheetRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap.min.css"
-    $(whamletFile "templates/lambdacmsadminlayout.hamlet")
-    toWidget $(luciusFile "templates/adminlayout.lucius")
-    toWidget $(juliusFile "templates/adminlayout.julius")
-  withUrlRenderer $(hamletFile "templates/lambdacmsadminlayout-wrapper.hamlet")
 
-lambdaCmsAdminLayoutSub :: LambdaCmsAdmin parent =>
-                           WidgetT child IO () ->
-                           HandlerT child (HandlerT parent IO) Html
-lambdaCmsAdminLayoutSub cwidget = widgetToParentWidget cwidget >>= lambdaCmsAdminLayout
+adminLayoutSub :: LambdaCmsAdmin master
+                  => WidgetT sub IO ()
+                  -> HandlerT sub (HandlerT master IO) Html
+adminLayoutSub widget = widgetToParentWidget widget >>= lift . adminLayout
 
 
 -- | Wrapper for humanReadableTimeI18N'. It uses Yesod's own i18n functionality

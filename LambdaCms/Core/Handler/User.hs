@@ -96,7 +96,7 @@ getUserAdminOverviewR = do
     hrtLocale <- lift lambdaCmsHumanTimeLocale
     tp <- getRouteToParent
     (users :: [Entity User]) <- lift $ runDB $ selectList [] []
-    lambdaCmsAdminLayout $ do
+    lift . adminLayout $ do
       setTitleI Msg.UserOverview
       $(whamletFile "templates/user/index.hamlet")
 
@@ -104,7 +104,7 @@ getUserAdminNewR = do
     eu <- liftIO emptyUser
     tp <- getRouteToParent
     (formWidget, enctype) <- lift . generateFormPost $ userForm eu (Just Msg.Create)
-    lambdaCmsAdminLayout $ do
+    lift . adminLayout $ do
       setTitleI Msg.NewUser
       $(whamletFile "templates/user/new.hamlet")
 
@@ -118,7 +118,7 @@ postUserAdminNewR = do
         redirectUltDest $ UserAdminR userId
       _ -> do
         tp <- getRouteToParent
-        lambdaCmsAdminLayout $ do
+        lift . adminLayout $ do
           setTitleI Msg.NewUser
           $(whamletFile "templates/user/new.hamlet")
 
@@ -129,7 +129,7 @@ getUserAdminR userId = do
     hrtLocale <- lift lambdaCmsHumanTimeLocale
     (formWidget, enctype) <- lift . generateFormPost $ userForm user (Just Msg.Save)
     (pwFormWidget, pwEnctype) <- lift . generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change)
-    lambdaCmsAdminLayout $ do
+    lift . adminLayout $ do
       setTitle . toHtml $ userName user
       $(whamletFile "templates/user/edit.hamlet")
 
@@ -146,7 +146,7 @@ postUserAdminR userId = do
      redirect $ UserAdminR userId
    _ -> do
      tp <- getRouteToParent
-     lambdaCmsAdminLayout $ do
+     lift . adminLayout $ do
        setTitle . toHtml $ userName user
        $(whamletFile "templates/user/edit.hamlet")
 
@@ -164,7 +164,7 @@ postUserAdminChangePasswordR userId = do
      redirect $ UserAdminR userId
    _ -> do
      tp <- getRouteToParent
-     lambdaCmsAdminLayout $ do
+     lift . adminLayout $ do
        setTitle . toHtml $ userName user
        $(whamletFile "templates/user/edit.hamlet")
 
