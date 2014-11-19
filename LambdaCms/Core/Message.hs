@@ -12,7 +12,11 @@ import Data.Monoid (mappend)
 import Data.Text (Text)
 
 data CoreMessage =
-    UserOverview
+    Dashboard
+  | LambdaCms
+  | SignedInAs { name :: Text}
+  | Logout
+  | UserOverview
   | EmailAddress
   | NewUser
   | PasswordTooShort
@@ -54,6 +58,10 @@ defaultMessage :: CoreMessage -> Text
 defaultMessage = englishMessage
 
 englishMessage :: CoreMessage -> Text
+englishMessage Dashboard                = "Dashboard"
+englishMessage LambdaCms                = "LambdaCms"
+englishMessage (SignedInAs name)        = "Signed in as " `mappend` name
+englishMessage Logout                   = "Logout"
 englishMessage UserOverview             = "User overview"
 englishMessage EmailAddress             = "E-mail address"
 englishMessage NewUser                  = "New user"
@@ -93,7 +101,11 @@ englishMessage (TimeOnYear time)        = "on " `mappend` time
 englishMessage DayOfWeekFmt             = "%l:%M %p on %A"
 
 dutchMessage :: CoreMessage -> Text
+dutchMessage Dashboard                = "Dashboard"
 dutchMessage UserOverview             = "Gebruikers overzicht"
+dutchMessage LambdaCms                = "LambdaCms"
+dutchMessage (SignedInAs name)        = "Ingelogt als " `mappend` name
+dutchMessage Logout                   = "Uitloggen"
 dutchMessage EmailAddress             = "E-mailadres"
 dutchMessage NewUser                  = "Nieuwe gebruiker"
 dutchMessage PasswordTooShort         = "Wachtwoord te kort"
