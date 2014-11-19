@@ -2,14 +2,14 @@
   <h1>#{mediaFileLabel file}
 <div .row .button-toolbar>
   <div .col-xs-12>
-    <a .btn .btn-primary href=@{MediaFileOverviewR}>
+    <a .btn .btn-primary href=@{tp MediaFileOverviewR}>
       <span .glyphicon .glyphicon-arrow-left>
-      _{MsgBack}
-    <form .form-inline .display-inline method=POST action=@{MediaFileR fileId}>
+      _{Msg.Back}
+    <form .form-inline .display-inline method=POST action=@{tp $ MediaFileR fileId}>
       <input name="_method" type="hidden" value="DELETE" />
       <button .btn .btn-danger type=submit>
         <span .glyphicon .glyphicon-remove>
-        _{MsgRemove}
+        _{Msg.Delete}
 <div .row>
   <div .col-lg-7>
     <div .panel .panel-default>
@@ -18,26 +18,26 @@
           $if isImageFile file
             <img .img-responsive .img-rounded src=#{sr </> mediaFileLocation file} alt=#{mediaFileLabel file}>
           $elseif isApplicationFile file
-            _{MsgCantDisplayFileType}
+            _{Msg.CantDisplayFileType}
           $else
-            _{MsgUnknownFileType}
+            _{Msg.UnknownFileType}
   <div .col-sm-10 .col-md-7 .col-lg-4>
-    <form role=form method=POST action=@{MediaFileR fileId} enctype=#{enctype}>
+    <form role=form method=POST action=@{tp $ MediaFileR fileId} enctype=#{enctype}>
       ^{fWidget}
-    <form role=form method=POST action=@{MediaFileRenameR fileId} enctype=#{rEnctype}>
+    <form role=form method=POST action=@{tp $ MediaFileRenameR fileId} enctype=#{rEnctype}>
       ^{rfWidget}
     <ul .list-group>
       <li .list-group-item .list-group-item-info>
-        <strong> _{MsgInformation}
+        <strong> _{Msg.Information}
       <li .list-group-item .clearfix>
-        _{MsgFilename}
+        _{Msg.Filename}
         <a .pull-right href=#{sr </> mediaFileLocation file}>#{takeFileName $ mediaFileLocation file}
       <li .list-group-item .clearfix>
-        _{MsgFileContentType}
+        _{Msg.FileContentType}
         <span .pull-right>#{mediaFileContentType file}
       <li .list-group-item .clearfix>
-        _{MsgFileLocation}
+        _{Msg.FileLocation}
         <span .pull-right>#{mediaFileFullLocation (staticDir y) file}
       <li .list-group-item .clearfix>
-        _{MsgUploadedOn}
+        _{Msg.UploadedOn}
         <span .pull-right>#{show $ utctDay $ mediaFileUploadedAt file}

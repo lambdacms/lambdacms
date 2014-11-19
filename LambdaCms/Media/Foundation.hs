@@ -2,6 +2,7 @@
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances     #-}
 
 module LambdaCms.Media.Foundation where
 
@@ -12,8 +13,7 @@ import LambdaCms.Core
 
 -- import LambdaCms.Media.Models
 import LambdaCms.Media.Routes
-
-mkMessage "Media" "messages" "en"
+import LambdaCms.Media.Message (MediaMessage, defaultMessage)
 
 class LambdaCmsAdmin master => LambdaCmsMedia master where
   staticDir :: master -> FilePath
@@ -21,11 +21,20 @@ class LambdaCmsAdmin master => LambdaCmsMedia master where
   uploadDir :: master -> FilePath
   uploadDir _ = "uploads"
 
+  renderMediaMessage :: master
+                        -> [Text]
+                        -> MediaMessage
+                        -> Text
+  renderMediaMessage _ _ = defaultMessage
+
 type MediaHandler a = forall master. LambdaCmsMedia master => HandlerT Media (HandlerT master IO) a
 
 type MediaWidget = forall master. LambdaCmsMedia master => WidgetT master IO ()
 
-type Form x = forall master. LambdaCmsMedia master => Html -> MForm (HandlerT Media (HandlerT master IO)) (FormResult x, WidgetT Media IO ())
+type Form x = forall master. LambdaCmsMedia master => Html -> MForm (HandlerT master IO) (FormResult x, WidgetT master IO ())
 
 instance RenderMessage Media FormMessage where
   renderMessage _ _ = defaultFormMessage
+
+instance LambdaCmsMedia master => RenderMessage master MediaMessage where
+  renderMessage = renderMediaMessage

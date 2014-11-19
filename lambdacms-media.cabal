@@ -25,6 +25,7 @@ library
   default-language: Haskell2010
 
   exposed-modules:  LambdaCms.Media
+                  , LambdaCms.Media.Message
 
   other-modules:    LambdaCms.Media.Foundation
                   , LambdaCms.Media.Models

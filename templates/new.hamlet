@@ -1,11 +1,11 @@
 <div .page-header>
-  <h1>_{MsgNewMedia}
+  <h1>_{Msg.NewMedia}
 <div .row .button-toolbar>
   <div .col-xs-12>
-    <a .btn .btn-primary href=@{MediaFileOverviewR}>
+    <a .btn .btn-primary href=@{tp MediaFileOverviewR}>
       <span .glyphicon .glyphicon-arrow-left>
-      _{MsgBack}
+      _{Msg.Back}
 <div .row>
   <div .col-sm-10 .col-md-7 .col-lg-4>
-    <form role=form method=POST action=@{MediaFileNewR} enctype=#{enctype}>
+    <form role=form method=POST action=@{tp MediaFileNewR} enctype=#{enctype}>
       ^{fWidget}

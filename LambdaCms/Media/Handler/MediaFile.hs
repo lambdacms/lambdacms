@@ -15,6 +15,7 @@ module LambdaCms.Media.Handler.MediaFile
        ) where
 
 import LambdaCms.Media.Import
+import qualified LambdaCms.Media.Message as Msg
 
 import Text.Lucius (luciusFile)
 import Data.Time (utctDay, getCurrentTime)
@@ -32,57 +33,62 @@ deleteMediaFileR      :: MediaFileId -> MediaHandler Html
 postMediaFileRenameR  :: MediaFileId -> MediaHandler Html
 
 getMediaFileOverviewR = do
+  tp <- getRouteToParent
   y <- lift $ getYesod
   let sr = unpack $ staticRoot y
   (files :: [Entity MediaFile]) <- lift . runDB $ selectList [] []
-  lambdaCmsAdminLayoutSub $ do
-    setTitleI MsgMediaOverview
+  lift . adminLayout $ do
+    setTitleI Msg.MediaOverview
     toWidget $(luciusFile "templates/media.lucius")
     $(whamletFile "templates/overview.hamlet")
 
 getMediaFileNewR = do
-  (fWidget, enctype) <- generateFormPost uploadForm
-  lambdaCmsAdminLayoutSub $ do
-    setTitleI MsgNewMedia
+  tp <- getRouteToParent
+  (fWidget, enctype) <- lift $ generateFormPost uploadForm
+  lift . adminLayout $ do
+    setTitleI Msg.NewMedia
     $(whamletFile "templates/new.hamlet")
 
 postMediaFileNewR = do
-  ((results, fWidget), enctype) <- runFormPost uploadForm
+  ((results, fWidget), enctype) <- lift $ runFormPost uploadForm
   case results of
    FormSuccess (file, name, label, description) -> do
      ct <- liftIO getCurrentTime
      (location, ctype) <- upload file (unpack name)
      _ <- lift . runDB . insert $ MediaFile location ctype label description ct
-     setMessageI $ MsgSaveSuccess label
+     lift . setMessageI $ Msg.SaveSuccess label
      redirect MediaFileOverviewR
-   _ ->
-     lambdaCmsAdminLayoutSub $ do
-       setTitleI MsgNewMedia
+   _ -> do
+     tp <- getRouteToParent
+     lift . adminLayout $ do
+       setTitleI Msg.NewMedia
        $(whamletFile "templates/new.hamlet")
 
 getMediaFileR fileId = do
+  tp <- getRouteToParent
   y <- lift $ getYesod
   let sr = unpack $ staticRoot y
   file <- lift . runDB $ get404 fileId
-  (fWidget, enctype) <- generateFormPost $ mediaFileForm file
-  (rfWidget, rEnctype) <- generateFormPost . renameForm $ mediaFileBaseName file
-  lambdaCmsAdminLayoutSub $ do
+  (fWidget, enctype) <- lift . generateFormPost $ mediaFileForm file
+  (rfWidget, rEnctype) <- lift . generateFormPost . renameForm $ mediaFileBaseName file
+  lift . adminLayout $ do
     setTitle . toHtml $ mediaFileLabel file
     $(whamletFile "templates/edit.hamlet")
 
 postMediaFileR fileId = do
   file <- lift . runDB $ get404 fileId
-  ((results, fWidget), enctype) <- runFormPost $ mediaFileForm file
+  ((results, fWidget), enctype) <- lift . runFormPost $ mediaFileForm file
   case results of
    FormSuccess mf -> do
      _ <- lift $ runDB $ update fileId [MediaFileLabel =. mediaFileLabel mf, MediaFileDescription =. mediaFileDescription mf]
-     setMessageI $ MsgUpdateSuccess (mediaFileLabel mf)
+     lift . setMessageI $ Msg.UpdateSuccess (mediaFileLabel mf)
      redirect $ MediaFileR fileId
    _ -> do
+     tp <- getRouteToParent
      y <- lift $ getYesod
      let sr = unpack $ staticRoot y
-     (rfWidget, rEnctype) <- generateFormPost . renameForm $ mediaFileBaseName file
-     lambdaCmsAdminLayoutSub $ do
+     (rfWidget, rEnctype) <- lift . generateFormPost . renameForm $ mediaFileBaseName file
+     lift . adminLayout $ do
        setTitle . toHtml $ mediaFileLabel file
        $(whamletFile "templates/edit.hamlet")
 
@@ -91,58 +97,59 @@ deleteMediaFileR fileId = do
   isDeleted <- deleteMediaFile file fileId
   case isDeleted of
    True -> do
-     setMessageI $ MsgDeleteSuccess (mediaFileLabel file)
+     lift . setMessageI $ Msg.DeleteSuccess (mediaFileLabel file)
      redirect MediaFileOverviewR
    False -> do
-     setMessageI $ MsgDeleteFail (mediaFileLabel file)
+     lift . setMessageI $ Msg.DeleteFail (mediaFileLabel file)
      redirect $ MediaFileR fileId
 
 postMediaFileRenameR fileId = do
   file <- lift . runDB $ get404 fileId
-  ((results, rfWidget), rEnctype) <- runFormPost . renameForm $ mediaFileBaseName file
+  ((results, rfWidget), rEnctype) <- lift . runFormPost . renameForm $ mediaFileBaseName file
   case results of
    FormSuccess nn
      | nn == (mediaFileBaseName file) -> do
-         setMessageI MsgRenameSuccess
+         lift $ setMessageI Msg.RenameSuccess
          redirect $ MediaFileR fileId
      | otherwise -> do
          isRenamed <- renameMediaFile file fileId nn
          case isRenamed of
           True -> do
-            setMessageI MsgRenameSuccess
+            lift $ setMessageI Msg.RenameSuccess
             redirect $ MediaFileR fileId
           False -> do
-            setMessageI MsgRenameFail
+            lift $ setMessageI Msg.RenameFail
             redirect $ MediaFileR fileId
    _ -> do
+     tp <- getRouteToParent
      y <- lift $ getYesod
      let sr = unpack $ staticRoot y
-     (fWidget, enctype) <- generateFormPost $ mediaFileForm file
-     lambdaCmsAdminLayoutSub $ do
+     (fWidget, enctype) <- lift . generateFormPost $ mediaFileForm file
+     lift . adminLayout $ do
        setTitle . toHtml $ mediaFileLabel file
        $(whamletFile "templates/edit.hamlet")
 
 uploadForm :: Form (FileInfo, Text, Text, Maybe Textarea)
 uploadForm = renderBootstrap3 BootstrapBasicForm $ (,,,)
-             <$> areq fileField (bfs MsgLocation) Nothing
-             <*> areq textField (bfs MsgNewFilename) Nothing
-             <*> areq textField (bfs MsgLabel) Nothing
-             <*> aopt textareaField (bfs MsgDescription) Nothing
-             <*  bootstrapSubmit (BootstrapSubmit MsgUpload " btn-success " [])
+             <$> areq fileField (bfs Msg.Location) Nothing
+             <*> areq textField (bfs Msg.NewFilename) Nothing
+             <*> areq textField (bfs Msg.Label) Nothing
+             <*> aopt textareaField (bfs Msg.Description) Nothing
+             <*  bootstrapSubmit (BootstrapSubmit Msg.Upload " btn-success " [])
 
 mediaFileForm :: MediaFile -> Form MediaFile
 mediaFileForm mf = renderBootstrap3 BootstrapBasicForm $ MediaFile
                    <$> pure (mediaFileLocation mf)
                    <*> pure (mediaFileContentType mf)
-                   <*> areq textField (bfs MsgLabel) (Just $ mediaFileLabel mf)
-                   <*> aopt textareaField (bfs MsgDescription) (Just $ mediaFileDescription mf)
+                   <*> areq textField (bfs Msg.Label) (Just $ mediaFileLabel mf)
+                   <*> aopt textareaField (bfs Msg.Description) (Just $ mediaFileDescription mf)
                    <*> pure (mediaFileUploadedAt mf)
-                   <*  bootstrapSubmit (BootstrapSubmit MsgSave " btn-success " [])
+                   <*  bootstrapSubmit (BootstrapSubmit Msg.Save " btn-success " [])
 
 renameForm :: Text -> Form Text
 renameForm fp = renderBootstrap3 BootstrapBasicForm $
-                areq textField (bfs MsgNewFilename) (Just fp)
-                <*  bootstrapSubmit (BootstrapSubmit MsgRename " btn-success " [])
+                areq textField (bfs Msg.NewFilename) (Just fp)
+                <*  bootstrapSubmit (BootstrapSubmit Msg.Rename " btn-success " [])
 
 upload :: FileInfo -> FilePath -> MediaHandler (FilePath, Text)
 upload f nn = do
