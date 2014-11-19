@@ -11,24 +11,20 @@
 module LambdaCms.Core.Foundation where
 
 import           Yesod
-import           Yesod.Form.Bootstrap3
 import           Yesod.Form.I18n.Dutch
 import           Database.Persist.Sql (SqlBackend)
-import           Data.Text (Text, unpack)
+import           Data.Text (Text, unpack, pack)
 import           Data.Time.Format.Human
 import           Data.Time (utc)
-import           System.Locale
-import           Data.Maybe (fromMaybe)
-import           Data.Monoid (mappend)
 import           Text.Hamlet (hamletFile)
 import           Text.Lucius (luciusFile)
 import           Text.Julius (juliusFile)
 
 import           LambdaCms.Core.Models
 import           LambdaCms.Core.Routes
+import           LambdaCms.Core.Message (CoreMessage, defaultMessage)
+import qualified LambdaCms.Core.Message as Msg
 import           LambdaCms.I18n
-
-mkMessage "Core" "messages" "en"
 
 class ( Yesod master
       -- , YesodDispatch master
@@ -88,26 +84,28 @@ class ( Yesod master
     adminMenu :: master -> [AdminMenuItem master]
     adminMenu _ = []
 
+    renderCoreMessage :: master
+                         -> [Text]
+                         -> CoreMessage
+                         -> Text
+    renderCoreMessage _ _ = defaultMessage
+
+
 -- Fairly complex "handler" type, allowing persistent queries on the master's db connection, hereby simplified
 type CoreHandler a = forall master. LambdaCmsAdmin master => HandlerT Core (HandlerT master IO) a
 
 type CoreWidget = forall master. LambdaCmsAdmin master => WidgetT master IO ()
 
-type Form x = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT Core (HandlerT master IO)) (FormResult x, WidgetT Core IO ())
+type Form x = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT master IO) (FormResult x, WidgetT master IO ())
 
 
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.
 instance RenderMessage Core FormMessage where
-    renderMessage _ _ = dutchFormMessage
+  renderMessage _ _ = dutchFormMessage
 
--- Fix for bfs (Bootstrap3 Field Settings)
-bfs' :: Text -> FieldSettings master
-bfs' = bfs . toMessage
-
--- Wrapper around BootstrapSubmit
-bss :: Maybe Text -> BootstrapSubmit Text
-bss submit = (BootstrapSubmit (fromMaybe "Submit" submit) " btn-success " [])
+instance LambdaCmsAdmin master => RenderMessage master CoreMessage where
+  renderMessage = renderCoreMessage
 
 -- Extension for bootstrap (give a name to input field)
 withName :: Text -> FieldSettings site -> FieldSettings site
@@ -155,25 +153,26 @@ lambdaCmsAdminLayoutSub cwidget = widgetToParentWidget cwidget >>= lambdaCmsAdmi
 
 
 -- | Wrapper for humanReadableTimeI18N'. It uses Yesod's own i18n functionality
-lambdaCmsHumanTimeLocale :: MonadHandler m => m HumanTimeLocale
+lambdaCmsHumanTimeLocale :: LambdaCmsAdmin master => HandlerT master IO HumanTimeLocale
 lambdaCmsHumanTimeLocale = do
   langs <- languages
-  let rm = unpack . renderMessage Core langs
+  y <- getYesod
+  let rm = unpack . renderMessage y langs
   return $ HumanTimeLocale
-    { justNow       = rm MsgTimeJustNow
-    , secondsAgo    = rm . MsgTimeSecondsAgo
-    , oneMinuteAgo  = rm MsgTimeOneMinuteAgo
-    , minutesAgo    = rm . MsgTimeMinutesAgo
-    , oneHourAgo    = rm MsgTimeOneHourAgo
-    , aboutHoursAgo = rm . MsgTimeAboutHoursAgo
-    , at            = (\_ x -> rm $ MsgTimeAt x)
-    , daysAgo       = rm . MsgTimeDaysAgo
-    , weekAgo       = rm . MsgTimeWeekAgo
-    , weeksAgo      = rm . MsgTimeWeeksAgo
-    , onYear        = rm . MsgTimeOnYear
+    { justNow       = rm Msg.TimeJustNow
+    , secondsAgo    = rm . Msg.TimeSecondsAgo . pack
+    , oneMinuteAgo  = rm Msg.TimeOneMinuteAgo
+    , minutesAgo    = rm . Msg.TimeMinutesAgo . pack
+    , oneHourAgo    = rm Msg.TimeOneHourAgo
+    , aboutHoursAgo = rm . Msg.TimeAboutHoursAgo . pack
+    , at            = (\_ x -> rm $ Msg.TimeAt $ pack x)
+    , daysAgo       = rm . Msg.TimeDaysAgo . pack
+    , weekAgo       = rm . Msg.TimeWeekAgo . pack
+    , weeksAgo      = rm . Msg.TimeWeeksAgo . pack
+    , onYear        = rm . Msg.TimeOnYear . pack
     , locale        = lambdaCmsTimeLocale langs
     , timeZone      = utc
-    , dayOfWeekFmt  = rm MsgDayOfWeekFmt
+    , dayOfWeekFmt  = rm Msg.DayOfWeekFmt
     , thisYearFmt   = "%b %e"
     , prevYearFmt   = "%b %e, %Y"
     }

@@ -20,7 +20,10 @@ module LambdaCms.Core.Handler.User
 
 import LambdaCms.Core.Import
 import LambdaCms.Core.AuthHelper
+import LambdaCms.Core.Message (CoreMessage)
+import qualified LambdaCms.Core.Message as Msg
 import LambdaCms.I18n
+
 import Data.Time.Format
 import qualified Data.Text as T (breakOn, concat, length)
 import Data.Maybe (fromMaybe)
@@ -44,30 +47,30 @@ deleteUserAdminR             :: UserId -> CoreHandler Html
 userForm :: User -> Maybe CoreMessage -> Form User
 userForm u submit = renderBootstrap3 BootstrapBasicForm $ User
              <$> pure            (userIdent u)
-             <*> areq textField  (bfs MsgUsername)        (Just $ userName u)
+             <*> areq textField  (bfs Msg.Username)        (Just $ userName u)
              <*> pure            (userPassword u)
-             <*> areq emailField (bfs MsgEmailAddress)   (Just $ userEmail u)
+             <*> areq emailField (bfs Msg.EmailAddress)   (Just $ userEmail u)
              <*> pure            (userToken u)
              <*> pure            (userCreatedAt u)
              <*> pure            (userLastLogin u)
-             <*  bootstrapSubmit (BootstrapSubmit (fromMaybe MsgSubmit submit) " btn-success " [])
+             <*  bootstrapSubmit (BootstrapSubmit (fromMaybe Msg.Submit submit) " btn-success " [])
 
 userChangePasswordForm :: Maybe Text -> Maybe CoreMessage -> Form ComparePassword
 userChangePasswordForm original submit = renderBootstrap3 BootstrapBasicForm $ ComparePassword
-  <$> areq validatePasswordField (withName "original-pw" $ bfs MsgPassword) Nothing
-  <*> areq comparePasswordField  (bfs MsgConfirm) Nothing
-  <*  bootstrapSubmit (BootstrapSubmit (fromMaybe MsgSubmit submit) " btn-success " [])
+  <$> areq validatePasswordField (withName "original-pw" $ bfs Msg.Password) Nothing
+  <*> areq comparePasswordField  (bfs Msg.Confirm) Nothing
+  <*  bootstrapSubmit (BootstrapSubmit (fromMaybe Msg.Submit submit) " btn-success " [])
   where
     validatePasswordField = check validatePassword passwordField
     comparePasswordField = check comparePasswords passwordField
 
     validatePassword pw
       | T.length pw >= 8 = Right pw
-      | otherwise = Left MsgPasswordTooShort
+      | otherwise = Left Msg.PasswordTooShort
 
     comparePasswords pw
       | pw == fromMaybe "" original = Right pw
-      | otherwise = Left MsgPasswordMismatch
+      | otherwise = Left Msg.PasswordMismatch
 
 
 -- | Helper to create a user with email address
@@ -91,38 +94,42 @@ emptyUser = generateUserWithEmail ""
 getUserAdminOverviewR = do
     timeNow <- liftIO getCurrentTime
     hrtLocale <- lift lambdaCmsHumanTimeLocale
+    tp <- getRouteToParent
     (users :: [Entity User]) <- lift $ runDB $ selectList [] []
-    lambdaCmsAdminLayoutSub $ do
-      setTitleI MsgUserOverview
+    lambdaCmsAdminLayout $ do
+      setTitleI Msg.UserOverview
       $(whamletFile "templates/user/index.hamlet")
 
 getUserAdminNewR = do
     eu <- liftIO emptyUser
-    (formWidget, enctype) <- generateFormPost $ userForm eu (Just MsgCreate)
-    lambdaCmsAdminLayoutSub $ do
-      setTitleI MsgNewUser
+    tp <- getRouteToParent
+    (formWidget, enctype) <- lift . generateFormPost $ userForm eu (Just Msg.Create)
+    lambdaCmsAdminLayout $ do
+      setTitleI Msg.NewUser
       $(whamletFile "templates/user/new.hamlet")
 
 postUserAdminNewR = do
     eu <- liftIO emptyUser
-    ((formResult, formWidget), enctype) <- runFormPost $ userForm eu (Just MsgCreate)
+    ((formResult, formWidget), enctype) <- lift . runFormPost $ userForm eu (Just Msg.Create)
     case formResult of
       FormSuccess user -> do
         userId <- lift $ runDB $ insert user
-        setMessageI MsgSuccessCreate
+        lift $ setMessageI Msg.SuccessCreate
         redirectUltDest $ UserAdminR userId
       _ -> do
-        lambdaCmsAdminLayoutSub $ do
-          setTitleI MsgNewUser
+        tp <- getRouteToParent
+        lambdaCmsAdminLayout $ do
+          setTitleI Msg.NewUser
           $(whamletFile "templates/user/new.hamlet")
 
 getUserAdminR userId = do
+    tp <- getRouteToParent
     user <- lift $ runDB $ get404 userId
     timeNow <- liftIO getCurrentTime
     hrtLocale <- lift lambdaCmsHumanTimeLocale
-    (formWidget, enctype) <- generateFormPost $ userForm user (Just MsgSave)
-    (pwFormWidget, pwEnctype) <- generateFormPost $ userChangePasswordForm Nothing (Just MsgChange)
-    lambdaCmsAdminLayoutSub $ do
+    (formWidget, enctype) <- lift . generateFormPost $ userForm user (Just Msg.Save)
+    (pwFormWidget, pwEnctype) <- lift . generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change)
+    lambdaCmsAdminLayout $ do
       setTitle . toHtml $ userName user
       $(whamletFile "templates/user/edit.hamlet")
 
@@ -130,37 +137,39 @@ postUserAdminR userId = do
   user <- lift . runDB $ get404 userId
   timeNow <- liftIO getCurrentTime
   hrtLocale <- lift lambdaCmsHumanTimeLocale
-  ((formResult, formWidget), enctype) <- runFormPost $ userForm user (Just MsgSave)
-  (pwFormWidget, pwEnctype) <- generateFormPost $ userChangePasswordForm Nothing (Just MsgChange)
+  ((formResult, formWidget), enctype) <- lift . runFormPost $ userForm user (Just Msg.Save)
+  (pwFormWidget, pwEnctype) <- lift . generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change)
   case formResult of
    FormSuccess updatedUser -> do
      _ <- lift $ runDB $ update userId [UserName =. userName updatedUser, UserEmail =. userEmail updatedUser]
-     setMessageI MsgSuccessReplace
+     lift $ setMessageI Msg.SuccessReplace
      redirect $ UserAdminR userId
    _ -> do
-    lambdaCmsAdminLayoutSub $ do
-      setTitle . toHtml $ userName user
-      $(whamletFile "templates/user/edit.hamlet")
+     tp <- getRouteToParent
+     lambdaCmsAdminLayout $ do
+       setTitle . toHtml $ userName user
+       $(whamletFile "templates/user/edit.hamlet")
 
 postUserAdminChangePasswordR userId = do
   user <- lift . runDB $ get404 userId
   timeNow <- liftIO getCurrentTime
   hrtLocale <- lift lambdaCmsHumanTimeLocale
-  (formWidget, enctype) <- generateFormPost $ userForm user (Just MsgSave)
+  (formWidget, enctype) <- lift . generateFormPost $ userForm user (Just Msg.Save)
   opw <- lookupPostParam "original-pw"
-  ((formResult, pwFormWidget), pwEnctype) <- runFormPost $ userChangePasswordForm opw (Just MsgChange)
+  ((formResult, pwFormWidget), pwEnctype) <- lift . runFormPost $ userChangePasswordForm opw (Just Msg.Change)
   case formResult of
    FormSuccess f -> do
      _ <- lift . runDB $ update userId [UserPassword =. Just (originalPassword f)]
-     setMessageI MsgSuccessChgPwd
+     lift $ setMessageI Msg.SuccessChgPwd
      redirect $ UserAdminR userId
    _ -> do
-     lambdaCmsAdminLayoutSub $ do
+     tp <- getRouteToParent
+     lambdaCmsAdminLayout $ do
        setTitle . toHtml $ userName user
        $(whamletFile "templates/user/edit.hamlet")
 
 deleteUserAdminR userId = do
   user <- lift . runDB $ get404 userId
-  lift . runDB $ delete userId
-  setMessage . toHtml $ T.concat ["Deleted User: ", userName user]
+  _ <- lift . runDB $ delete userId
+  lift . setMessage . toHtml $ T.concat ["Deleted User: ", userName user]
   redirectUltDest UserAdminOverviewR

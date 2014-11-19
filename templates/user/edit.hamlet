@@ -2,36 +2,36 @@
   <h1>#{userName user}
 <div .row .button-toolbar>
   <div .col-xs-12>
-    <a .btn .btn-primary href=@{UserAdminOverviewR}>
+    <a .btn .btn-primary href=@{tp UserAdminOverviewR}>
       <span .glyphicon .glyphicon-arrow-left>
-      _{MsgBack}
-    <form .form-inline .display-inline method=post action=@{UserAdminR userId}>
+      _{Msg.Back}
+    <form .form-inline .display-inline method=post action=@{tp $ UserAdminR userId}>
       <input name="_method" type="hidden" value="DELETE" />
       <button .btn .btn-danger type=submit>
         <span .glyphicon .glyphicon-remove>
-        _{MsgRemove}
+        _{Msg.Remove}
 <div .row>
   <div .col-sm-10 .col-md-7 .col-lg-4>
-    <form role=form method=post action=@{UserAdminR userId} enctype=#{enctype}>
+    <form role=form method=post action=@{tp $ UserAdminR userId} enctype=#{enctype}>
       ^{formWidget}
-    <form role=form method=post action=@{UserAdminChangePasswordR userId} enctype=#{pwEnctype}>
+    <form role=form method=post action=@{tp $ UserAdminChangePasswordR userId} enctype=#{pwEnctype}>
       ^{pwFormWidget}
   <div .col-sm-10 .col-md-7 .col-lg-4>
     <ul .list-group>
       <li .list-group-item .list-group-item-info>
         <strong>User information
       <li .list-group-item .clearfix>
-        _{MsgCreatedOn}
+        _{Msg.CreatedOn}
         <span .pull-right>#{show $ utctDay $ userCreatedAt user}
       <li .list-group-item .clearfix>
-        _{MsgLastLogin}
+        _{Msg.LastLogin}
         <span .pull-right>#{humanReadableTimeI18N' hrtLocale timeNow $ userLastLogin user}
 
       $maybe ut <- userToken user
         <li .list-group-item .list-group-item-warning .clearfix>
           Account status
-          <span .pull-right>_{MsgAccountActivationPending}
+          <span .pull-right>_{Msg.AccountActivationPending}
       $nothing
         <li .list-group-item .list-group-item-success .clearfix>
           Account status
-          <span .pull-right>_{MsgAccountActivationSuccess}
+          <span .pull-right>_{Msg.AccountActivationSuccess}

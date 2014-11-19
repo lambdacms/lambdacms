@@ -1,31 +1,31 @@
 <div .page-header>
-  <h1>_{MsgUserOverview}
+  <h1>_{Msg.UserOverview}
 <div .row .button-toolbar>
   <div .col-xs-12>
-    <a .btn .btn-primary href=@{AdminHomeR}>
+    <a .btn .btn-primary href=@{tp AdminHomeR}>
       <span .glyphicon .glyphicon-arrow-left>
-      _{MsgBack}
-    <a .btn .btn-primary href=@{UserAdminNewR}>
+      _{Msg.Back}
+    <a .btn .btn-primary href=@{tp UserAdminNewR}>
       <span .glyphicon .glyphicon-plus>
-      _{MsgNewUser}
+      _{Msg.NewUser}
 <div .row>
   <div .col-xs-12>
     $if null users
-      <p .bg-info>_{MsgNoUsers}
+      <p .bg-info>_{Msg.NoUsersFound}
     $else
       <div .table-responsive>
         <table .table .table-striped .table-hover>
           <thead>
             <tr>
-              <th>_{MsgUsername}
-              <th>_{MsgEmailAddress}
-              <th>_{MsgCreatedOn}
-              <th>_{MsgLastLogin}
+              <th>_{Msg.Username}
+              <th>_{Msg.EmailAddress}
+              <th>_{Msg.CreatedOn}
+              <th>_{Msg.LastLogin}
           <tbody>
             $forall (Entity userId user) <- users
-              <tr onclick="document.location.href='@{UserAdminR userId}'">
+              <tr onclick="document.location.href='@{tp $ UserAdminR userId}'">
                 <td>
-                  <a href=@{UserAdminR userId}> #{userName user}
+                  <a href=@{tp $ UserAdminR userId}> #{userName user}
                 <td>#{userEmail user}
                 <td>#{show $ utctDay $ userCreatedAt user}
                 <td>#{humanReadableTimeI18N' hrtLocale timeNow $ userLastLogin user}
