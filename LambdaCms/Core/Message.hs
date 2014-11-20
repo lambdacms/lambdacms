@@ -19,6 +19,7 @@ data CoreMessage =
   | UserOverview
   | EmailAddress
   | NewUser
+  | EditUser { name :: Text }
   | PasswordTooShort
   | PasswordMismatch
   | Username
@@ -65,6 +66,7 @@ englishMessage Logout                   = "Logout"
 englishMessage UserOverview             = "User overview"
 englishMessage EmailAddress             = "E-mail address"
 englishMessage NewUser                  = "New user"
+englishMessage (EditUser name)          = name
 englishMessage PasswordTooShort         = "Password is too short"
 englishMessage PasswordMismatch         = "Passwords don't match"
 englishMessage Username                 = "Username"
@@ -108,6 +110,7 @@ dutchMessage (SignedInAs name)        = "Ingelogt als " `mappend` name
 dutchMessage Logout                   = "Uitloggen"
 dutchMessage EmailAddress             = "E-mailadres"
 dutchMessage NewUser                  = "Nieuwe gebruiker"
+dutchMessage (EditUser name)          = name
 dutchMessage PasswordTooShort         = "Wachtwoord te kort"
 dutchMessage PasswordMismatch         = "Wachtwoorden komen niet overeen"
 dutchMessage Username                 = "Gebruikersnaam"

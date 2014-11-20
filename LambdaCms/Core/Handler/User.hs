@@ -92,19 +92,21 @@ emptyUser :: IO User
 emptyUser = generateUserWithEmail ""
 
 getUserAdminOverviewR = do
-    timeNow <- liftIO getCurrentTime
-    hrtLocale <- lift lambdaCmsHumanTimeLocale
-    tp <- getRouteToParent
-    (users :: [Entity User]) <- lift $ runDB $ selectList [] []
-    lift . adminLayout $ do
+  tp <- getRouteToParent
+  timeNow <- liftIO getCurrentTime
+  lift $ do
+    hrtLocale <- lambdaCmsHumanTimeLocale
+    (users :: [Entity User]) <- runDB $ selectList [] []
+    adminLayout $ do
       setTitleI Msg.UserOverview
       $(whamletFile "templates/user/index.hamlet")
 
 getUserAdminNewR = do
-    eu <- liftIO emptyUser
-    tp <- getRouteToParent
-    (formWidget, enctype) <- lift . generateFormPost $ userForm eu (Just Msg.Create)
-    lift . adminLayout $ do
+  tp <- getRouteToParent
+  eu <- liftIO emptyUser
+  lift $ do
+    (formWidget, enctype) <- generateFormPost $ userForm eu (Just Msg.Create)
+    adminLayout $ do
       setTitleI Msg.NewUser
       $(whamletFile "templates/user/new.hamlet")
 
@@ -124,14 +126,15 @@ postUserAdminNewR = do
 
 getUserAdminR userId = do
     tp <- getRouteToParent
-    user <- lift $ runDB $ get404 userId
     timeNow <- liftIO getCurrentTime
-    hrtLocale <- lift lambdaCmsHumanTimeLocale
-    (formWidget, enctype) <- lift . generateFormPost $ userForm user (Just Msg.Save)
-    (pwFormWidget, pwEnctype) <- lift . generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change)
-    lift . adminLayout $ do
-      setTitle . toHtml $ userName user
-      $(whamletFile "templates/user/edit.hamlet")
+    lift $ do
+      user <- runDB $ get404 userId
+      hrtLocale <- lambdaCmsHumanTimeLocale
+      (formWidget, enctype) <- generateFormPost $ userForm user (Just Msg.Save)
+      (pwFormWidget, pwEnctype) <- generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change)
+      adminLayout $ do
+        setTitleI . Msg.EditUser $ userName user
+        $(whamletFile "templates/user/edit.hamlet")
 
 postUserAdminR userId = do
   user <- lift . runDB $ get404 userId
@@ -147,7 +150,7 @@ postUserAdminR userId = do
    _ -> do
      tp <- getRouteToParent
      lift . adminLayout $ do
-       setTitle . toHtml $ userName user
+       setTitleI . Msg.EditUser $ userName user
        $(whamletFile "templates/user/edit.hamlet")
 
 postUserAdminChangePasswordR userId = do
@@ -165,11 +168,12 @@ postUserAdminChangePasswordR userId = do
    _ -> do
      tp <- getRouteToParent
      lift . adminLayout $ do
-       setTitle . toHtml $ userName user
+       setTitleI . Msg.EditUser $ userName user
        $(whamletFile "templates/user/edit.hamlet")
 
 deleteUserAdminR userId = do
-  user <- lift . runDB $ get404 userId
-  _ <- lift . runDB $ delete userId
-  lift . setMessage . toHtml $ T.concat ["Deleted User: ", userName user]
+  lift $ do
+    user <- runDB $ get404 userId
+    _ <- runDB $ delete userId
+    setMessageI Msg.SuccessDelete
   redirectUltDest UserAdminOverviewR
