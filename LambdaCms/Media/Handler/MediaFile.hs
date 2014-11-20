@@ -75,7 +75,7 @@ getMediaFileR fileId = do
     (fWidget, enctype) <- generateFormPost $ mediaFileForm file
     (rfWidget, rEnctype) <- generateFormPost . renameForm $ mediaFileBaseName file
     adminLayout $ do
-      setTitle . toHtml $ mediaFileLabel file
+      setTitleI . Msg.EditMedia $ mediaFileLabel file
       $(whamletFile "templates/edit.hamlet")
 
 postMediaFileR fileId = do
@@ -93,7 +93,7 @@ postMediaFileR fileId = do
         let sr = unpack $ staticRoot y
         (rfWidget, rEnctype) <- generateFormPost . renameForm $ mediaFileBaseName file
         adminLayout $ do
-          setTitle . toHtml $ mediaFileLabel file
+          setTitleI . Msg.EditMedia $ mediaFileLabel file
           $(whamletFile "templates/edit.hamlet")
 
 deleteMediaFileR fileId = do
@@ -131,7 +131,7 @@ postMediaFileRenameR fileId = do
         let sr = unpack $ staticRoot y
         (fWidget, enctype) <- generateFormPost $ mediaFileForm file
         adminLayout $ do
-          setTitle . toHtml $ mediaFileLabel file
+          setTitleI . Msg.EditMedia $ mediaFileLabel file
           $(whamletFile "templates/edit.hamlet")
 
 uploadForm :: Form (FileInfo, Text, Text, Maybe Textarea)

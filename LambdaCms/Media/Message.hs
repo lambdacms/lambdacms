@@ -23,6 +23,7 @@ data MediaMessage =
   | UnknownFileType
   | MediaOverview
   | NewMedia
+  | EditMedia { label :: Text }
   | Information
   | Preview
   | Location
@@ -55,6 +56,7 @@ englishMessage CantDisplayFileType   = "Can't display file"
 englishMessage UnknownFileType       = "Unknown file type"
 englishMessage MediaOverview         = "Media overview"
 englishMessage NewMedia              = "New media file"
+englishMessage (EditMedia label)     = label
 englishMessage Information           = "File information"
 englishMessage Preview               = "Preview"
 englishMessage Location              = "File"
@@ -84,6 +86,7 @@ dutchMessage CantDisplayFileType   = "Kan bestand niet weergeven"
 dutchMessage UnknownFileType       = "Onbekend bestandstype"
 dutchMessage MediaOverview         = "Media overzicht"
 dutchMessage NewMedia              = "Nieuw mediabestand"
+dutchMessage (EditMedia label)     = label
 dutchMessage Information           = "Bestandsinformatie"
 dutchMessage Preview               = "Voorvertoning"
 dutchMessage Location              = "Bestand"
