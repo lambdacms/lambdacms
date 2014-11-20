@@ -34,20 +34,22 @@ postMediaFileRenameR  :: MediaFileId -> MediaHandler Html
 
 getMediaFileOverviewR = do
   tp <- getRouteToParent
-  y <- lift $ getYesod
-  let sr = unpack $ staticRoot y
-  (files :: [Entity MediaFile]) <- lift . runDB $ selectList [] []
-  lift . adminLayout $ do
-    setTitleI Msg.MediaOverview
-    toWidget $(luciusFile "templates/media.lucius")
-    $(whamletFile "templates/overview.hamlet")
+  lift $ do
+    y <- getYesod
+    let sr = unpack $ staticRoot y
+    (files :: [Entity MediaFile]) <- runDB $ selectList [] []
+    adminLayout $ do
+      setTitleI Msg.MediaOverview
+      toWidget $(luciusFile "templates/media.lucius")
+      $(whamletFile "templates/overview.hamlet")
 
 getMediaFileNewR = do
   tp <- getRouteToParent
-  (fWidget, enctype) <- lift $ generateFormPost uploadForm
-  lift . adminLayout $ do
-    setTitleI Msg.NewMedia
-    $(whamletFile "templates/new.hamlet")
+  lift $ do
+    (fWidget, enctype) <- generateFormPost uploadForm
+    adminLayout $ do
+      setTitleI Msg.NewMedia
+      $(whamletFile "templates/new.hamlet")
 
 postMediaFileNewR = do
   ((results, fWidget), enctype) <- lift $ runFormPost uploadForm
@@ -66,14 +68,15 @@ postMediaFileNewR = do
 
 getMediaFileR fileId = do
   tp <- getRouteToParent
-  y <- lift $ getYesod
-  let sr = unpack $ staticRoot y
-  file <- lift . runDB $ get404 fileId
-  (fWidget, enctype) <- lift . generateFormPost $ mediaFileForm file
-  (rfWidget, rEnctype) <- lift . generateFormPost . renameForm $ mediaFileBaseName file
-  lift . adminLayout $ do
-    setTitle . toHtml $ mediaFileLabel file
-    $(whamletFile "templates/edit.hamlet")
+  lift $ do
+    y <- getYesod
+    let sr = unpack $ staticRoot y
+    file <- runDB $ get404 fileId
+    (fWidget, enctype) <- generateFormPost $ mediaFileForm file
+    (rfWidget, rEnctype) <- generateFormPost . renameForm $ mediaFileBaseName file
+    adminLayout $ do
+      setTitle . toHtml $ mediaFileLabel file
+      $(whamletFile "templates/edit.hamlet")
 
 postMediaFileR fileId = do
   file <- lift . runDB $ get404 fileId
@@ -85,12 +88,13 @@ postMediaFileR fileId = do
      redirect $ MediaFileR fileId
    _ -> do
      tp <- getRouteToParent
-     y <- lift $ getYesod
-     let sr = unpack $ staticRoot y
-     (rfWidget, rEnctype) <- lift . generateFormPost . renameForm $ mediaFileBaseName file
-     lift . adminLayout $ do
-       setTitle . toHtml $ mediaFileLabel file
-       $(whamletFile "templates/edit.hamlet")
+     lift $ do
+        y <- getYesod
+        let sr = unpack $ staticRoot y
+        (rfWidget, rEnctype) <- generateFormPost . renameForm $ mediaFileBaseName file
+        adminLayout $ do
+          setTitle . toHtml $ mediaFileLabel file
+          $(whamletFile "templates/edit.hamlet")
 
 deleteMediaFileR fileId = do
   file <- lift . runDB $ get404 fileId
@@ -122,12 +126,13 @@ postMediaFileRenameR fileId = do
             redirect $ MediaFileR fileId
    _ -> do
      tp <- getRouteToParent
-     y <- lift $ getYesod
-     let sr = unpack $ staticRoot y
-     (fWidget, enctype) <- lift . generateFormPost $ mediaFileForm file
-     lift . adminLayout $ do
-       setTitle . toHtml $ mediaFileLabel file
-       $(whamletFile "templates/edit.hamlet")
+     lift $ do
+        y <- getYesod
+        let sr = unpack $ staticRoot y
+        (fWidget, enctype) <- generateFormPost $ mediaFileForm file
+        adminLayout $ do
+          setTitle . toHtml $ mediaFileLabel file
+          $(whamletFile "templates/edit.hamlet")
 
 uploadForm :: Form (FileInfo, Text, Text, Maybe Textarea)
 uploadForm = renderBootstrap3 BootstrapBasicForm $ (,,,)
