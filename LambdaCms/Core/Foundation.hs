@@ -14,7 +14,11 @@ import           Yesod
 import           Yesod.Form.Bootstrap3
 import           Yesod.Form.I18n.Dutch
 import           Database.Persist.Sql (SqlBackend)
-import           Data.Text (Text, unpack)
+import           Data.Monoid ((<>))
+import           Data.Maybe (isJust, catMaybes)
+import           Data.Text (Text, unpack, intercalate, concat)
+import           Data.Text.Encoding (decodeUtf8)
+import qualified Data.ByteString.Lazy.Char8 as LB (concat, toStrict, fromStrict)
 import           Data.Time.Format.Human
 import           Data.Time (utc)
 import           System.Locale
@@ -27,6 +31,7 @@ import           Text.Julius (juliusFile)
 import           LambdaCms.Core.Models
 import           LambdaCms.Core.Routes
 import           LambdaCms.I18n
+import           Network.Mail.Mime
 
 mkMessage "Core" "messages" "en"
 
@@ -87,6 +92,31 @@ class ( Yesod master
 
     adminMenu :: master -> [AdminMenuItem master]
     adminMenu _ = []
+
+    lambdaCmsSendMail :: master -> Mail -> IO ()
+    lambdaCmsSendMail _ (Mail from tos ccs bccs headers parts) =
+      putStrLn . unpack $
+      "MAIL"
+      <> "\n  From: "        <> (address from)
+      <> "\n  To: "          <> (maddress tos)
+      <> "\n  Cc: "          <> (maddress ccs)
+      <> "\n  Bcc: "         <> (maddress bccs)
+      <> "\n  Subject: "     <> subject
+      <> "\n  Attachment: "  <> attachment
+      <> "\n  Plain body: "  <> plainBody
+      <> "\n  Html body: "   <> htmlBody
+      where
+        subject = Data.Text.concat . map snd $ filter (\(k,v) -> k == "Subject") headers
+        attachment :: Text
+        attachment = intercalate ", " . catMaybes . map (partFilename) $ concatMap (filter (isJust . partFilename)) parts
+        htmlBody = getFromParts "text/html; charset=utf-8"
+        plainBody = getFromParts "text/plain; charset=utf-8"
+        getFromParts x = decodeUtf8 . LB.toStrict . LB.concat . map partContent $ concatMap (filter ((==) x . partType)) parts
+        maddress = intercalate ", " . map (address)
+        address (Address n e) = case n of
+                                 Just n' -> n' <> " " <> e'
+                                 Nothing -> e'
+          where e' = "<" <> e <> ">"
 
 -- Fairly complex "handler" type, allowing persistent queries on the master's db connection, hereby simplified
 type CoreHandler a = forall master. LambdaCmsAdmin master => HandlerT Core (HandlerT master IO) a
