@@ -3,6 +3,4 @@ LambdaCms Registration
 Hi #{userName user},
 Someone just created an account for you
 
-Go to "@{UserAdminActivateR userId token}" to activate your account
-
-<p>...
+Go to "@{tp $ UserAdminActivateR userId token}" to activate your account

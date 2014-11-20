@@ -11,29 +11,27 @@
 module LambdaCms.Core.Foundation where
 
 import           Yesod
-import           Yesod.Form.Bootstrap3
 import           Yesod.Form.I18n.Dutch
 import           Database.Persist.Sql (SqlBackend)
 import           Data.Monoid ((<>))
 import           Data.Maybe (isJust, catMaybes)
-import           Data.Text (Text, unpack, intercalate, concat)
+import           Data.Text (Text, unpack, pack, intercalate, concat)
 import           Data.Text.Encoding (decodeUtf8)
-import qualified Data.ByteString.Lazy.Char8 as LB (concat, toStrict, fromStrict)
+import qualified Data.ByteString.Lazy.Char8 as LB (concat, toStrict)
 import           Data.Time.Format.Human
 import           Data.Time (utc)
-import           System.Locale
-import           Data.Maybe (fromMaybe)
-import           Data.Monoid (mappend)
 import           Text.Hamlet (hamletFile)
 import           Text.Lucius (luciusFile)
 import           Text.Julius (juliusFile)
 
 import           LambdaCms.Core.Models
 import           LambdaCms.Core.Routes
+import           LambdaCms.Core.Message (CoreMessage, defaultMessage)
+import qualified LambdaCms.Core.Message as Msg
 import           LambdaCms.I18n
 import           Network.Mail.Mime
 
-mkMessage "Core" "messages" "en"
+
 
 class ( Yesod master
       -- , YesodDispatch master
@@ -50,11 +48,17 @@ class ( Yesod master
     adminLayout :: WidgetT master IO () -> HandlerT master IO Html
     adminLayout widget = do
         y <- getYesod
-        user <- getUserName
-        p <- widgetToPageContent $ do
-            $(whamletFile "templates/adminlayout.hamlet")
-            toWidget $(luciusFile "templates/adminlayout.lucius")
-            toWidget $(juliusFile "templates/adminlayout.julius")
+        let mis = adminMenu y
+        cr <- getCurrentRoute
+        un <- getUserName
+        mmsg <- getMessage
+        pc <- widgetToPageContent $ do
+          addScriptRemote "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
+          addScriptRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/js/bootstrap.min.js"
+          addStylesheetRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap.min.css"
+          $(whamletFile "templates/adminlayout.hamlet")
+          toWidget $(luciusFile "templates/adminlayout.lucius")
+          toWidget $(juliusFile "templates/adminlayout.julius")
         withUrlRenderer $(hamletFile "templates/adminlayout-wrapper.hamlet")
 
     defaultLambdaCmsAdminAuthLayout :: WidgetT master IO () -> HandlerT master IO Html
@@ -93,6 +97,12 @@ class ( Yesod master
     adminMenu :: master -> [AdminMenuItem master]
     adminMenu _ = []
 
+    renderCoreMessage :: master
+                         -> [Text]
+                         -> CoreMessage
+                         -> Text
+    renderCoreMessage _ _ = defaultMessage
+
     lambdaCmsSendMail :: master -> Mail -> IO ()
     lambdaCmsSendMail _ (Mail from tos ccs bccs headers parts) =
       putStrLn . unpack $
@@ -106,7 +116,7 @@ class ( Yesod master
       <> "\n  Plain body: "  <> plainBody
       <> "\n  Html body: "   <> htmlBody
       where
-        subject = Data.Text.concat . map snd $ filter (\(k,v) -> k == "Subject") headers
+        subject = Data.Text.concat . map snd $ filter (\(k,_) -> k == "Subject") headers
         attachment :: Text
         attachment = intercalate ", " . catMaybes . map (partFilename) $ concatMap (filter (isJust . partFilename)) parts
         htmlBody = getFromParts "text/html; charset=utf-8"
@@ -118,27 +128,22 @@ class ( Yesod master
                                  Nothing -> e'
           where e' = "<" <> e <> ">"
 
+
 -- Fairly complex "handler" type, allowing persistent queries on the master's db connection, hereby simplified
 type CoreHandler a = forall master. LambdaCmsAdmin master => HandlerT Core (HandlerT master IO) a
 
 type CoreWidget = forall master. LambdaCmsAdmin master => WidgetT master IO ()
 
-type Form x = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT Core (HandlerT master IO)) (FormResult x, WidgetT Core IO ())
+type Form x = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT master IO) (FormResult x, WidgetT master IO ())
 
 
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.
 instance RenderMessage Core FormMessage where
-    renderMessage _ ("nl":_) = dutchFormMessage
-    renderMessage _ _        = defaultFormMessage
+  renderMessage _ _ = dutchFormMessage
 
--- Fix for bfs (Bootstrap3 Field Settings)
-bfs' :: Text -> FieldSettings master
-bfs' = bfs . toMessage
-
--- Wrapper around BootstrapSubmit
-bss :: Maybe Text -> BootstrapSubmit Text
-bss submit = (BootstrapSubmit (fromMaybe "Submit" submit) " btn-success " [])
+instance LambdaCmsAdmin master => RenderMessage master CoreMessage where
+  renderMessage = renderCoreMessage
 
 -- Extension for bootstrap (give a name to input field)
 withName :: Text -> FieldSettings site -> FieldSettings site
@@ -161,50 +166,34 @@ defaultCoreAdminMenu :: LambdaCmsAdmin master => (Route Core -> Route master) ->
 defaultCoreAdminMenu tp = [MenuItem "Dashboard" (tp AdminHomeR) "home",
                            MenuItem "Users" (tp UserAdminOverviewR) "user"]
 
-lambdaCmsAdminLayout :: LambdaCmsAdmin parent =>
-                        WidgetT parent IO () ->
-                        HandlerT child (HandlerT parent IO) Html
-lambdaCmsAdminLayout widget = lift $ do
-  y  <- getYesod
-  let mis = adminMenu y
-  cr <- getCurrentRoute
-  un <- getUserName
-  mmsg <- getMessage
-  pc <- widgetToPageContent $ do
-    addScriptRemote "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
-    addScriptRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/js/bootstrap.min.js"
-    addStylesheetRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap.min.css"
-    $(whamletFile "templates/lambdacmsadminlayout.hamlet")
-    toWidget $(luciusFile "templates/adminlayout.lucius")
-    toWidget $(juliusFile "templates/adminlayout.julius")
-  withUrlRenderer $(hamletFile "templates/lambdacmsadminlayout-wrapper.hamlet")
 
-lambdaCmsAdminLayoutSub :: LambdaCmsAdmin parent =>
-                           WidgetT child IO () ->
-                           HandlerT child (HandlerT parent IO) Html
-lambdaCmsAdminLayoutSub cwidget = widgetToParentWidget cwidget >>= lambdaCmsAdminLayout
+adminLayoutSub :: LambdaCmsAdmin master
+                  => WidgetT sub IO ()
+                  -> HandlerT sub (HandlerT master IO) Html
+adminLayoutSub widget = widgetToParentWidget widget >>= lift . adminLayout
 
 
 -- | Wrapper for humanReadableTimeI18N'. It uses Yesod's own i18n functionality
-lambdaCmsHumanTimeLocale :: MonadHandler m => m HumanTimeLocale
+lambdaCmsHumanTimeLocale :: LambdaCmsAdmin master => HandlerT master IO HumanTimeLocale
 lambdaCmsHumanTimeLocale = do
   langs <- languages
-  let rm = unpack . renderMessage Core langs
+  y <- getYesod
+  let rm = unpack . renderMessage y langs
   return $ HumanTimeLocale
-    { justNow       = rm MsgTimeJustNow
-    , secondsAgo    = rm . MsgTimeSecondsAgo
-    , oneMinuteAgo  = rm MsgTimeOneMinuteAgo
-    , minutesAgo    = rm . MsgTimeMinutesAgo
-    , oneHourAgo    = rm MsgTimeOneHourAgo
-    , aboutHoursAgo = rm . MsgTimeAboutHoursAgo
-    , at            = (\_ x -> rm $ MsgTimeAt x)
-    , daysAgo       = rm . MsgTimeDaysAgo
-    , weekAgo       = rm . MsgTimeWeekAgo
-    , weeksAgo      = rm . MsgTimeWeeksAgo
-    , onYear        = rm . MsgTimeOnYear
+    { justNow       = rm Msg.TimeJustNow
+    , secondsAgo    = rm . Msg.TimeSecondsAgo . pack
+    , oneMinuteAgo  = rm Msg.TimeOneMinuteAgo
+    , minutesAgo    = rm . Msg.TimeMinutesAgo . pack
+    , oneHourAgo    = rm Msg.TimeOneHourAgo
+    , aboutHoursAgo = rm . Msg.TimeAboutHoursAgo . pack
+    , at            = (\_ x -> rm $ Msg.TimeAt $ pack x)
+    , daysAgo       = rm . Msg.TimeDaysAgo . pack
+    , weekAgo       = rm . Msg.TimeWeekAgo . pack
+    , weeksAgo      = rm . Msg.TimeWeeksAgo . pack
+    , onYear        = rm . Msg.TimeOnYear . pack
     , locale        = lambdaCmsTimeLocale langs
     , timeZone      = utc
-    , dayOfWeekFmt  = rm MsgDayOfWeekFmt
+    , dayOfWeekFmt  = rm Msg.DayOfWeekFmt
     , thisYearFmt   = "%b %e"
     , prevYearFmt   = "%b %e, %Y"
     }

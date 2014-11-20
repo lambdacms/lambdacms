@@ -1,11 +1,11 @@
 <div .page-header>
-  <h1>_{MsgNewUser}
+  <h1>_{Msg.NewUser}
 <div .row .button-toolbar>
   <div .col-xs-12>
-    <a .btn .btn-primary href=@{UserAdminOverviewR}>
+    <a .btn .btn-primary href=@{tp UserAdminOverviewR}>
       <span .glyphicon .glyphicon-arrow-left>
-      _{MsgBack}
+      _{Msg.Back}
 <div .row>
   <div .col-sm-10 .col-md-7 .col-lg-4>
-    <form method=post action=@{UserAdminNewR} enctype=#{enctype}>
+    <form method=post action=@{tp UserAdminNewR} enctype=#{enctype}>
       ^{formWidget}

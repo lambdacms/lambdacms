@@ -13,8 +13,9 @@ module LambdaCms.Core.Handler.Home
   ) where
 
 import LambdaCms.Core.Import
+import qualified LambdaCms.Core.Message as Msg
 
 getAdminHomeR :: CoreHandler Html
-getAdminHomeR = lambdaCmsAdminLayoutSub $ do
-  setTitle "Dashboard"
+getAdminHomeR = lift . adminLayout $ do
+  setTitleI Msg.Dashboard
   $(whamletFile "templates/adminhome.hamlet")

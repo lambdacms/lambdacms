@@ -22,7 +22,10 @@ module LambdaCms.Core.Handler.User
 
 import LambdaCms.Core.Import
 import LambdaCms.Core.AuthHelper
+import LambdaCms.Core.Message (CoreMessage)
+import qualified LambdaCms.Core.Message as Msg
 import LambdaCms.I18n
+
 import Data.Time.Format
 import qualified Data.Text as T (breakOn, concat, length)
 import qualified Data.Text.Lazy as LT (Text)
@@ -52,30 +55,30 @@ postUserAdminActivateR        :: UserId -> Text -> CoreHandler Html
 userForm :: User -> Maybe CoreMessage -> Form User
 userForm u submit = renderBootstrap3 BootstrapBasicForm $ User
              <$> pure            (userIdent u)
-             <*> areq textField  (bfs MsgUsername)        (Just $ userName u)
+             <*> areq textField  (bfs Msg.Username)        (Just $ userName u)
              <*> pure            (userPassword u)
-             <*> areq emailField (bfs MsgEmailAddress)   (Just $ userEmail u)
+             <*> areq emailField (bfs Msg.EmailAddress)   (Just $ userEmail u)
              <*> pure            (userToken u)
              <*> pure            (userCreatedAt u)
              <*> pure            (userLastLogin u)
-             <*  bootstrapSubmit (BootstrapSubmit (fromMaybe MsgSubmit submit) " btn-success " [])
+             <*  bootstrapSubmit (BootstrapSubmit (fromMaybe Msg.Submit submit) " btn-success " [])
 
 userChangePasswordForm :: Maybe Text -> Maybe CoreMessage -> Form ComparePassword
 userChangePasswordForm original submit = renderBootstrap3 BootstrapBasicForm $ ComparePassword
-  <$> areq validatePasswordField (withName "original-pw" $ bfs MsgPassword) Nothing
-  <*> areq comparePasswordField  (bfs MsgConfirm) Nothing
-  <*  bootstrapSubmit (BootstrapSubmit (fromMaybe MsgSubmit submit) " btn-success " [])
+  <$> areq validatePasswordField (withName "original-pw" $ bfs Msg.Password) Nothing
+  <*> areq comparePasswordField  (bfs Msg.Confirm) Nothing
+  <*  bootstrapSubmit (BootstrapSubmit (fromMaybe Msg.Submit submit) " btn-success " [])
   where
     validatePasswordField = check validatePassword passwordField
     comparePasswordField = check comparePasswords passwordField
 
     validatePassword pw
       | T.length pw >= 8 = Right pw
-      | otherwise = Left MsgPasswordTooShort
+      | otherwise = Left Msg.PasswordTooShort
 
     comparePasswords pw
       | pw == fromMaybe "" original = Right pw
-      | otherwise = Left MsgPasswordMismatch
+      | otherwise = Left Msg.PasswordMismatch
 
 
 -- | Helper to create a user with email address
@@ -106,8 +109,8 @@ validateUserToken user token =
      | otherwise  -> Just False -- ^ tokens don't match
    Nothing        -> Nothing    -- ^ there is no token (account already actived)
 
-sendAccountActivationToken :: User -> LT.Text -> LT.Text -> IO ()
-sendAccountActivationToken user body bodyHtml = do
+sendAccountActivationToken :: (LambdaCmsAdmin a) => a -> User -> LT.Text -> LT.Text -> IO ()
+sendAccountActivationToken core user body bodyHtml = do
      mail <- simpleMail
              (Address (Just $ userName user) (userEmail user))
              (Address (Just "LambdaCms") "lambdacms@example.com")
@@ -115,128 +118,142 @@ sendAccountActivationToken user body bodyHtml = do
              (body)
              (bodyHtml)
              []
-     renderSendMail mail
+     lambdaCmsSendMail core mail
 
 getUserAdminOverviewR = do
-    timeNow <- liftIO getCurrentTime
-    hrtLocale <- lift lambdaCmsHumanTimeLocale
-    (users :: [Entity User]) <- lift $ runDB $ selectList [] []
-    lambdaCmsAdminLayoutSub $ do
-      setTitleI MsgUserOverview
+  tp <- getRouteToParent
+  timeNow <- liftIO getCurrentTime
+  lift $ do
+    hrtLocale <- lambdaCmsHumanTimeLocale
+    (users :: [Entity User]) <- runDB $ selectList [] []
+    adminLayout $ do
+      setTitleI Msg.UserOverview
       $(whamletFile "templates/user/index.hamlet")
 
 getUserAdminNewR = do
-    eu <- liftIO emptyUser
-    (formWidget, enctype) <- generateFormPost $ userForm eu (Just MsgCreate)
-    lambdaCmsAdminLayoutSub $ do
-      setTitleI MsgNewUser
+  tp <- getRouteToParent
+  eu <- liftIO emptyUser
+  lift $ do
+    (formWidget, enctype) <- generateFormPost $ userForm eu (Just Msg.Create)
+    adminLayout $ do
+      setTitleI Msg.NewUser
       $(whamletFile "templates/user/new.hamlet")
 
 postUserAdminNewR = do
     eu <- liftIO emptyUser
-    ((formResult, formWidget), enctype) <- runFormPost $ userForm eu (Just MsgCreate)
+    tp <- getRouteToParent
+    ((formResult, formWidget), enctype) <- lift . runFormPost $ userForm eu (Just Msg.Create)
     case formResult of
       FormSuccess user -> do
 
         case userToken user of
          Just token -> do
            userId <- lift $ runDB $ insert user
-           html <- withUrlRenderer $(hamletFile "templates/mail/activation-html.hamlet")
-           text <- withUrlRenderer $(hamletFile "templates/mail/activation-text.hamlet")
+           html <- lift $ withUrlRenderer $(hamletFile "templates/mail/activation-html.hamlet")
+           text <- lift $ withUrlRenderer $(hamletFile "templates/mail/activation-text.hamlet")
+           y <- lift getYesod
            let bodyHtml = renderHtml html
                bodyText = renderHtml text
 
-           _ <- liftIO $ sendAccountActivationToken user bodyText bodyHtml
-           setMessageI MsgSuccessCreate
+           _ <- liftIO $ sendAccountActivationToken y user bodyText bodyHtml
+           lift $ setMessageI Msg.SuccessCreate
            redirectUltDest $ UserAdminR userId
          Nothing -> error "No token found."
       _ -> do
-        lambdaCmsAdminLayoutSub $ do
-          setTitleI MsgNewUser
+        tp <- getRouteToParent
+        lift . adminLayout $ do
+          setTitleI Msg.NewUser
           $(whamletFile "templates/user/new.hamlet")
 
 getUserAdminR userId = do
-    user <- lift $ runDB $ get404 userId
+    tp <- getRouteToParent
     timeNow <- liftIO getCurrentTime
-    hrtLocale <- lift lambdaCmsHumanTimeLocale
-    (formWidget, enctype) <- generateFormPost $ userForm user (Just MsgSave)
-    (pwFormWidget, pwEnctype) <- generateFormPost $ userChangePasswordForm Nothing (Just MsgChange)
-    lambdaCmsAdminLayoutSub $ do
-      setTitle . toHtml $ userName user
-      $(whamletFile "templates/user/edit.hamlet")
+    lift $ do
+      user <- runDB $ get404 userId
+      hrtLocale <- lambdaCmsHumanTimeLocale
+      (formWidget, enctype) <- generateFormPost $ userForm user (Just Msg.Save)
+      (pwFormWidget, pwEnctype) <- generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change)
+      adminLayout $ do
+        setTitleI . Msg.EditUser $ userName user
+        $(whamletFile "templates/user/edit.hamlet")
 
 postUserAdminR userId = do
   user <- lift . runDB $ get404 userId
   timeNow <- liftIO getCurrentTime
   hrtLocale <- lift lambdaCmsHumanTimeLocale
-  ((formResult, formWidget), enctype) <- runFormPost $ userForm user (Just MsgSave)
-  (pwFormWidget, pwEnctype) <- generateFormPost $ userChangePasswordForm Nothing (Just MsgChange)
+  ((formResult, formWidget), enctype) <- lift . runFormPost $ userForm user (Just Msg.Save)
+  (pwFormWidget, pwEnctype) <- lift . generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change)
   case formResult of
    FormSuccess updatedUser -> do
      _ <- lift $ runDB $ update userId [UserName =. userName updatedUser, UserEmail =. userEmail updatedUser]
-     setMessageI MsgSuccessReplace
+     lift $ setMessageI Msg.SuccessReplace
      redirect $ UserAdminR userId
    _ -> do
-    lambdaCmsAdminLayoutSub $ do
-      setTitle . toHtml $ userName user
-      $(whamletFile "templates/user/edit.hamlet")
+     tp <- getRouteToParent
+     lift . adminLayout $ do
+       setTitleI . Msg.EditUser $ userName user
+       $(whamletFile "templates/user/edit.hamlet")
 
 postUserAdminChangePasswordR userId = do
   user <- lift . runDB $ get404 userId
   timeNow <- liftIO getCurrentTime
   hrtLocale <- lift lambdaCmsHumanTimeLocale
-  (formWidget, enctype) <- generateFormPost $ userForm user (Just MsgSave)
+  (formWidget, enctype) <- lift . generateFormPost $ userForm user (Just Msg.Save)
   opw <- lookupPostParam "original-pw"
-  ((formResult, pwFormWidget), pwEnctype) <- runFormPost $ userChangePasswordForm opw (Just MsgChange)
+  ((formResult, pwFormWidget), pwEnctype) <- lift . runFormPost $ userChangePasswordForm opw (Just Msg.Change)
   case formResult of
    FormSuccess f -> do
      _ <- lift . runDB $ update userId [UserPassword =. Just (originalPassword f)]
-     setMessageI MsgSuccessChgPwd
+     lift $ setMessageI Msg.SuccessChgPwd
      redirect $ UserAdminR userId
    _ -> do
-     lambdaCmsAdminLayoutSub $ do
-       setTitle . toHtml $ userName user
+     tp <- getRouteToParent
+     lift . adminLayout $ do
+       setTitleI . Msg.EditUser $ userName user
        $(whamletFile "templates/user/edit.hamlet")
 
 deleteUserAdminR userId = do
-  user <- lift . runDB $ get404 userId
-  lift . runDB $ delete userId
-  setMessage . toHtml $ T.concat ["Deleted User: ", userName user]
+  lift $ do
+    user <- runDB $ get404 userId
+    _ <- runDB $ delete userId
+    setMessageI Msg.SuccessDelete
   redirectUltDest UserAdminOverviewR
 
 getUserAdminActivateR userId token = do
   user <- lift . runDB $ get404 userId
   case validateUserToken user token of
    Just True -> do
-     (pwFormWidget, pwEnctype) <- generateFormPost $ userChangePasswordForm Nothing (Just MsgChange)
-     defaultLayoutSub $ do
+     tp <- getRouteToParent
+     (pwFormWidget, pwEnctype) <- lift . generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change)
+     lift . adminLayout $ do
        setTitle . toHtml $ userName user
        $(whamletFile "templates/user/activate.hamlet")
-   Just False -> defaultLayoutSub $ do
-     setTitleI MsgTokenMismatch
+   Just False -> lift . adminLayout $ do
+     setTitleI Msg.TokenMismatch
      $(whamletFile "templates/user/tokenmismatch.hamlet")
-   Nothing -> defaultLayoutSub $ do
-     setTitleI MsgAccountAlreadyActivated
+   Nothing -> lift . adminLayout $ do
+     setTitleI Msg.AccountAlreadyActivated
      $(whamletFile "templates/user/account-already-activated.hamlet")
 
 postUserAdminActivateR userId token = do
   user <- lift . runDB $ get404 userId
+  tp <- getRouteToParent
   case validateUserToken user token of
    Just True -> do
      opw <- lookupPostParam "original-pw"
-     ((formResult, pwFormWidget), pwEnctype) <- runFormPost $ userChangePasswordForm opw (Just MsgChange)
+     ((formResult, pwFormWidget), pwEnctype) <- lift . runFormPost $ userChangePasswordForm opw (Just Msg.Change)
      case formResult of
       FormSuccess f -> do
         _ <- lift . runDB $ update userId [UserPassword =. Just (originalPassword f), UserToken =. Nothing]
         setMessage "Msg: Successfully activated"
         redirect $ AdminHomeR
       _ -> do
-        defaultLayoutSub $ do
+        lift . adminLayout $ do
           setTitle . toHtml $ userName user
           $(whamletFile "templates/user/activate.hamlet")
-   Just False -> defaultLayoutSub $ do
-     setTitleI MsgTokenMismatch
+   Just False -> lift . adminLayout $ do
+     setTitleI Msg.TokenMismatch
      $(whamletFile "templates/user/tokenmismatch.hamlet")
-   Nothing -> defaultLayoutSub $ do
-     setTitleI MsgAccountAlreadyActivated
+   Nothing -> lift . adminLayout $ do
+     setTitleI Msg.AccountAlreadyActivated
      $(whamletFile "templates/user/account-already-activated.hamlet")

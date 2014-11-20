@@ -1,5 +1,5 @@
 <div .page-header>
-  <h1>Dashboard
+  <h1>_{Msg.Dashboard}
 <div .row>
   <div .col-xs-12>
     <p>Dashboard not yet implemented
