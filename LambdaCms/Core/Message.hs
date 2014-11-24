@@ -116,7 +116,7 @@ dutchMessage :: CoreMessage -> Text
 dutchMessage Dashboard                = "Dashboard"
 dutchMessage UserOverview             = "Gebruikers overzicht"
 dutchMessage LambdaCms                = "LambdaCms"
-dutchMessage (SignedInAs name)        = "Ingelogt als " `mappend` name
+dutchMessage (SignedInAs name)        = "Ingelogd als " `mappend` name
 dutchMessage NotLoggedIn              = "Niet ingelogd"
 dutchMessage Logout                   = "Uitloggen"
 dutchMessage EmailAddress             = "E-mailadres"
