@@ -64,7 +64,7 @@ attachedMaybeMediaFile model getId = do
 mediaFileSrc :: LambdaCmsMedia master => master -> MediaFile -> FilePath
 mediaFileSrc y mf = (unpack $ staticRoot y) </> (mediaFileLocation mf)
 
-mediaFileTag :: LambdaCmsMedia master => MediaFile -> [Text] -> [(Text, Text)] -> WidgetT master IO ()
-mediaFileTag mf classes attrs = do
+mediaFileImg :: LambdaCmsMedia master => MediaFile -> [Text] -> [(Text, Text)] -> WidgetT master IO ()
+mediaFileImg mf classes attrs = do
   y <- handlerToWidget getYesod
   [whamlet|<img src=#{mediaFileSrc y mf} class=#{T.unwords classes} *{attrs} alt=#{mediaFileLabel mf}>|]

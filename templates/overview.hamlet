@@ -17,7 +17,7 @@
               <div .panel .panel-default>
                 <div .panel-body .gallery-panel-body>
                   $if isImageFile file
-                    <img .img-responsive .img-rounded src=#{sr </> (mediaFileLocation file)} alt=#{mediaFileLabel file}>
+                    ^{mediaFileImg file ["img-responsive", "img-rounded"] []}
                   $elseif isApplicationFile file
                     _{Msg.CantDisplayFileType}
                   $else

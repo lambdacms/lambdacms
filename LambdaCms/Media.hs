@@ -10,7 +10,7 @@ module LambdaCms.Media
        , defaultMediaAdminMenu
        , attachedMaybeMediaFile
        , mediaFileSrc
-       , mediaFileTag
+       , mediaFileImg
        ) where
 
 import LambdaCms.Media.Import
