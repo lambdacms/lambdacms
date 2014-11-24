@@ -26,7 +26,7 @@ import           Text.Julius (juliusFile)
 
 import           LambdaCms.Core.Models
 import           LambdaCms.Core.Routes
-import           LambdaCms.Core.Message (CoreMessage, defaultMessage)
+import           LambdaCms.Core.Message (CoreMessage, defaultMessage, englishMessage, dutchMessage)
 import qualified LambdaCms.Core.Message as Msg
 import           LambdaCms.I18n
 import           Network.Mail.Mime
@@ -101,7 +101,15 @@ class ( Yesod master
                          -> [Text]
                          -> CoreMessage
                          -> Text
+    renderCoreMessage m (lang:langs) = do
+      case (lang `elem` (renderLanguages m), lang) of
+       (True, "en") -> englishMessage
+       (True, "nl") -> dutchMessage
+       _ -> renderCoreMessage m langs
     renderCoreMessage _ _ = defaultMessage
+
+    renderLanguages :: master -> [Text]
+    renderLanguages _ = ["en"]
 
     lambdaCmsSendMail :: master -> Mail -> IO ()
     lambdaCmsSendMail _ (Mail from tos ccs bccs headers parts) =
