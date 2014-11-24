@@ -13,7 +13,8 @@ import LambdaCms.Core
 
 -- import LambdaCms.Media.Models
 import LambdaCms.Media.Routes
-import LambdaCms.Media.Message (MediaMessage, defaultMessage)
+import LambdaCms.Media.Message (MediaMessage, defaultMessage, englishMessage, dutchMessage)
+import qualified LambdaCms.Media.Message as Msg
 
 class LambdaCmsAdmin master => LambdaCmsMedia master where
   staticDir :: master -> FilePath
@@ -25,6 +26,11 @@ class LambdaCmsAdmin master => LambdaCmsMedia master where
                         -> [Text]
                         -> MediaMessage
                         -> Text
+  renderMediaMessage m (lang:langs) = do
+    case (lang `elem` (renderLanguages m), lang) of
+     (True, "en") -> englishMessage
+     (True, "nl") -> dutchMessage
+     _ -> renderMediaMessage m langs
   renderMediaMessage _ _ = defaultMessage
 
 type MediaHandler a = forall master. LambdaCmsMedia master => HandlerT Media (HandlerT master IO) a
@@ -38,3 +44,6 @@ instance RenderMessage Media FormMessage where
 
 instance LambdaCmsMedia master => RenderMessage master MediaMessage where
   renderMessage = renderMediaMessage
+
+defaultMediaAdminMenu :: LambdaCmsMedia master => (Route Media -> Route master) -> [AdminMenuItem master]
+defaultMediaAdminMenu tp = [ MenuItem (SomeMessage Msg.MenuMedia) (tp MediaFileOverviewR) "picture" ]

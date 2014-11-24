@@ -34,6 +34,7 @@ data MediaMessage =
   | Filename
   | FileContentType
   | FileLocation
+  | MenuMedia
   | SaveSuccess { label :: Text }
   | UpdateSuccess { label :: Text }
   | DeleteSuccess { label :: Text }
@@ -67,6 +68,7 @@ englishMessage UploadedOn            = "Uploaded on"
 englishMessage Filename              = "Filename"
 englishMessage FileContentType       = "Content type"
 englishMessage FileLocation          = "File location"
+englishMessage MenuMedia             = "Media"
 englishMessage (SaveSuccess label)   = "Successfully created: " `mappend` label
 englishMessage (UpdateSuccess label) = "Successfully updated: " `mappend` label
 englishMessage (DeleteSuccess label) = "Successfully deleted: " `mappend` label
@@ -97,6 +99,7 @@ dutchMessage UploadedOn            = "Geüpload op"
 dutchMessage Filename              = "Bestandsnaam"
 dutchMessage FileContentType       = "Inhoudstype"
 dutchMessage FileLocation          = "Bestandslocatie"
+dutchMessage MenuMedia             = "Media"
 dutchMessage (SaveSuccess label)   = "Succesvol aangemaakt: " `mappend` label
 dutchMessage (UpdateSuccess label) = "Succesvol geüpdate: " `mappend` label
 dutchMessage (DeleteSuccess label) = "Succesvol verwijderd: " `mappend` label

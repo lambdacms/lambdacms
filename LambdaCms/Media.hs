@@ -7,6 +7,7 @@
 module LambdaCms.Media
        ( module Export
        , LambdaCmsMedia (..)
+       , defaultMediaAdminMenu
        ) where
 
 import LambdaCms.Media.Import
