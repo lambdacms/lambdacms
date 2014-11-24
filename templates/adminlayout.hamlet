@@ -17,7 +17,7 @@
               <li role=presentation :Just (route mi) == cr:.active>
                 <a href=@{route mi}>
                   <span .glyphicon .glyphicon-#{icon mi}>
-                  #{label mi}
+                  _{label mi}
     <main .col-sm-8 .col-md-9 .col-lg-10>
       $maybe msg <- mmsg
         <div .alert .alert-top .alert-info .alert-dismissible role=alert>

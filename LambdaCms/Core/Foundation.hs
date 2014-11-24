@@ -82,7 +82,7 @@ class ( Yesod master
         muid <- maybeAuth'
         case muid of
             Nothing -> do
-                setMessage "Not logged in"
+                setMessageI Msg.NotLoggedIn
                 redirect $ authLoginDest y
             Just uid -> return . userEmail $ entityVal uid
 
@@ -157,14 +157,14 @@ data LambdaCmsExtension master = LambdaCmsExtension
                                  }
 
 data AdminMenuItem master = MenuItem
-                            { label :: Text
+                            { label :: SomeMessage master
                             , route :: Route master
                             , icon :: Text -- make this type-safe?
                             }
 
 defaultCoreAdminMenu :: LambdaCmsAdmin master => (Route Core -> Route master) -> [AdminMenuItem master]
-defaultCoreAdminMenu tp = [MenuItem "Dashboard" (tp AdminHomeR) "home",
-                           MenuItem "Users" (tp UserAdminOverviewR) "user"]
+defaultCoreAdminMenu tp = [MenuItem (SomeMessage Msg.MenuDashboard) (tp AdminHomeR) "home",
+                           MenuItem (SomeMessage Msg.MenuUsers) (tp UserAdminOverviewR) "user"]
 
 
 adminLayoutSub :: LambdaCmsAdmin master

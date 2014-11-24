@@ -15,6 +15,7 @@ data CoreMessage =
     Dashboard
   | LambdaCms
   | SignedInAs { name :: Text}
+  | NotLoggedIn
   | Logout
   | UserOverview
   | EmailAddress
@@ -43,6 +44,8 @@ data CoreMessage =
   | SuccessUpdate
   | SuccessChgPwd
   | SuccessDelete
+  | MenuDashboard
+  | MenuUsers
   | DeletedUser { name :: Text }
   | TimeJustNow
   | TimeSecondsAgo { time :: Text }
@@ -64,6 +67,7 @@ englishMessage :: CoreMessage -> Text
 englishMessage Dashboard                = "Dashboard"
 englishMessage LambdaCms                = "LambdaCms"
 englishMessage (SignedInAs name)        = "Signed in as " `mappend` name
+englishMessage NotLoggedIn              = "Not logged in"
 englishMessage Logout                   = "Logout"
 englishMessage UserOverview             = "User overview"
 englishMessage EmailAddress             = "E-mail address"
@@ -92,6 +96,8 @@ englishMessage SuccessReplace           = "Successfully replaced"
 englishMessage SuccessUpdate            = "Successfully updated"
 englishMessage SuccessChgPwd            = "Successfully changed password"
 englishMessage SuccessDelete            = "Successfully deleted"
+englishMessage MenuDashboard            = englishMessage Dashboard
+englishMessage MenuUsers                = "Users"
 englishMessage (DeletedUser name)       = "User " `mappend` name `mappend` " deleted"
 englishMessage TimeJustNow              = "Just now"
 englishMessage (TimeSecondsAgo time)    = time `mappend` " seconds ago"
@@ -111,6 +117,7 @@ dutchMessage Dashboard                = "Dashboard"
 dutchMessage UserOverview             = "Gebruikers overzicht"
 dutchMessage LambdaCms                = "LambdaCms"
 dutchMessage (SignedInAs name)        = "Ingelogt als " `mappend` name
+dutchMessage NotLoggedIn              = "Niet ingelogd"
 dutchMessage Logout                   = "Uitloggen"
 dutchMessage EmailAddress             = "E-mailadres"
 dutchMessage NewUser                  = "Nieuwe gebruiker"
@@ -138,6 +145,8 @@ dutchMessage SuccessReplace           = "Succesvol aangepast"
 dutchMessage SuccessUpdate            = "Succesvol geüpdatet"
 dutchMessage SuccessChgPwd            = "Wachtwoord succesvol aangepast"
 dutchMessage SuccessDelete            = "Succesvol verwijdert"
+dutchMessage MenuDashboard            = dutchMessage Dashboard
+dutchMessage MenuUsers                = "Gebruikers"
 dutchMessage (DeletedUser name)       = "Gebruiker " `mappend` name `mappend` " verwijderd"
 dutchMessage TimeJustNow              = "Nu net"
 dutchMessage (TimeSecondsAgo time)    = time `mappend` " seconden geleden"
