@@ -32,6 +32,7 @@ library
   other-modules:    LambdaCms.Core.Foundation
                   , LambdaCms.Core.Models
                   , LambdaCms.Core.Routes
+                  , LambdaCms.Core.Classes
                   , LambdaCms.Core.Import
                   , LambdaCms.Core.Handler.Home
                   , LambdaCms.Core.Handler.User
