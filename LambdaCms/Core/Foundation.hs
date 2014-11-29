@@ -15,6 +15,7 @@ import           Yesod.Form.I18n.Dutch
 import           Database.Persist.Sql (SqlBackend)
 import           Data.Monoid ((<>))
 import           Data.Maybe (isJust, catMaybes)
+import qualified Data.List as L (intersect)
 import           Data.Text (Text, unpack, pack, intercalate, concat)
 import           Data.Text.Encoding (decodeUtf8)
 import qualified Data.ByteString.Lazy.Char8 as LB (concat, toStrict)
@@ -31,7 +32,11 @@ import qualified LambdaCms.Core.Message as Msg
 import           LambdaCms.I18n
 import           Network.Mail.Mime
 
-
+-- | A type to determine what kind of user is allowed to do something.
+data Allow a = Unauthenticated -- ^ Allow anyone (no authentication required)
+             | Authenticated   -- ^ Allow any authenticated user
+             | Roles a         -- ^ Allow anyone who as at least one matching role
+             | Nobody          -- ^ Allow nobody
 
 class ( Yesod master
       -- , YesodDispatch master
@@ -39,12 +44,28 @@ class ( Yesod master
       , RenderMessage master FormMessage
       , YesodPersist master
       , YesodPersistBackend master ~ SqlBackend
+      , Eq (Roles master)
       -- , PersistQuery (YesodPersistBackend master)
       ) => LambdaCmsAdmin master where
-
     --runDB :: YesodPersistBackend master (HandlerT master IO) a -> HandlerT master IO a
 
-       -- | Applies some form of layout to the contents of an admin section page.
+    type Roles master
+
+    getUserRoles :: Entity User -> YesodDB master [Roles master]
+    setUserRoles :: Entity User -> [Roles master] -> YesodDB master ()
+
+    -- | See if a user is authorized to perform an action.
+    isAuthorizedTo :: Maybe (Entity User) -> Allow [Roles master] -> YesodDB master AuthResult
+    isAuthorizedTo _ Nobody               = return $ Unauthorized "Access denied."
+    isAuthorizedTo _ Unauthenticated      = return Authorized
+    isAuthorizedTo (Just _) Authenticated = return Authorized
+    isAuthorizedTo Nothing _              = return AuthenticationRequired
+    isAuthorizedTo (Just user) (Roles xs) = do
+      ur <- getUserRoles user
+      case (not . null $ ur `L.intersect` xs) of
+        True -> return Authorized
+        False -> return $ Unauthorized "Access denied."
+
     adminLayout :: WidgetT master IO () -> HandlerT master IO Html
     adminLayout widget = do
         y <- getYesod

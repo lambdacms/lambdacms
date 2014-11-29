@@ -13,12 +13,14 @@ module LambdaCms.Core
     , LambdaCmsAdmin (..)
     , adminLayoutSub
     , defaultCoreAdminMenu
+    , setUserRoles
     -- , maybeAuth'
     -- , maybeAuthId'
     -- , authLoginDest
     -- , extensions
     , LambdaCmsExtension (..)
     , AdminMenuItem (..)
+    , Allow (..)
     ) where
 
 import           Database.Persist.Sql (SqlBackend)
@@ -30,6 +32,7 @@ import           LambdaCms.Core.Handler.Home  as Export
 import           LambdaCms.Core.Handler.User  as Export
 import           LambdaCms.Core.AuthHelper    as Export
 import           Network.Mail.Mime            as Export
+
 -- instance ( Yesod master
 --          , LambdaCmsAdmin master
 --          , SqlBackend ~ (YesodPersistBackend master)
