@@ -1,2 +1,2 @@
-    <form role=form method=post action=@{tp $ UserAdminActivateR userId token} enctype=#{pwEnctype}>
+    <form role=form method=post action=@{coreR $ UserAdminActivateR userId token} enctype=#{pwEnctype}>
       ^{pwFormWidget}

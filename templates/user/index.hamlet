@@ -2,10 +2,10 @@
   <h1>_{Msg.UserOverview}
 <div .row .button-toolbar>
   <div .col-xs-12>
-    <a .btn .btn-primary href=@{tp AdminHomeR}>
+    <a .btn .btn-primary href=@{coreR AdminHomeR}>
       <span .glyphicon .glyphicon-arrow-left>
       _{Msg.Back}
-    <a .btn .btn-primary href=@{tp UserAdminNewR}>
+    <a .btn .btn-primary href=@{coreR UserAdminNewR}>
       <span .glyphicon .glyphicon-plus>
       _{Msg.NewUser}
 <div .row>
@@ -23,9 +23,9 @@
               <th>_{Msg.LastLogin}
           <tbody>
             $forall (Entity userId user) <- users
-              <tr onclick="document.location.href='@{tp $ UserAdminR userId}'">
+              <tr onclick="document.location.href='@{coreR $ UserAdminR userId}'">
                 <td>
-                  <a href=@{tp $ UserAdminR userId}> #{userName user}
+                  <a href=@{coreR $ UserAdminR userId}> #{userName user}
                 <td>#{userEmail user}
                 <td>#{show $ utctDay $ userCreatedAt user}
                 <td>#{humanReadableTimeI18N' hrtLocale timeNow $ userLastLogin user}

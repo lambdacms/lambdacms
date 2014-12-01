@@ -3,6 +3,6 @@
 <p>Hi #{userName user},
 <p>Someone just created an account for you
 
-<a href=@{tp $ UserAdminActivateR userId token}>Activate your account
+<a href=@{coreR $ UserAdminActivateR userId token}>Activate your account
 
 <p>...

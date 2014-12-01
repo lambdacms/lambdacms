@@ -121,7 +121,6 @@ sendAccountActivationToken core user body bodyHtml = do
      lambdaCmsSendMail core mail
 
 getUserAdminOverviewR = do
-  tp <- getRouteToParent
   timeNow <- liftIO getCurrentTime
   lift $ do
     hrtLocale <- lambdaCmsHumanTimeLocale
@@ -131,7 +130,6 @@ getUserAdminOverviewR = do
       $(whamletFile "templates/user/index.hamlet")
 
 getUserAdminNewR = do
-  tp <- getRouteToParent
   eu <- liftIO emptyUser
   lift $ do
     (formWidget, enctype) <- generateFormPost $ userForm eu (Just Msg.Create)
@@ -141,7 +139,6 @@ getUserAdminNewR = do
 
 postUserAdminNewR = do
     eu <- liftIO emptyUser
-    tp <- getRouteToParent
     ((formResult, formWidget), enctype) <- lift . runFormPost $ userForm eu (Just Msg.Create)
     case formResult of
       FormSuccess user -> do
@@ -160,13 +157,11 @@ postUserAdminNewR = do
            redirectUltDest $ UserAdminR userId
          Nothing -> error "No token found."
       _ -> do
-        tp <- getRouteToParent
         lift . adminLayout $ do
           setTitleI Msg.NewUser
           $(whamletFile "templates/user/new.hamlet")
 
 getUserAdminR userId = do
-    tp <- getRouteToParent
     timeNow <- liftIO getCurrentTime
     lift $ do
       user <- runDB $ get404 userId
@@ -189,7 +184,6 @@ postUserAdminR userId = do
      lift $ setMessageI Msg.SuccessReplace
      redirect $ UserAdminR userId
    _ -> do
-     tp <- getRouteToParent
      lift . adminLayout $ do
        setTitleI . Msg.EditUser $ userName user
        $(whamletFile "templates/user/edit.hamlet")
@@ -207,7 +201,6 @@ postUserAdminChangePasswordR userId = do
      lift $ setMessageI Msg.SuccessChgPwd
      redirect $ UserAdminR userId
    _ -> do
-     tp <- getRouteToParent
      lift . adminLayout $ do
        setTitleI . Msg.EditUser $ userName user
        $(whamletFile "templates/user/edit.hamlet")
@@ -223,7 +216,6 @@ getUserAdminActivateR userId token = do
   user <- lift . runDB $ get404 userId
   case validateUserToken user token of
    Just True -> do
-     tp <- getRouteToParent
      (pwFormWidget, pwEnctype) <- lift . generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change)
      lift . adminLayout $ do
        setTitle . toHtml $ userName user
@@ -237,7 +229,6 @@ getUserAdminActivateR userId token = do
 
 postUserAdminActivateR userId token = do
   user <- lift . runDB $ get404 userId
-  tp <- getRouteToParent
   case validateUserToken user token of
    Just True -> do
      opw <- lookupPostParam "original-pw"

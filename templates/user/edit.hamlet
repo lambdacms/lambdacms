@@ -2,19 +2,19 @@
   <h1>#{userName user}
 <div .row .button-toolbar>
   <div .col-xs-12>
-    <a .btn .btn-primary href=@{tp UserAdminOverviewR}>
+    <a .btn .btn-primary href=@{coreR UserAdminOverviewR}>
       <span .glyphicon .glyphicon-arrow-left>
       _{Msg.Back}
-    <form .form-inline .display-inline method=post action=@{tp $ UserAdminR userId}>
+    <form .form-inline .display-inline method=post action=@{coreR $ UserAdminR userId}>
       <input name="_method" type="hidden" value="DELETE" />
       <button .btn .btn-danger type=submit>
         <span .glyphicon .glyphicon-remove>
         _{Msg.Remove}
 <div .row>
   <div .col-sm-10 .col-md-7 .col-lg-4>
-    <form role=form method=post action=@{tp $ UserAdminR userId} enctype=#{enctype}>
+    <form role=form method=post action=@{coreR $ UserAdminR userId} enctype=#{enctype}>
       ^{formWidget}
-    <form role=form method=post action=@{tp $ UserAdminChangePasswordR userId} enctype=#{pwEnctype}>
+    <form role=form method=post action=@{coreR $ UserAdminChangePasswordR userId} enctype=#{pwEnctype}>
       ^{pwFormWidget}
   <div .col-sm-10 .col-md-7 .col-lg-4>
     <ul .list-group>
