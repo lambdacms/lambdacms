@@ -17,7 +17,7 @@ data CoreMessage =
   | SignedInAs { name :: Text}
   | NotLoggedIn
   | Logout
-  | UserOverview
+  | UserIndex
   | EmailAddress
   | NewUser
   | EditUser { name :: Text }
@@ -69,7 +69,7 @@ englishMessage LambdaCms                = "LambdaCms"
 englishMessage (SignedInAs name)        = "Signed in as " `mappend` name
 englishMessage NotLoggedIn              = "Not logged in"
 englishMessage Logout                   = "Logout"
-englishMessage UserOverview             = "User overview"
+englishMessage UserIndex                = "User overview"
 englishMessage EmailAddress             = "E-mail address"
 englishMessage NewUser                  = "New user"
 englishMessage (EditUser name)          = name
@@ -114,7 +114,7 @@ englishMessage DayOfWeekFmt             = "%l:%M %p on %A"
 
 dutchMessage :: CoreMessage -> Text
 dutchMessage Dashboard                = "Dashboard"
-dutchMessage UserOverview             = "Gebruikers overzicht"
+dutchMessage UserIndex                = "Gebruikers overzicht"
 dutchMessage LambdaCms                = "LambdaCms"
 dutchMessage (SignedInAs name)        = "Ingelogd als " `mappend` name
 dutchMessage NotLoggedIn              = "Niet ingelogd"

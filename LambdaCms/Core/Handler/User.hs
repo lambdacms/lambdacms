@@ -9,12 +9,12 @@
 {-# LANGUAGE FlexibleContexts    #-}
 
 module LambdaCms.Core.Handler.User
-  ( getUserAdminOverviewR
+  ( getUserAdminIndexR
   , getUserAdminNewR
   , postUserAdminNewR
-  , getUserAdminR
-  , postUserAdminR
-  , deleteUserAdminR
+  , getUserAdminEditR
+  , postUserAdminEditR
+  , deleteUserAdminEditR
   , postUserAdminChangePasswordR
   , getUserAdminActivateR
   , postUserAdminActivateR
@@ -42,17 +42,17 @@ data ComparePassword = ComparePassword { originalPassword :: Text
                                        , confirmPassword :: Text
                                        } deriving (Show, Eq)
 
-getUserAdminOverviewR        :: CoreHandler Html
+getUserAdminIndexR           :: CoreHandler Html
 getUserAdminNewR             :: CoreHandler Html
 postUserAdminNewR            :: CoreHandler Html
-getUserAdminR                :: UserId -> CoreHandler Html
-postUserAdminR               :: UserId -> CoreHandler Html
+getUserAdminEditR            :: UserId -> CoreHandler Html
+postUserAdminEditR           :: UserId -> CoreHandler Html
 postUserAdminChangePasswordR :: UserId -> CoreHandler Html
-deleteUserAdminR             :: UserId -> CoreHandler Html
+deleteUserAdminEditR         :: UserId -> CoreHandler Html
 getUserAdminActivateR        :: UserId -> Text -> CoreHandler Html
-postUserAdminActivateR        :: UserId -> Text -> CoreHandler Html
+postUserAdminActivateR       :: UserId -> Text -> CoreHandler Html
 
-userForm :: User -> Maybe CoreMessage -> Form User
+userForm :: User -> Maybe CoreMessage -> CoreForm User
 userForm u submit = renderBootstrap3 BootstrapBasicForm $ User
              <$> pure            (userIdent u)
              <*> areq textField  (bfs Msg.Username)        (Just $ userName u)
@@ -63,7 +63,7 @@ userForm u submit = renderBootstrap3 BootstrapBasicForm $ User
              <*> pure            (userLastLogin u)
              <*  bootstrapSubmit (BootstrapSubmit (fromMaybe Msg.Submit submit) " btn-success " [])
 
-userChangePasswordForm :: Maybe Text -> Maybe CoreMessage -> Form ComparePassword
+userChangePasswordForm :: Maybe Text -> Maybe CoreMessage -> CoreForm ComparePassword
 userChangePasswordForm original submit = renderBootstrap3 BootstrapBasicForm $ ComparePassword
   <$> areq validatePasswordField (withName "original-pw" $ bfs Msg.Password) Nothing
   <*> areq comparePasswordField  (bfs Msg.Confirm) Nothing
@@ -120,13 +120,13 @@ sendAccountActivationToken core user body bodyHtml = do
              []
      lambdaCmsSendMail core mail
 
-getUserAdminOverviewR = do
+getUserAdminIndexR = do
   timeNow <- liftIO getCurrentTime
   lift $ do
     hrtLocale <- lambdaCmsHumanTimeLocale
     (users :: [Entity User]) <- runDB $ selectList [] []
     adminLayout $ do
-      setTitleI Msg.UserOverview
+      setTitleI Msg.UserIndex
       $(whamletFile "templates/user/index.hamlet")
 
 getUserAdminNewR = do
@@ -154,14 +154,14 @@ postUserAdminNewR = do
 
            _ <- liftIO $ sendAccountActivationToken y user bodyText bodyHtml
            lift $ setMessageI Msg.SuccessCreate
-           redirectUltDest $ UserAdminR userId
+           redirectUltDest $ UserAdminR $ UserAdminEditR userId
          Nothing -> error "No token found."
       _ -> do
         lift . adminLayout $ do
           setTitleI Msg.NewUser
           $(whamletFile "templates/user/new.hamlet")
 
-getUserAdminR userId = do
+getUserAdminEditR userId = do
     timeNow <- liftIO getCurrentTime
     lift $ do
       user <- runDB $ get404 userId
@@ -172,7 +172,7 @@ getUserAdminR userId = do
         setTitleI . Msg.EditUser $ userName user
         $(whamletFile "templates/user/edit.hamlet")
 
-postUserAdminR userId = do
+postUserAdminEditR userId = do
   user <- lift . runDB $ get404 userId
   timeNow <- liftIO getCurrentTime
   hrtLocale <- lift lambdaCmsHumanTimeLocale
@@ -182,7 +182,7 @@ postUserAdminR userId = do
    FormSuccess updatedUser -> do
      _ <- lift $ runDB $ update userId [UserName =. userName updatedUser, UserEmail =. userEmail updatedUser]
      lift $ setMessageI Msg.SuccessReplace
-     redirect $ UserAdminR userId
+     redirect $ UserAdminR $ UserAdminEditR userId
    _ -> do
      lift . adminLayout $ do
        setTitleI . Msg.EditUser $ userName user
@@ -199,18 +199,18 @@ postUserAdminChangePasswordR userId = do
    FormSuccess f -> do
      _ <- lift . runDB $ update userId [UserPassword =. Just (originalPassword f)]
      lift $ setMessageI Msg.SuccessChgPwd
-     redirect $ UserAdminR userId
+     redirect $ UserAdminR $ UserAdminEditR userId
    _ -> do
      lift . adminLayout $ do
        setTitleI . Msg.EditUser $ userName user
        $(whamletFile "templates/user/edit.hamlet")
 
-deleteUserAdminR userId = do
+deleteUserAdminEditR userId = do
   lift $ do
     user <- runDB $ get404 userId
     _ <- runDB $ delete userId
     setMessageI Msg.SuccessDelete
-  redirectUltDest UserAdminOverviewR
+  redirectUltDest $ UserAdminR UserAdminIndexR
 
 getUserAdminActivateR userId token = do
   user <- lift . runDB $ get404 userId

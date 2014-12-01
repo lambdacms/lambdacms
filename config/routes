@@ -1,0 +1,9 @@
+/                       AdminHomeR         GET
+/activate/#UserId/#Text UserAdminActivateR GET POST
+
+-- User CRUD
+/users             UserAdminR:
+    /              UserAdminIndexR          GET
+    /new           UserAdminNewR            GET POST
+    !/#UserId      UserAdminEditR           GET POST DELETE
+    /#UserId/reset UserAdminChangePasswordR POST

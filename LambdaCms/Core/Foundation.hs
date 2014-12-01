@@ -7,6 +7,7 @@
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE GADTs                 #-}
+{-# LANGUAGE ViewPatterns           #-}
 
 module LambdaCms.Core.Foundation where
 
@@ -27,11 +28,14 @@ import           Text.Lucius (luciusFile)
 import           Text.Julius (juliusFile)
 
 import           LambdaCms.Core.Models
-import           LambdaCms.Core.Routes
 import           LambdaCms.Core.Message (CoreMessage, defaultMessage, englishMessage, dutchMessage)
 import qualified LambdaCms.Core.Message as Msg
 import           LambdaCms.I18n
 import           Network.Mail.Mime
+
+data Core = Core
+
+mkYesodSubData "Core" $(parseRoutesFile "config/routes")
 
 class ( YesodAuth master
       , AuthId master ~ Key User
@@ -132,8 +136,7 @@ class ( YesodAuth master
 -- Fairly complex "handler" type, allowing persistent queries on the master's db connection, hereby simplified
 type CoreHandler a = forall master. LambdaCmsAdmin master => HandlerT Core (HandlerT master IO) a
 
-type Form a = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT master IO) (FormResult a, WidgetT master IO ())
-
+type CoreForm a = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT master IO) (FormResult a, WidgetT master IO ())
 
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.
@@ -162,7 +165,7 @@ data AdminMenuItem master = MenuItem
 
 defaultCoreAdminMenu :: LambdaCmsAdmin master => (Route Core -> Route master) -> [AdminMenuItem master]
 defaultCoreAdminMenu tp = [MenuItem (SomeMessage Msg.MenuDashboard) (tp AdminHomeR) "home",
-                           MenuItem (SomeMessage Msg.MenuUsers) (tp UserAdminOverviewR) "user"]
+                           MenuItem (SomeMessage Msg.MenuUsers) (tp $ UserAdminR UserAdminIndexR) "user"]
 
 
 adminLayoutSub :: LambdaCmsAdmin master
