@@ -80,14 +80,6 @@ class ( YesodAuth master
         mmsg <- getMessage
         withUrlRenderer $(hamletFile "templates/adminauthlayout.hamlet")
 
-    isLoggedIn :: HandlerT master IO Bool
-    isLoggedIn = do
-        ma <- maybeAuthId
-        return $ maybe False (const True) ma
-
-    lambdaExtensions :: [LambdaCmsExtension master]
-    lambdaExtensions = [] -- default to empty list to prevent runtime error (500)
-
     adminMenu :: [AdminMenuItem master]
     adminMenu = []
 
@@ -136,24 +128,12 @@ type CoreHandler a = forall master. LambdaCmsAdmin master => HandlerT Core (Hand
 
 type CoreForm a = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT master IO) (FormResult a, WidgetT master IO ())
 
--- This instance is required to use forms. You can modify renderMessage to
--- achieve customized and internationalized form validation messages.
-instance RenderMessage Core FormMessage where
-  renderMessage _ _ = dutchFormMessage
-
 instance LambdaCmsAdmin master => RenderMessage master CoreMessage where
   renderMessage = renderCoreMessage
 
 -- Extension for bootstrap (give a name to input field)
 withName :: Text -> FieldSettings site -> FieldSettings site
 withName name fs = fs { fsName = Just name }
-
-data LambdaCmsExtension master = LambdaCmsExtension
-                                 { extensionName :: Text
-                                 , extensionMenuItem :: Maybe (AdminMenuItem master)
-                                 --, contentTypes
-                                 --, adminComponents
-                                 }
 
 data AdminMenuItem master = MenuItem
                             { label :: SomeMessage master
