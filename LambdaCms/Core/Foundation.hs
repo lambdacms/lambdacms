@@ -49,9 +49,6 @@ class ( YesodAuth master
     authR :: Route Auth -> Route master
     -- | Gives the route which LambdaCms should use as the master site homepage
     masterHomeR :: Route master
-    -- | Gives the route where to an unauthenticated user accessing the adminLayout should be redirected
-    unauthenticatedR :: master -> Route master
-    unauthenticatedR _ = authR LoginR
 
     -- | Applies some form of layout to the contents of an admin section page.
     adminLayout :: WidgetT master IO () -> HandlerT master IO Html
@@ -70,7 +67,9 @@ class ( YesodAuth master
             withUrlRenderer $(hamletFile "templates/admin-layout-wrapper.hamlet")
           Nothing -> do
             y <- getYesod
-            redirect $ unauthenticatedR y
+            case authRoute y of
+              Just route -> redirect route
+              Nothing -> notAuthenticated
 
     defaultLambdaCmsAdminAuthLayout :: WidgetT master IO () -> HandlerT master IO Html
     defaultLambdaCmsAdminAuthLayout widget = do
