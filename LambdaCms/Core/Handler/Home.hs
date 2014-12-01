@@ -18,4 +18,4 @@ import qualified LambdaCms.Core.Message as Msg
 getAdminHomeR :: CoreHandler Html
 getAdminHomeR = lift . adminLayout $ do
   setTitleI Msg.Dashboard
-  $(whamletFile "templates/adminhome.hamlet")
+  $(widgetFile "adminhome")

@@ -28,6 +28,7 @@ import           Text.Lucius (luciusFile)
 import           Text.Julius (juliusFile)
 
 import           LambdaCms.Core.Models
+import           LambdaCms.Core.Settings
 import           LambdaCms.Core.Message (CoreMessage, defaultMessage, englishMessage, dutchMessage)
 import qualified LambdaCms.Core.Message as Msg
 import           LambdaCms.I18n
@@ -65,10 +66,8 @@ class ( YesodAuth master
               addScriptRemote "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
               addScriptRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/js/bootstrap.min.js"
               addStylesheetRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap.min.css"
-              $(whamletFile "templates/adminlayout.hamlet")
-              toWidget $(luciusFile "templates/adminlayout.lucius")
-              toWidget $(juliusFile "templates/adminlayout.julius")
-            withUrlRenderer $(hamletFile "templates/adminlayout-wrapper.hamlet")
+              $(widgetFile "admin-layout")
+            withUrlRenderer $(hamletFile "templates/admin-layout-wrapper.hamlet")
           Nothing -> do
             y <- getYesod
             redirect $ unauthenticatedR y

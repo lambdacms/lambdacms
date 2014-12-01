@@ -127,7 +127,7 @@ getUserAdminIndexR = do
     (users :: [Entity User]) <- runDB $ selectList [] []
     adminLayout $ do
       setTitleI Msg.UserIndex
-      $(whamletFile "templates/user/index.hamlet")
+      $(widgetFile "user/index")
 
 getUserAdminNewR = do
   eu <- liftIO emptyUser
@@ -135,7 +135,7 @@ getUserAdminNewR = do
     (formWidget, enctype) <- generateFormPost $ userForm eu (Just Msg.Create)
     adminLayout $ do
       setTitleI Msg.NewUser
-      $(whamletFile "templates/user/new.hamlet")
+      $(widgetFile "user/new")
 
 postUserAdminNewR = do
     eu <- liftIO emptyUser
@@ -159,7 +159,7 @@ postUserAdminNewR = do
       _ -> do
         lift . adminLayout $ do
           setTitleI Msg.NewUser
-          $(whamletFile "templates/user/new.hamlet")
+          $(widgetFile "user/new")
 
 getUserAdminEditR userId = do
     timeNow <- liftIO getCurrentTime
@@ -170,7 +170,7 @@ getUserAdminEditR userId = do
       (pwFormWidget, pwEnctype) <- generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change)
       adminLayout $ do
         setTitleI . Msg.EditUser $ userName user
-        $(whamletFile "templates/user/edit.hamlet")
+        $(widgetFile "user/edit")
 
 postUserAdminEditR userId = do
   user <- lift . runDB $ get404 userId
@@ -186,7 +186,7 @@ postUserAdminEditR userId = do
    _ -> do
      lift . adminLayout $ do
        setTitleI . Msg.EditUser $ userName user
-       $(whamletFile "templates/user/edit.hamlet")
+       $(widgetFile "user/edit")
 
 postUserAdminChangePasswordR userId = do
   user <- lift . runDB $ get404 userId
@@ -203,7 +203,7 @@ postUserAdminChangePasswordR userId = do
    _ -> do
      lift . adminLayout $ do
        setTitleI . Msg.EditUser $ userName user
-       $(whamletFile "templates/user/edit.hamlet")
+       $(widgetFile "user/edit")
 
 deleteUserAdminEditR userId = do
   lift $ do
@@ -219,13 +219,13 @@ getUserAdminActivateR userId token = do
      (pwFormWidget, pwEnctype) <- lift . generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change)
      lift . adminLayout $ do
        setTitle . toHtml $ userName user
-       $(whamletFile "templates/user/activate.hamlet")
+       $(widgetFile "user/activate")
    Just False -> lift . adminLayout $ do
      setTitleI Msg.TokenMismatch
-     $(whamletFile "templates/user/tokenmismatch.hamlet")
+     $(widgetFile "user/tokenmismatch")
    Nothing -> lift . adminLayout $ do
      setTitleI Msg.AccountAlreadyActivated
-     $(whamletFile "templates/user/account-already-activated.hamlet")
+     $(widgetFile "user/account-already-activated")
 
 postUserAdminActivateR userId token = do
   user <- lift . runDB $ get404 userId
@@ -241,10 +241,10 @@ postUserAdminActivateR userId token = do
       _ -> do
         lift . adminLayout $ do
           setTitle . toHtml $ userName user
-          $(whamletFile "templates/user/activate.hamlet")
+          $(widgetFile "user/activate")
    Just False -> lift . adminLayout $ do
      setTitleI Msg.TokenMismatch
-     $(whamletFile "templates/user/tokenmismatch.hamlet")
+     $(widgetFile "user/tokenmismatch")
    Nothing -> lift . adminLayout $ do
      setTitleI Msg.AccountAlreadyActivated
-     $(whamletFile "templates/user/account-already-activated.hamlet")
+     $(widgetFile "user/account-already-activated")
