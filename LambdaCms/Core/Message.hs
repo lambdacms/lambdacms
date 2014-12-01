@@ -14,9 +14,9 @@ import Data.Text (Text)
 data CoreMessage =
     Dashboard
   | LambdaCms
-  | SignedInAs { name :: Text}
   | NotLoggedIn
   | Logout
+  | AccountSettings
   | UserIndex
   | EmailAddress
   | NewUser
@@ -66,9 +66,9 @@ defaultMessage = englishMessage
 englishMessage :: CoreMessage -> Text
 englishMessage Dashboard                = "Dashboard"
 englishMessage LambdaCms                = "LambdaCms"
-englishMessage (SignedInAs name)        = "Signed in as " `mappend` name
 englishMessage NotLoggedIn              = "Not logged in"
 englishMessage Logout                   = "Logout"
+englishMessage AccountSettings          = "Account settings"
 englishMessage UserIndex                = "User overview"
 englishMessage EmailAddress             = "E-mail address"
 englishMessage NewUser                  = "New user"
@@ -116,9 +116,9 @@ dutchMessage :: CoreMessage -> Text
 dutchMessage Dashboard                = "Dashboard"
 dutchMessage UserIndex                = "Gebruikers overzicht"
 dutchMessage LambdaCms                = "LambdaCms"
-dutchMessage (SignedInAs name)        = "Ingelogd als " `mappend` name
 dutchMessage NotLoggedIn              = "Niet ingelogd"
 dutchMessage Logout                   = "Uitloggen"
+dutchMessage AccountSettings          = "Accountinstellingen"
 dutchMessage EmailAddress             = "E-mailadres"
 dutchMessage NewUser                  = "Nieuwe gebruiker"
 dutchMessage (EditUser name)          = name

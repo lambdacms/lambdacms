@@ -14,6 +14,7 @@ module LambdaCms.Core.Foundation where
 import Yesod
 import Yesod.Auth
 import Database.Persist.Sql (SqlBackend)
+import Network.Gravatar (GravatarOptions (..), Size (..), gravatar, def)
 
 import           Yesod.Form.I18n.Dutch
 import           Data.Monoid ((<>))
@@ -58,7 +59,13 @@ class ( YesodAuth master
           Just auth -> do
             cr <- getCurrentRoute
             mmsg <- getMessage
+
             let am = adminMenu
+                gravatarSize = 25 :: Int
+                gOpts = def
+                        { gSize = Just $ Size $ gravatarSize * 2 -- retina
+                        }
+
             pc <- widgetToPageContent $ do
               addScriptRemote "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
               addScriptRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/js/bootstrap.min.js"
