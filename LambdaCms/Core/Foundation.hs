@@ -21,6 +21,7 @@ import           Data.Text.Encoding (decodeUtf8)
 import qualified Data.ByteString.Lazy.Char8 as LB (concat, toStrict)
 import           Data.Time.Format.Human
 import           Data.Time (utc)
+import qualified Data.Set as S
 import           Text.Hamlet (hamletFile)
 import           Text.Lucius (luciusFile)
 import           Text.Julius (juliusFile)
@@ -44,25 +45,29 @@ class ( Yesod master
       , RenderMessage master FormMessage
       , YesodPersist master
       , YesodPersistBackend master ~ SqlBackend
-      , Eq (Roles master)
+      , Ord (Roles master)
       -- , PersistQuery (YesodPersistBackend master)
       ) => LambdaCmsAdmin master where
     --runDB :: YesodPersistBackend master (HandlerT master IO) a -> HandlerT master IO a
 
     type Roles master
 
-    getUserRoles :: Entity User -> YesodDB master [Roles master]
-    setUserRoles :: Entity User -> [Roles master] -> YesodDB master ()
+    getUserRoles :: Entity User -> YesodDB master (S.Set (Roles master))
+    setUserRoles :: Entity User -> S.Set (Roles master) -> YesodDB master ()
 
     -- | See if a user is authorized to perform an action.
-    isAuthorizedTo :: Maybe (Entity User) -> Allow [Roles master] -> YesodDB master AuthResult
-    isAuthorizedTo _ Nobody               = return $ Unauthorized "Access denied."
-    isAuthorizedTo _ Unauthenticated      = return Authorized
-    isAuthorizedTo (Just _) Authenticated = return Authorized
-    isAuthorizedTo Nothing _              = return AuthenticationRequired
-    isAuthorizedTo (Just user) (Roles xs) = do
+    isAuthorizedTo
+      :: Ord (Roles master)
+      => Maybe (Entity User)
+      -> Allow (S.Set (Roles master)) -- ^ Set of roles allowed to perform the action
+      -> YesodDB master AuthResult
+    isAuthorizedTo _           Nobody          = return $ Unauthorized "Access denied."
+    isAuthorizedTo _           Unauthenticated = return Authorized
+    isAuthorizedTo (Just _)    Authenticated   = return Authorized
+    isAuthorizedTo Nothing     _               = return AuthenticationRequired
+    isAuthorizedTo (Just user) (Roles xs)      = do
       ur <- getUserRoles user
-      case (not . null $ ur `L.intersect` xs) of
+      case (not . S.null $ ur `S.intersection` xs) of
         True -> return Authorized
         False -> return $ Unauthorized "Access denied."
 
