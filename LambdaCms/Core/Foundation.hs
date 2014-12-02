@@ -61,15 +61,16 @@ class ( YesodAuth master
             mmsg <- getMessage
 
             let am = adminMenu
-                gravatarSize = 25 :: Int
+                gravatarSize = 28 :: Int
                 gOpts = def
                         { gSize = Just $ Size $ gravatarSize * 2 -- retina
                         }
 
             pc <- widgetToPageContent $ do
-              addScriptRemote "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
-              addScriptRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/js/bootstrap.min.js"
-              addStylesheetRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap.min.css"
+              addStylesheet $ coreR $ CssAdminR NormalizeR
+              addStylesheet $ coreR $ CssAdminR BootstrapCssR
+              addScript $ coreR $ JsAdminR JQueryR
+              addScript $ coreR $ JsAdminR BootstrapJsR
               $(widgetFile "admin-layout")
             withUrlRenderer $(hamletFile "templates/admin-layout-wrapper.hamlet")
           Nothing -> do

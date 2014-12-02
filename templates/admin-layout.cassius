@@ -1,26 +1,37 @@
-body
-  padding-top: 70px
+body > header.navbar
+    border: none
 
-.navbar-fixed-top
-  padding-right: 15px
+    .gravatar
+        height: #{show gravatarSize}px
+        width: #{show gravatarSize}px
+        border-radius: #{show $ div gravatarSize 2}px
+        margin: -5px 0
+
+body > div.container-fluid > div.row
+     margin-top: 32px
+
+.main-nav
+    padding: 0
+
+    > nav
+        padding: 15px 0
+        border: none
+        border-radius: 0
+
+    .nav-pills > li > a
+        border-radius: 0
 
 .display-inline
-  display: inline
+    display: inline
 
 .alert-top
-  margin-bottom: -15px
+    margin-bottom: -15px
 
 .table-hover tbody tr:hover
-  cursor: pointer
+    cursor: pointer
 
 .table-hover tbody tr:hover a
-  text-decoration: underline
+    text-decoration: underline
 
 .button-toolbar
-  padding-bottom: 17px
-
-header.navbar
-  .gravatar
-    height: #{show gravatarSize}px
-    width: #{show gravatarSize}px
-    border-radius: #{show $ div gravatarSize 2}px
+    padding-bottom: 17px

@@ -22,7 +22,7 @@
                                     _{Msg.Logout}
 <div .container-fluid>
     <div .row>
-        <div .col-sm-4 .col-md-3 .col-lg-2>
+        <div .col-sm-4 .col-md-3 .col-lg-2 .main-nav>
             $if not $ null am
                 <nav .navbar .navbar-inverse role=navigation>
                     <ul .nav .nav-pills .nav-stacked role=tablist>
@@ -31,7 +31,7 @@
                                 <a href=@{route menuItem}>
                                     <span .glyphicon .glyphicon-#{icon menuItem}>
                                     _{label menuItem}
-        <main .col-sm-8 .col-md-9 .col-lg-10>
+        <main .col-sm-8 .col-md-9 .col-lg-10 .main-content>
             $maybe msg <- mmsg
                 <div .alert .alert-top .alert-info .alert-dismissible role=alert>
                     <button type=button .close data-dismiss=alert>

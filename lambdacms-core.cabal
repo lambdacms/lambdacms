@@ -15,10 +15,9 @@ build-type:         Simple
 cabal-version:      >= 1.18
 tested-with:        GHC >= 7.6
 extra-source-files: README.md
-                  , templates/*.hamlet
-                  , templates/*.lucius
-                  , templates/*.julius
-                  , messages/*.msg
+                  , templates/*
+                  , messages/*
+                  , static/*
 
 source-repository head
   type:             git
@@ -34,6 +33,7 @@ library
                   , LambdaCms.Core.Settings
                   , LambdaCms.Core.Classes
                   , LambdaCms.Core.Import
+                  , LambdaCms.Core.Handler.Static
                   , LambdaCms.Core.Handler.Home
                   , LambdaCms.Core.Handler.User
                   , LambdaCms.Core.AuthHelper
@@ -58,5 +58,6 @@ library
                   , data-default
                   , template-haskell
                   , gravatar
+                  , file-embed
 
   ghc-options:      -Wall -O2
