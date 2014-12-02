@@ -22,5 +22,6 @@ mkYesodSubData "Core" [parseRoutes|
 /user/new               UserAdminNewR              GET POST
 !/user/#UserId          UserAdminR                 GET POST DELETE
 /user/#UserId/reset     UserAdminChangePasswordR   POST
+/user/#UserId/roles     UserAdminChangeRolesR      POST
 /activate/#UserId/#Text UserAdminActivateR         GET POST
 |]
