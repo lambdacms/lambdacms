@@ -1,15 +1,16 @@
-{-# LANGUAGE TupleSections       #-}
-{-# LANGUAGE OverloadedStrings   #-}
+{-# LANGUAGE FlexibleContexts    #-}
 {-# LANGUAGE FlexibleInstances   #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TemplateHaskell     #-}
+{-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE QuasiQuotes         #-}
 {-# LANGUAGE RankNTypes          #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TemplateHaskell     #-}
+{-# LANGUAGE TupleSections       #-}
 {-# LANGUAGE TypeFamilies        #-}
-{-# LANGUAGE FlexibleContexts    #-}
 
 module LambdaCms.Core.Handler.User
   ( getUserAdminIndexR
+  , postUserAdminChangeRolesR
   , getUserAdminNewR
   , postUserAdminNewR
   , getUserAdminEditR
@@ -20,26 +21,27 @@ module LambdaCms.Core.Handler.User
   , postUserAdminActivateR
   ) where
 
-import LambdaCms.Core.Import
-import LambdaCms.Core.AuthHelper
-import LambdaCms.Core.Message (CoreMessage)
-import qualified LambdaCms.Core.Message as Msg
-import LambdaCms.I18n
+import           LambdaCms.Core.AuthHelper
+import           LambdaCms.Core.Import
+import           LambdaCms.Core.Message    (CoreMessage)
+import qualified LambdaCms.Core.Message    as Msg
+import           LambdaCms.I18n
 
-import Data.Time.Format
-import qualified Data.Text as T (breakOn, concat, length)
-import qualified Data.Text.Lazy as LT (Text)
+import qualified Data.Text                 as T (breakOn, concat, length, pack)
+import qualified Data.Text.Lazy            as LT (Text)
+import           Data.Time.Format
 
-import Data.Maybe (fromMaybe)
-import Data.Time.Clock
-import Data.Time.Format.Human
-import System.Locale
-import Network.Mail.Mime
-import Text.Blaze.Renderer.Text  (renderHtml)
-
+import           Control.Arrow             ((&&&))
+import           Data.Maybe                (fromMaybe)
+import qualified Data.Set                  as S
+import           Data.Time.Clock
+import           Data.Time.Format.Human
+import           Network.Mail.Mime
+import           System.Locale
+import           Text.Blaze.Renderer.Text  (renderHtml)
 -- data type for a form to change a user's password
 data ComparePassword = ComparePassword { originalPassword :: Text
-                                       , confirmPassword :: Text
+                                       , confirmPassword  :: Text
                                        } deriving (Show, Eq)
 
 getUserAdminIndexR           :: CoreHandler Html
@@ -48,6 +50,7 @@ postUserAdminNewR            :: CoreHandler Html
 getUserAdminEditR            :: UserId -> CoreHandler Html
 postUserAdminEditR           :: UserId -> CoreHandler Html
 postUserAdminChangePasswordR :: UserId -> CoreHandler Html
+postUserAdminChangeRolesR    :: UserId -> CoreHandler Html
 deleteUserAdminEditR         :: UserId -> CoreHandler Html
 getUserAdminActivateR        :: UserId -> Text -> CoreHandler Html
 postUserAdminActivateR       :: UserId -> Text -> CoreHandler Html
@@ -62,6 +65,14 @@ userForm u submit = renderBootstrap3 BootstrapBasicForm $ User
              <*> pure            (userCreatedAt u)
              <*> pure            (userLastLogin u)
              <*  bootstrapSubmit (BootstrapSubmit (fromMaybe Msg.Submit submit) " btn-success " [])
+
+userRoleForm :: (LambdaCmsAdmin master) => S.Set (Roles master) -> Html -> MForm (HandlerT master IO) (FormResult [Roles master], WidgetT master IO ())
+userRoleForm roles = renderBootstrap3 BootstrapBasicForm $
+           areq (checkboxesField roleList) "" (Just $ S.toList roles)
+           <*  bootstrapSubmit (BootstrapSubmit Msg.Submit " btn-success " [])
+  where roleList = do
+          y <- getYesod
+          optionsPairs $ map ((T.pack . show) &&& id) $ S.toList $ getRoles y
 
 userChangePasswordForm :: Maybe Text -> Maybe CoreMessage -> CoreForm ComparePassword
 userChangePasswordForm original submit = renderBootstrap3 BootstrapBasicForm $ ComparePassword
@@ -79,7 +90,6 @@ userChangePasswordForm original submit = renderBootstrap3 BootstrapBasicForm $ C
     comparePasswords pw
       | pw == fromMaybe "" original = Right pw
       | otherwise = Left Msg.PasswordMismatch
-
 
 -- | Helper to create a user with email address
 generateUserWithEmail :: Text -> IO User
@@ -123,8 +133,13 @@ sendAccountActivationToken core user body bodyHtml = do
 getUserAdminIndexR = do
   timeNow <- liftIO getCurrentTime
   lift $ do
+    y <- getYesod
+    (users' :: [Entity User]) <- runDB $ selectList [] []
+    users <- mapM (\user -> do
+                     ur <- runDB $ getUserRoles y $ entityKey user
+                     return (user, S.toList ur)
+                  ) users'
     hrtLocale <- lambdaCmsHumanTimeLocale
-    (users :: [Entity User]) <- runDB $ selectList [] []
     adminLayout $ do
       setTitleI Msg.UserIndex
       $(widgetFile "user/index")
@@ -165,9 +180,12 @@ getUserAdminEditR userId = do
     timeNow <- liftIO getCurrentTime
     lift $ do
       user <- runDB $ get404 userId
+      y <- getYesod
+      ur <- runDB $ getUserRoles y userId
       hrtLocale <- lambdaCmsHumanTimeLocale
-      (formWidget, enctype) <- generateFormPost $ userForm user (Just Msg.Save)
-      (pwFormWidget, pwEnctype) <- generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change)
+      (urWidget, urEnctype)     <- generateFormPost $ userRoleForm ur                                  -- user role form
+      (formWidget, enctype)     <- generateFormPost $ userForm user (Just Msg.Save)                    -- user form
+      (pwFormWidget, pwEnctype) <- generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change) -- user password form
       adminLayout $ do
         setTitleI . Msg.EditUser $ userName user
         $(widgetFile "user/edit")
@@ -176,8 +194,11 @@ postUserAdminEditR userId = do
   user <- lift . runDB $ get404 userId
   timeNow <- liftIO getCurrentTime
   hrtLocale <- lift lambdaCmsHumanTimeLocale
+  y <- lift getYesod
+  ur <- lift . runDB $ getUserRoles y userId
+  (urWidget, urEnctype)               <- lift . generateFormPost $ userRoleForm ur
+  (pwFormWidget, pwEnctype)           <- lift . generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change)
   ((formResult, formWidget), enctype) <- lift . runFormPost $ userForm user (Just Msg.Save)
-  (pwFormWidget, pwEnctype) <- lift . generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change)
   case formResult of
    FormSuccess updatedUser -> do
      _ <- lift $ runDB $ update userId [UserName =. userName updatedUser, UserEmail =. userEmail updatedUser]
@@ -192,6 +213,9 @@ postUserAdminChangePasswordR userId = do
   user <- lift . runDB $ get404 userId
   timeNow <- liftIO getCurrentTime
   hrtLocale <- lift lambdaCmsHumanTimeLocale
+  y <- lift getYesod
+  ur <- lift . runDB $ getUserRoles y userId
+  (urWidget, urEnctype) <- lift . generateFormPost $ userRoleForm ur
   (formWidget, enctype) <- lift . generateFormPost $ userForm user (Just Msg.Save)
   opw <- lookupPostParam "original-pw"
   ((formResult, pwFormWidget), pwEnctype) <- lift . runFormPost $ userChangePasswordForm opw (Just Msg.Change)
@@ -204,6 +228,25 @@ postUserAdminChangePasswordR userId = do
      lift . adminLayout $ do
        setTitleI . Msg.EditUser $ userName user
        $(widgetFile "user/edit")
+
+
+postUserAdminChangeRolesR userId = do
+  timeNow <- liftIO getCurrentTime
+  user <- lift . runDB $ get404 userId
+  hrtLocale <- lift lambdaCmsHumanTimeLocale
+  y <- lift getYesod
+  ur <- lift . runDB $ getUserRoles y userId
+  ((urResult, urWidget), urEnctype) <- lift . runFormPost      $ userRoleForm ur
+  (pwFormWidget, pwEnctype)         <- lift . generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change)
+  (formWidget, enctype)             <- lift . generateFormPost $ userForm user (Just Msg.Save)
+  case urResult of
+    FormSuccess roles -> do
+      lift . runDB $ setUserRoles y userId (S.fromList roles)
+      redirect $ UserAdminR $ UserAdminEditR userId
+    _ -> do
+      tp <- getRouteToParent
+      lift . adminLayout $ do
+        $(whamletFile "templates/user/edit.hamlet")
 
 deleteUserAdminEditR userId = do
   lift $ do

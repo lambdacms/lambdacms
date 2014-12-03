@@ -18,14 +18,18 @@
           <thead>
             <tr>
               <th>_{Msg.Username}
+              <th .text-right>Roles
               <th>_{Msg.EmailAddress}
               <th>_{Msg.CreatedOn}
               <th>_{Msg.LastLogin}
           <tbody>
-            $forall (Entity userId user) <- users
+            $forall ((Entity userId user), roles) <- users
               <tr onclick="document.location.href='@{coreR $ UserAdminR $ UserAdminEditR userId}'">
                 <td>
                   <a href=@{coreR $ UserAdminR $ UserAdminEditR userId}> #{userName user}
+                <td .text-right>
+                  $forall role <- roles
+                    <span .label .label-info>#{show role}
                 <td>#{userEmail user}
                 <td>#{show $ utctDay $ userCreatedAt user}
                 <td>#{humanReadableTimeI18N' hrtLocale timeNow $ userLastLogin user}

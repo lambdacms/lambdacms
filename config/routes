@@ -21,3 +21,4 @@
     /new           UserAdminNewR            GET POST
     !/#UserId      UserAdminEditR           GET POST DELETE
     /#UserId/reset UserAdminChangePasswordR POST
+    /#UserId/roles UserAdminChangeRolesR    POST
