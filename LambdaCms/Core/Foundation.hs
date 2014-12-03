@@ -73,9 +73,6 @@ class ( YesodAuth master
 
     type Roles master
 
-    getRoles :: master -> Set (Roles master)
-    getRoles _ = fromList [minBound .. maxBound]
-
     getUserRoles :: master -> Key User -> YesodDB master (Set (Roles master))
     setUserRoles :: master -> Key User -> Set (Roles master) -> YesodDB master ()
 

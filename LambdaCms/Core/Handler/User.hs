@@ -70,9 +70,7 @@ userRoleForm :: (LambdaCmsAdmin master) => S.Set (Roles master) -> Html -> MForm
 userRoleForm roles = renderBootstrap3 BootstrapBasicForm $
            areq (checkboxesField roleList) "" (Just $ S.toList roles)
            <*  bootstrapSubmit (BootstrapSubmit Msg.Submit " btn-success " [])
-  where roleList = do
-          y <- getYesod
-          optionsPairs $ map ((T.pack . show) &&& id) $ S.toList $ getRoles y
+  where roleList = optionsPairs $ map ((T.pack . show) &&& id) [minBound .. maxBound]
 
 userChangePasswordForm :: Maybe Text -> Maybe CoreMessage -> CoreForm ComparePassword
 userChangePasswordForm original submit = renderBootstrap3 BootstrapBasicForm $ ComparePassword
