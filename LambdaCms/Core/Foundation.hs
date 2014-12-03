@@ -11,6 +11,8 @@
 
 module LambdaCms.Core.Foundation where
 
+import           Control.Monad              (filterM)
+import           Data.ByteString            (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as LB (concat, toStrict)
 import           Data.Maybe                 (catMaybes, isJust)
 import           Data.Monoid                ((<>))
@@ -45,6 +47,17 @@ data Allow a = Unauthenticated -- ^ Allow anyone (no authentication required)
              | Authenticated   -- ^ Allow any authenticated user
              | Roles a         -- ^ Allow anyone who as at least one matching role
              | Nobody          -- ^ Allow nobody
+
+canUser :: ( LambdaCmsAdmin master
+           ) => Key User
+             -> Route master
+             -> ByteString
+             -> HandlerT master IO Bool
+canUser uid theRoute action = do
+    result <- runDB $ isAuthorizedTo (Just uid) $ actionAllowedFor theRoute action
+    return $ case result of
+        Authorized -> True
+        _ -> False
 
 class ( YesodAuth master
       , AuthId master ~ Key User
@@ -81,6 +94,9 @@ class ( YesodAuth master
         True -> return Authorized
         False -> return $ Unauthorized "Access denied."
 
+    actionAllowedFor :: Route master -> ByteString -> Allow (Set (Roles master))
+    actionAllowedFor _ _ = Nobody
+
     coreR :: Route Core -> Route master
     authR :: Route Auth -> Route master
     -- | Gives the route which LambdaCms should use as the master site homepage
@@ -94,9 +110,9 @@ class ( YesodAuth master
           Just auth -> do
             cr <- getCurrentRoute
             mmsg <- getMessage
+            am <- filterM (\i -> canUser (entityKey auth) (route i) "GET") adminMenu
 
-            let am = adminMenu
-                gravatarSize = 28 :: Int
+            let gravatarSize = 28 :: Int
                 gOpts = def
                         { gSize = Just $ Size $ gravatarSize * 2 -- retina
                         }
