@@ -56,7 +56,6 @@ class ( YesodAuth master
       , Bounded (Roles master)
       , Show (Roles master)
       , Eq (Roles master)
-      -- , PersistQuery (YesodPersistBackend master)
       ) => LambdaCmsAdmin master where
 
     type Roles master
@@ -68,16 +67,14 @@ class ( YesodAuth master
     setUserRoles :: master -> Key User -> Set (Roles master) -> YesodDB master ()
 
     -- | See if a user is authorized to perform an action.
-    isAuthorizedTo
-      :: Ord (Roles master)
-      => Maybe (Key User)
-      -> Allow (Set (Roles master)) -- ^ Set of roles allowed to perform the action
-      -> YesodDB master AuthResult
+    isAuthorizedTo :: Maybe (Key User)
+                   -> Allow (Set (Roles master)) -- ^ Set of roles allowed to perform the action
+                   -> YesodDB master AuthResult
     isAuthorizedTo _           Nobody          = return $ Unauthorized "Access denied."
     isAuthorizedTo _           Unauthenticated = return Authorized
     isAuthorizedTo (Just _)    Authenticated   = return Authorized
     isAuthorizedTo Nothing     _               = return AuthenticationRequired
-    isAuthorizedTo (Just userId) (Roles xs)      = do
+    isAuthorizedTo (Just userId) (Roles xs)    = do
       y <- getYesod
       ur <- getUserRoles y userId
       case (not . S.null $ ur `intersection` xs) of
@@ -129,9 +126,9 @@ class ( YesodAuth master
     adminMenu = []
 
     renderCoreMessage :: master
-                         -> [Text]
-                         -> CoreMessage
-                         -> Text
+                      -> [Text]
+                      -> CoreMessage
+                      -> Text
     renderCoreMessage m (lang:langs) = do
       case (lang `elem` (renderLanguages m), lang) of
        (True, "en") -> englishMessage
