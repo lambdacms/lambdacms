@@ -133,8 +133,13 @@ getUserAdminOverviewR = do
   tp <- getRouteToParent
   timeNow <- liftIO getCurrentTime
   lift $ do
+    y <- getYesod
+    (users' :: [Entity User]) <- runDB $ selectList [] []
+    users <- mapM (\user -> do
+                     ur <- runDB $ getUserRoles y $ entityKey user
+                     return (user, S.toList ur)
+                  ) users'
     hrtLocale <- lambdaCmsHumanTimeLocale
-    (users :: [Entity User]) <- runDB $ selectList [] []
     adminLayout $ do
       setTitleI Msg.UserOverview
       $(whamletFile "templates/user/index.hamlet")
@@ -179,7 +184,8 @@ getUserAdminR userId = do
     timeNow <- liftIO getCurrentTime
     lift $ do
       user <- runDB $ get404 userId
-      ur <- runDB $ getUserRoles userId
+      y <- getYesod
+      ur <- runDB $ getUserRoles y userId
       hrtLocale <- lambdaCmsHumanTimeLocale
       (urWidget, urEnctype)     <- generateFormPost $ userRoleForm ur                                  -- user role form
       (formWidget, enctype)     <- generateFormPost $ userForm user (Just Msg.Save)                    -- user form
@@ -192,7 +198,8 @@ postUserAdminR userId = do
   user <- lift . runDB $ get404 userId
   timeNow <- liftIO getCurrentTime
   hrtLocale <- lift lambdaCmsHumanTimeLocale
-  ur <- lift . runDB $ getUserRoles userId
+  y <- lift getYesod
+  ur <- lift . runDB $ getUserRoles y userId
   (urWidget, urEnctype)               <- lift . generateFormPost $ userRoleForm ur
   (pwFormWidget, pwEnctype)           <- lift . generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change)
   ((formResult, formWidget), enctype) <- lift . runFormPost $ userForm user (Just Msg.Save)
@@ -211,7 +218,8 @@ postUserAdminChangePasswordR userId = do
   user <- lift . runDB $ get404 userId
   timeNow <- liftIO getCurrentTime
   hrtLocale <- lift lambdaCmsHumanTimeLocale
-  ur <- lift . runDB $ getUserRoles userId
+  y <- lift getYesod
+  ur <- lift . runDB $ getUserRoles y userId
   (urWidget, urEnctype) <- lift . generateFormPost $ userRoleForm ur
   (formWidget, enctype) <- lift . generateFormPost $ userForm user (Just Msg.Save)
   opw <- lookupPostParam "original-pw"
@@ -232,13 +240,14 @@ postUserAdminChangeRolesR userId = do
   timeNow <- liftIO getCurrentTime
   user <- lift . runDB $ get404 userId
   hrtLocale <- lift lambdaCmsHumanTimeLocale
-  ur <- lift . runDB $ getUserRoles userId
+  y <- lift getYesod
+  ur <- lift . runDB $ getUserRoles y userId
   ((urResult, urWidget), urEnctype) <- lift . runFormPost      $ userRoleForm ur
   (pwFormWidget, pwEnctype)         <- lift . generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change)
   (formWidget, enctype)             <- lift . generateFormPost $ userForm user (Just Msg.Save)
   case urResult of
     FormSuccess roles -> do
-      lift . runDB $ setUserRoles userId (S.fromList roles)
+      lift . runDB $ setUserRoles y userId (S.fromList roles)
       redirect $ UserAdminR userId
     _ -> do
       tp <- getRouteToParent

@@ -63,8 +63,8 @@ class ( Yesod master
     -- getRoles' :: master -> S.Set (Roles master)
     -- getRoles' = S.fromList . getRoles
 
-    getUserRoles :: Key User -> YesodDB master (Set (Roles master))
-    setUserRoles :: Key User -> Set (Roles master) -> YesodDB master ()
+    getUserRoles :: master -> Key User -> YesodDB master (Set (Roles master))
+    setUserRoles :: master -> Key User -> Set (Roles master) -> YesodDB master ()
 
     -- | See if a user is authorized to perform an action.
     isAuthorizedTo
@@ -77,7 +77,8 @@ class ( Yesod master
     isAuthorizedTo (Just _)    Authenticated   = return Authorized
     isAuthorizedTo Nothing     _               = return AuthenticationRequired
     isAuthorizedTo (Just userId) (Roles xs)      = do
-      ur <- getUserRoles userId
+      y <- getYesod
+      ur <- getUserRoles y userId
       case (not . S.null $ ur `intersection` xs) of
         True -> return Authorized
         False -> return $ Unauthorized "Access denied."
