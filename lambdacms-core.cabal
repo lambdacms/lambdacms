@@ -31,15 +31,18 @@ library
 
   other-modules:    LambdaCms.Core.Foundation
                   , LambdaCms.Core.Models
-                  , LambdaCms.Core.Routes
+                  , LambdaCms.Core.Settings
+                  , LambdaCms.Core.Classes
                   , LambdaCms.Core.Import
                   , LambdaCms.Core.Handler.Home
                   , LambdaCms.Core.Handler.User
                   , LambdaCms.Core.AuthHelper
                   , LambdaCms.I18n
                   , LambdaCms.I18n.Dutch
+
   build-depends:    base
                   , yesod
+                  , yesod-auth
                   , yesod-form
                   , yesod-form-nl
                   , persistent
@@ -51,6 +54,10 @@ library
                   , old-locale                         >= 1.0.0.5  && < 1.0.1.0
                   , mime-mail                          >= 0.4.5.2  && < 0.5
                   , blaze-markup
-                  , bytestring                         >= 0.9      && < 0.11
+                  , bytestring                    >= 0.9        && < 0.11
+                  , data-default
                   , containers                         >= 0.5.5.1  && < 0.6
+                  , template-haskell
+                  , gravatar
+
   ghc-options:      -Wall -O2

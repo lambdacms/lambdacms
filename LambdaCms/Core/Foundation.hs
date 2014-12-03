@@ -1,50 +1,55 @@
-{-# LANGUAGE FlexibleInstances     #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE QuasiQuotes           #-}
-{-# LANGUAGE TemplateHaskell       #-}
-{-# LANGUAGE RankNTypes            #-}
-{-# LANGUAGE TypeFamilies          #-}
-{-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE GADTs                 #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE QuasiQuotes           #-}
+{-# LANGUAGE RankNTypes            #-}
+{-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE ViewPatterns          #-}
 
 module LambdaCms.Core.Foundation where
 
-import           Yesod
-import           Yesod.Form.I18n.Dutch
-import           Database.Persist.Sql (SqlBackend)
-import           Data.Monoid ((<>))
-import           Data.Maybe (isJust, catMaybes)
-import qualified Data.List as L (intersect)
-import           Data.Text (Text, unpack, pack, intercalate, concat)
-import           Data.Text.Encoding (decodeUtf8)
 import qualified Data.ByteString.Lazy.Char8 as LB (concat, toStrict)
+import           Data.Maybe                 (catMaybes, isJust)
+import           Data.Monoid                ((<>))
+import           Data.Set                   (Set, fromList, intersection)
+import qualified Data.Set                   as S (null)
+import           Data.Text                  (Text, concat, intercalate, pack,
+                                             unpack)
+import           Data.Text.Encoding         (decodeUtf8)
+import           Data.Time                  (utc)
 import           Data.Time.Format.Human
-import           Data.Time (utc)
-import           Data.Set (Set, fromList, intersection)
-import qualified Data.Set as S (null)
-import           Text.Hamlet (hamletFile)
-import           Text.Lucius (luciusFile)
-import           Text.Julius (juliusFile)
-
+import           Database.Persist.Sql       (SqlBackend)
+import           LambdaCms.Core.Message     (CoreMessage, defaultMessage,
+                                             dutchMessage, englishMessage)
+import qualified LambdaCms.Core.Message     as Msg
 import           LambdaCms.Core.Models
-import           LambdaCms.Core.Routes
-import           LambdaCms.Core.Message (CoreMessage, defaultMessage)
-import qualified LambdaCms.Core.Message as Msg
+import           LambdaCms.Core.Settings
 import           LambdaCms.I18n
+import           Network.Gravatar           (GravatarOptions (..), Size (..),
+                                             def, gravatar)
 import           Network.Mail.Mime
+import           Text.Hamlet                (hamletFile)
+import           Text.Julius                (juliusFile)
+import           Text.Lucius                (luciusFile)
+import           Yesod
+import           Yesod.Auth
 
--- | A type to determine what kind of user is allowed to do something.
+data Core = Core
+
+mkYesodSubData "Core" $(parseRoutesFile "config/routes")
+
 data Allow a = Unauthenticated -- ^ Allow anyone (no authentication required)
              | Authenticated   -- ^ Allow any authenticated user
              | Roles a         -- ^ Allow anyone who as at least one matching role
              | Nobody          -- ^ Allow nobody
 
-class ( Yesod master
-      -- , YesodDispatch master
-      , RenderRoute master
-      , RenderMessage master FormMessage
-      , YesodPersist master
+class ( YesodAuth master
+      , AuthId master ~ Key User
+      , AuthEntity master ~ User
+      , YesodAuthPersist master
       , YesodPersistBackend master ~ SqlBackend
       , Ord (Roles master)
       , Enum (Roles master)
@@ -53,15 +58,11 @@ class ( Yesod master
       , Eq (Roles master)
       -- , PersistQuery (YesodPersistBackend master)
       ) => LambdaCmsAdmin master where
-    -- runDB :: YesodPersistBackend master (HandlerT master IO) a -> HandlerT master IO a
 
     type Roles master
 
     getRoles :: master -> Set (Roles master)
     getRoles _ = fromList [minBound .. maxBound]
-
-    -- getRoles' :: master -> S.Set (Roles master)
-    -- getRoles' = S.fromList . getRoles
 
     getUserRoles :: master -> Key User -> YesodDB master (Set (Roles master))
     setUserRoles :: master -> Key User -> Set (Roles master) -> YesodDB master ()
@@ -83,21 +84,37 @@ class ( Yesod master
         True -> return Authorized
         False -> return $ Unauthorized "Access denied."
 
+    coreR :: Route Core -> Route master
+    authR :: Route Auth -> Route master
+    -- | Gives the route which LambdaCms should use as the master site homepage
+    masterHomeR :: Route master
+
+    -- | Applies some form of layout to the contents of an admin section page.
     adminLayout :: WidgetT master IO () -> HandlerT master IO Html
     adminLayout widget = do
-        y <- getYesod
-        let mis = adminMenu y
-        cr <- getCurrentRoute
-        un <- getUserName
-        mmsg <- getMessage
-        pc <- widgetToPageContent $ do
-          addScriptRemote "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
-          addScriptRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/js/bootstrap.min.js"
-          addStylesheetRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap.min.css"
-          $(whamletFile "templates/adminlayout.hamlet")
-          toWidget $(luciusFile "templates/adminlayout.lucius")
-          toWidget $(juliusFile "templates/adminlayout.julius")
-        withUrlRenderer $(hamletFile "templates/adminlayout-wrapper.hamlet")
+        mauth <- maybeAuth
+        case mauth of
+          Just auth -> do
+            cr <- getCurrentRoute
+            mmsg <- getMessage
+
+            let am = adminMenu
+                gravatarSize = 25 :: Int
+                gOpts = def
+                        { gSize = Just $ Size $ gravatarSize * 2 -- retina
+                        }
+
+            pc <- widgetToPageContent $ do
+              addScriptRemote "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"
+              addScriptRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/js/bootstrap.min.js"
+              addStylesheetRemote "//cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap.min.css"
+              $(widgetFile "admin-layout")
+            withUrlRenderer $(hamletFile "templates/admin-layout-wrapper.hamlet")
+          Nothing -> do
+            y <- getYesod
+            case authRoute y of
+              Just route -> redirect route
+              Nothing -> notAuthenticated
 
     defaultLambdaCmsAdminAuthLayout :: WidgetT master IO () -> HandlerT master IO Html
     defaultLambdaCmsAdminAuthLayout widget = do
@@ -108,38 +125,22 @@ class ( Yesod master
         mmsg <- getMessage
         withUrlRenderer $(hamletFile "templates/adminauthlayout.hamlet")
 
-    maybeAuth' :: HandlerT master IO (Maybe (Entity User))
-    maybeAuthId' :: HandlerT master IO (Maybe UserId)
-    authLoginDest :: master -> Route master
-    authLogoutRoute :: master -> Route master
-    masterHomeRoute :: master -> Route master
-
-    getUserName :: HandlerT master IO Text
-    getUserName = do
-        y <- getYesod
-        muid <- maybeAuth'
-        case muid of
-            Nothing -> do
-                setMessage "Not logged in"
-                redirect $ authLoginDest y
-            Just uid -> return . userEmail $ entityVal uid
-
-    isLoggedIn :: HandlerT master IO Bool
-    isLoggedIn = do
-        ma <- maybeAuthId'
-        return $ maybe False (const True) ma
-
-    lambdaExtensions :: master -> [LambdaCmsExtension master]
-    lambdaExtensions _ = [] -- default to empty list to prevent runtime error (500)
-
-    adminMenu :: master -> [AdminMenuItem master]
-    adminMenu _ = []
+    adminMenu :: [AdminMenuItem master]
+    adminMenu = []
 
     renderCoreMessage :: master
                          -> [Text]
                          -> CoreMessage
                          -> Text
+    renderCoreMessage m (lang:langs) = do
+      case (lang `elem` (renderLanguages m), lang) of
+       (True, "en") -> englishMessage
+       (True, "nl") -> dutchMessage
+       _ -> renderCoreMessage m langs
     renderCoreMessage _ _ = defaultMessage
+
+    renderLanguages :: master -> [Text]
+    renderLanguages _ = ["en"]
 
     lambdaCmsSendMail :: master -> Mail -> IO ()
     lambdaCmsSendMail _ (Mail from tos ccs bccs headers parts) =
@@ -170,15 +171,7 @@ class ( Yesod master
 -- Fairly complex "handler" type, allowing persistent queries on the master's db connection, hereby simplified
 type CoreHandler a = forall master. LambdaCmsAdmin master => HandlerT Core (HandlerT master IO) a
 
-type CoreWidget = forall master. LambdaCmsAdmin master => WidgetT master IO ()
-
-type Form x = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT master IO) (FormResult x, WidgetT master IO ())
-
-
--- This instance is required to use forms. You can modify renderMessage to
--- achieve customized and internationalized form validation messages.
-instance RenderMessage Core FormMessage where
-  renderMessage _ _ = dutchFormMessage
+type CoreForm a = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT master IO) (FormResult a, WidgetT master IO ())
 
 instance LambdaCmsAdmin master => RenderMessage master CoreMessage where
   renderMessage = renderCoreMessage
@@ -187,22 +180,15 @@ instance LambdaCmsAdmin master => RenderMessage master CoreMessage where
 withName :: Text -> FieldSettings site -> FieldSettings site
 withName name fs = fs { fsName = Just name }
 
-data LambdaCmsExtension master = LambdaCmsExtension
-                                 { extensionName :: Text
-                                 , extensionMenuItem :: Maybe (AdminMenuItem master)
-                                 --, contentTypes
-                                 --, adminComponents
-                                 }
-
 data AdminMenuItem master = MenuItem
-                            { label :: Text
+                            { label :: SomeMessage master
                             , route :: Route master
-                            , icon :: Text -- make this type-safe?
+                            , icon  :: Text -- make this type-safe?
                             }
 
 defaultCoreAdminMenu :: LambdaCmsAdmin master => (Route Core -> Route master) -> [AdminMenuItem master]
-defaultCoreAdminMenu tp = [MenuItem "Dashboard" (tp AdminHomeR) "home",
-                           MenuItem "Users" (tp UserAdminOverviewR) "user"]
+defaultCoreAdminMenu tp = [MenuItem (SomeMessage Msg.MenuDashboard) (tp AdminHomeR) "home",
+                           MenuItem (SomeMessage Msg.MenuUsers) (tp $ UserAdminR UserAdminIndexR) "user"]
 
 
 adminLayoutSub :: LambdaCmsAdmin master

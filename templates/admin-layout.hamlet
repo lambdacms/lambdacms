@@ -1,0 +1,42 @@
+<header .navbar .navbar-inverse .navbar-fixed-top>
+    <div .container-fluid>
+        <div .navbar-header>
+            <a .navbar-brand href=@{masterHomeR}>_{Msg.LambdaCms}
+        <div .collapse .navbar-collapse>
+            <ul .nav .navbar-nav .navbar-right>
+                $with Entity userId user <- auth
+                    <li .dropdown>
+                        <a .dropdown-toggle
+                            data-toggle=dropdown
+                            href=@{coreR $ UserAdminR $ UserAdminEditR userId}
+                            role=button
+                            aria-expanded=false>
+                                #{userName user}
+                                <img .gravatar src=#{gravatar gOpts $ userEmail user} alt=#{userName user} title=#{userName user}>
+                        <ul .dropdown-menu role=menu>
+                            <li>
+                                <a href=@{coreR $ UserAdminR $ UserAdminEditR userId}>_{Msg.AccountSettings}
+                            <li>
+                                <a href=@{authR LogoutR}>
+                                    <span .glyphicon .glyphicon-off>
+                                    _{Msg.Logout}
+<div .container-fluid>
+    <div .row>
+        <div .col-sm-4 .col-md-3 .col-lg-2>
+            $if not $ null am
+                <nav .navbar .navbar-inverse role=navigation>
+                    <ul .nav .nav-pills .nav-stacked role=tablist>
+                        $forall menuItem <- am
+                            <li role=presentation :Just (route menuItem) == cr:.active>
+                                <a href=@{route menuItem}>
+                                    <span .glyphicon .glyphicon-#{icon menuItem}>
+                                    _{label menuItem}
+        <main .col-sm-8 .col-md-9 .col-lg-10>
+            $maybe msg <- mmsg
+                <div .alert .alert-top .alert-info .alert-dismissible role=alert>
+                    <button type=button .close data-dismiss=alert>
+                        <span aria-hidden=true>&times;
+                    #{msg}
+            <div .row>
+                <div .col-xs-12>
+                    ^{widget}

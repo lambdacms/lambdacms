@@ -14,9 +14,10 @@ import Data.Text (Text)
 data CoreMessage =
     Dashboard
   | LambdaCms
-  | SignedInAs { name :: Text}
+  | NotLoggedIn
   | Logout
-  | UserOverview
+  | AccountSettings
+  | UserIndex
   | EmailAddress
   | NewUser
   | EditUser { name :: Text }
@@ -43,6 +44,8 @@ data CoreMessage =
   | SuccessUpdate
   | SuccessChgPwd
   | SuccessDelete
+  | MenuDashboard
+  | MenuUsers
   | DeletedUser { name :: Text }
   | TimeJustNow
   | TimeSecondsAgo { time :: Text }
@@ -63,9 +66,10 @@ defaultMessage = englishMessage
 englishMessage :: CoreMessage -> Text
 englishMessage Dashboard                = "Dashboard"
 englishMessage LambdaCms                = "LambdaCms"
-englishMessage (SignedInAs name)        = "Signed in as " `mappend` name
+englishMessage NotLoggedIn              = "Not logged in"
 englishMessage Logout                   = "Logout"
-englishMessage UserOverview             = "User overview"
+englishMessage AccountSettings          = "Account settings"
+englishMessage UserIndex                = "User overview"
 englishMessage EmailAddress             = "E-mail address"
 englishMessage NewUser                  = "New user"
 englishMessage (EditUser name)          = name
@@ -92,6 +96,8 @@ englishMessage SuccessReplace           = "Successfully replaced"
 englishMessage SuccessUpdate            = "Successfully updated"
 englishMessage SuccessChgPwd            = "Successfully changed password"
 englishMessage SuccessDelete            = "Successfully deleted"
+englishMessage MenuDashboard            = englishMessage Dashboard
+englishMessage MenuUsers                = "Users"
 englishMessage (DeletedUser name)       = "User " `mappend` name `mappend` " deleted"
 englishMessage TimeJustNow              = "Just now"
 englishMessage (TimeSecondsAgo time)    = time `mappend` " seconds ago"
@@ -108,10 +114,11 @@ englishMessage DayOfWeekFmt             = "%l:%M %p on %A"
 
 dutchMessage :: CoreMessage -> Text
 dutchMessage Dashboard                = "Dashboard"
-dutchMessage UserOverview             = "Gebruikers overzicht"
+dutchMessage UserIndex                = "Gebruikers overzicht"
 dutchMessage LambdaCms                = "LambdaCms"
-dutchMessage (SignedInAs name)        = "Ingelogt als " `mappend` name
+dutchMessage NotLoggedIn              = "Niet ingelogd"
 dutchMessage Logout                   = "Uitloggen"
+dutchMessage AccountSettings          = "Accountinstellingen"
 dutchMessage EmailAddress             = "E-mailadres"
 dutchMessage NewUser                  = "Nieuwe gebruiker"
 dutchMessage (EditUser name)          = name
@@ -138,6 +145,8 @@ dutchMessage SuccessReplace           = "Succesvol aangepast"
 dutchMessage SuccessUpdate            = "Succesvol geüpdatet"
 dutchMessage SuccessChgPwd            = "Wachtwoord succesvol aangepast"
 dutchMessage SuccessDelete            = "Succesvol verwijdert"
+dutchMessage MenuDashboard            = dutchMessage Dashboard
+dutchMessage MenuUsers                = "Gebruikers"
 dutchMessage (DeletedUser name)       = "Gebruiker " `mappend` name `mappend` " verwijderd"
 dutchMessage TimeJustNow              = "Nu net"
 dutchMessage (TimeSecondsAgo time)    = time `mappend` " seconden geleden"
