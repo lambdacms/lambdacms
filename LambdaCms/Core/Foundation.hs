@@ -118,10 +118,10 @@ class ( YesodAuth master
                         }
 
             pc <- widgetToPageContent $ do
-              addStylesheet $ coreR $ CssAdminR NormalizeR
-              addStylesheet $ coreR $ CssAdminR BootstrapCssR
-              addScript $ coreR $ JsAdminR JQueryR
-              addScript $ coreR $ JsAdminR BootstrapJsR
+              addStylesheet $ coreR $ AdminStaticR $ CssAdminR NormalizeR
+              addStylesheet $ coreR $ AdminStaticR $ CssAdminR BootstrapCssR
+              addScript $ coreR $ AdminStaticR $ JsAdminR JQueryR
+              addScript $ coreR $ AdminStaticR $ JsAdminR BootstrapJsR
               $(widgetFile "admin-layout")
             withUrlRenderer $(hamletFile "templates/admin-layout-wrapper.hamlet")
           Nothing -> do
