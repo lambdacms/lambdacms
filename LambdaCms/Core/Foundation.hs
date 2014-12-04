@@ -42,29 +42,26 @@ import           Yesod.Auth
 
 data Core = Core
 
-mkYesodSubData "Core" $(parseRoutesFile "config/routes")
-
 data Allow a = Unauthenticated -- ^ Allow anyone (no authentication required)
              | Authenticated   -- ^ Allow any authenticated user
              | Roles a         -- ^ Allow anyone who as at least one matching role
              | Nobody          -- ^ Allow nobody
+  
+data AdminMenuItem master = MenuItem
+                            { label :: SomeMessage master
+                            , route :: Route master
+                            , icon  :: Text -- make this type-safe?
+                            }
+               
+mkYesodSubData "Core" $(parseRoutesFile "config/routes")
 
-canFor :: LambdaCmsAdmin master
-          => master -- Needed to make function injective
-          -> Maybe (Set (Roles master))
-          -> Route master
-          -> ByteString
-          -> Maybe (Route master)
-canFor m murs theRoute method = case isAuthorizedTo m murs $ actionAllowedFor theRoute method of
-    Authorized -> Just theRoute
-    _ -> Nothing
+instance LambdaCmsAdmin master => RenderMessage master CoreMessage where
+  renderMessage = renderCoreMessage
 
-getCan :: LambdaCmsAdmin master => HandlerT master IO (Route master -> ByteString -> Maybe (Route master))
-getCan = do
-    mauthId <- maybeAuthId
-    murs <- forM mauthId getUserRoles
-    y <- getYesod
-    return $ canFor y murs
+-- Fairly complex "handler" type, allowing persistent queries on the master's db connection, hereby simplified
+type CoreHandler a = forall master. LambdaCmsAdmin master => HandlerT Core (HandlerT master IO) a
+
+type CoreForm a = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT master IO) (FormResult a, WidgetT master IO ())
 
 class ( YesodAuth master
       , AuthId master ~ Key User
@@ -178,36 +175,37 @@ class ( YesodAuth master
                                  Nothing -> e'
           where e' = "<" <> e <> ">"
 
+canFor :: LambdaCmsAdmin master
+          => master -- Needed to make function injective
+          -> Maybe (Set (Roles master))
+          -> Route master
+          -> ByteString
+          -> Maybe (Route master)
+canFor m murs theRoute method = case isAuthorizedTo m murs $ actionAllowedFor theRoute method of
+    Authorized -> Just theRoute
+    _ -> Nothing
 
--- Fairly complex "handler" type, allowing persistent queries on the master's db connection, hereby simplified
-type CoreHandler a = forall master. LambdaCmsAdmin master => HandlerT Core (HandlerT master IO) a
-
-type CoreForm a = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT master IO) (FormResult a, WidgetT master IO ())
-
-instance LambdaCmsAdmin master => RenderMessage master CoreMessage where
-  renderMessage = renderCoreMessage
-
--- Extension for bootstrap (give a name to input field)
-withName :: Text -> FieldSettings site -> FieldSettings site
-withName name fs = fs { fsName = Just name }
-
-data AdminMenuItem master = MenuItem
-                            { label :: SomeMessage master
-                            , route :: Route master
-                            , icon  :: Text -- make this type-safe?
-                            }
+getCan :: LambdaCmsAdmin master => HandlerT master IO (Route master -> ByteString -> Maybe (Route master))
+getCan = do
+    mauthId <- maybeAuthId
+    murs <- forM mauthId getUserRoles
+    y <- getYesod
+    return $ canFor y murs
 
 defaultCoreAdminMenu :: LambdaCmsAdmin master => (Route Core -> Route master) -> [AdminMenuItem master]
-defaultCoreAdminMenu tp = [MenuItem (SomeMessage Msg.MenuDashboard) (tp AdminHomeR) "home",
-                           MenuItem (SomeMessage Msg.MenuUsers) (tp $ UserAdminR UserAdminIndexR) "user"]
-
+defaultCoreAdminMenu tp = [ MenuItem (SomeMessage Msg.MenuDashboard) (tp AdminHomeR) "home"
+                          , MenuItem (SomeMessage Msg.MenuUsers) (tp $ UserAdminR UserAdminIndexR) "user"
+                          ]
 
 adminLayoutSub :: LambdaCmsAdmin master
                   => WidgetT sub IO ()
                   -> HandlerT sub (HandlerT master IO) Html
 adminLayoutSub widget = widgetToParentWidget widget >>= lift . adminLayout
 
-
+-- Extension for bootstrap (give a name to input field)
+withName :: Text -> FieldSettings site -> FieldSettings site
+withName name fs = fs { fsName = Just name }
+                   
 -- | Wrapper for humanReadableTimeI18N'. It uses Yesod's own i18n functionality
 lambdaCmsHumanTimeLocale :: LambdaCmsAdmin master => HandlerT master IO HumanTimeLocale
 lambdaCmsHumanTimeLocale = do
