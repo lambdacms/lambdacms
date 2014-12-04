@@ -108,31 +108,24 @@ class ( YesodAuth master
     -- | Applies some form of layout to the contents of an admin section page.
     adminLayout :: WidgetT master IO () -> HandlerT master IO Html
     adminLayout widget = do
-        mauth <- maybeAuth
-        case mauth of
-          Just auth -> do
-            cr <- getCurrentRoute
-            mmsg <- getMessage
-            can <- getCan
+        auth <- requireAuth
+        cr <- getCurrentRoute
+        mmsg <- getMessage
+        can <- getCan
 
-            let am = filter (isJust . flip can "GET" . route) adminMenu
-                gravatarSize = 28 :: Int
-                gOpts = def
-                        { gSize = Just $ Size $ gravatarSize * 2 -- retina
-                        }
+        let am = filter (isJust . flip can "GET" . route) adminMenu
+            gravatarSize = 28 :: Int
+            gOpts = def
+                    { gSize = Just $ Size $ gravatarSize * 2 -- retina
+                    }
 
-            pc <- widgetToPageContent $ do
-              addStylesheet $ coreR $ AdminStaticR $ CssAdminR NormalizeR
-              addStylesheet $ coreR $ AdminStaticR $ CssAdminR BootstrapCssR
-              addScript $ coreR $ AdminStaticR $ JsAdminR JQueryR
-              addScript $ coreR $ AdminStaticR $ JsAdminR BootstrapJsR
-              $(widgetFile "admin-layout")
-            withUrlRenderer $(hamletFile "templates/admin-layout-wrapper.hamlet")
-          Nothing -> do
-            y <- getYesod
-            case authRoute y of
-              Just route -> redirect route
-              Nothing -> notAuthenticated
+        pc <- widgetToPageContent $ do
+          addStylesheet $ coreR $ AdminStaticR $ CssAdminR NormalizeR
+          addStylesheet $ coreR $ AdminStaticR $ CssAdminR BootstrapCssR
+          addScript $ coreR $ AdminStaticR $ JsAdminR JQueryR
+          addScript $ coreR $ AdminStaticR $ JsAdminR BootstrapJsR
+          $(widgetFile "admin-layout")
+        withUrlRenderer $(hamletFile "templates/admin-layout-wrapper.hamlet")
 
     defaultLambdaCmsAdminAuthLayout :: WidgetT master IO () -> HandlerT master IO Html
     defaultLambdaCmsAdminAuthLayout widget = do
