@@ -131,10 +131,9 @@ sendAccountActivationToken core user body bodyHtml = do
 getUserAdminIndexR = do
   timeNow <- liftIO getCurrentTime
   lift $ do
-    y <- getYesod
     (users' :: [Entity User]) <- runDB $ selectList [] []
     users <- mapM (\user -> do
-                     ur <- runDB $ getUserRoles y $ entityKey user
+                     ur <- getUserRoles $ entityKey user
                      return (user, S.toList ur)
                   ) users'
     hrtLocale <- lambdaCmsHumanTimeLocale
@@ -178,8 +177,7 @@ getUserAdminEditR userId = do
     timeNow <- liftIO getCurrentTime
     lift $ do
       user <- runDB $ get404 userId
-      y <- getYesod
-      ur <- runDB $ getUserRoles y userId
+      ur <- getUserRoles userId
       hrtLocale <- lambdaCmsHumanTimeLocale
       (urWidget, urEnctype)     <- generateFormPost $ userRoleForm ur                                  -- user role form
       (formWidget, enctype)     <- generateFormPost $ userForm user (Just Msg.Save)                    -- user form
@@ -192,8 +190,7 @@ postUserAdminEditR userId = do
   user <- lift . runDB $ get404 userId
   timeNow <- liftIO getCurrentTime
   hrtLocale <- lift lambdaCmsHumanTimeLocale
-  y <- lift getYesod
-  ur <- lift . runDB $ getUserRoles y userId
+  ur <- lift $ getUserRoles userId
   (urWidget, urEnctype)               <- lift . generateFormPost $ userRoleForm ur
   (pwFormWidget, pwEnctype)           <- lift . generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change)
   ((formResult, formWidget), enctype) <- lift . runFormPost $ userForm user (Just Msg.Save)
@@ -211,8 +208,7 @@ postUserAdminChangePasswordR userId = do
   user <- lift . runDB $ get404 userId
   timeNow <- liftIO getCurrentTime
   hrtLocale <- lift lambdaCmsHumanTimeLocale
-  y <- lift getYesod
-  ur <- lift . runDB $ getUserRoles y userId
+  ur <- lift $ getUserRoles userId
   (urWidget, urEnctype) <- lift . generateFormPost $ userRoleForm ur
   (formWidget, enctype) <- lift . generateFormPost $ userForm user (Just Msg.Save)
   opw <- lookupPostParam "original-pw"
@@ -232,14 +228,13 @@ postUserAdminChangeRolesR userId = do
   timeNow <- liftIO getCurrentTime
   user <- lift . runDB $ get404 userId
   hrtLocale <- lift lambdaCmsHumanTimeLocale
-  y <- lift getYesod
-  ur <- lift . runDB $ getUserRoles y userId
+  ur <- lift $ getUserRoles userId
   ((urResult, urWidget), urEnctype) <- lift . runFormPost      $ userRoleForm ur
   (pwFormWidget, pwEnctype)         <- lift . generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change)
   (formWidget, enctype)             <- lift . generateFormPost $ userForm user (Just Msg.Save)
   case urResult of
     FormSuccess roles -> do
-      lift . runDB $ setUserRoles y userId (S.fromList roles)
+      lift $ setUserRoles userId (S.fromList roles)
       redirect $ UserAdminR $ UserAdminEditR userId
     _ -> do
       tp <- getRouteToParent

@@ -23,6 +23,7 @@ import           Data.Text                  (Text, concat, intercalate, pack,
 import           Data.Text.Encoding         (decodeUtf8)
 import           Data.Time                  (utc)
 import           Data.Time.Format.Human
+import           Data.Traversable           (forM)
 import           Database.Persist.Sql       (SqlBackend)
 import           LambdaCms.Core.Message     (CoreMessage, defaultMessage,
                                              dutchMessage, englishMessage)
@@ -48,16 +49,22 @@ data Allow a = Unauthenticated -- ^ Allow anyone (no authentication required)
              | Roles a         -- ^ Allow anyone who as at least one matching role
              | Nobody          -- ^ Allow nobody
 
-canUser :: ( LambdaCmsAdmin master
-           ) => Key User
-             -> Route master
-             -> ByteString
-             -> HandlerT master IO Bool
-canUser uid theRoute action = do
-    result <- runDB $ isAuthorizedTo (Just uid) $ actionAllowedFor theRoute action
-    return $ case result of
-        Authorized -> True
-        _ -> False
+canFor :: LambdaCmsAdmin master
+          => master -- Needed to make function injective
+          -> Maybe (Set (Roles master))
+          -> Route master
+          -> ByteString
+          -> Maybe (Route master)
+canFor m murs theRoute method = case isAuthorizedTo m murs $ actionAllowedFor theRoute method of
+    Authorized -> Just theRoute
+    _ -> Nothing
+
+getCan :: LambdaCmsAdmin master => HandlerT master IO (Route master -> ByteString -> Maybe (Route master))
+getCan = do
+    mauthId <- maybeAuthId
+    murs <- forM mauthId getUserRoles
+    y <- getYesod
+    return $ canFor y murs
 
 class ( YesodAuth master
       , AuthId master ~ Key User
@@ -73,23 +80,22 @@ class ( YesodAuth master
 
     type Roles master
 
-    getUserRoles :: master -> Key User -> YesodDB master (Set (Roles master))
-    setUserRoles :: master -> Key User -> Set (Roles master) -> YesodDB master ()
+    getUserRoles :: Key User -> HandlerT master IO (Set (Roles master))
+    setUserRoles :: Key User -> Set (Roles master) -> HandlerT master IO ()
 
     -- | See if a user is authorized to perform an action.
-    isAuthorizedTo :: Maybe (Key User)
+    isAuthorizedTo :: master -- Needed to make function injective
+                   -> Maybe (Set (Roles master))
                    -> Allow (Set (Roles master)) -- ^ Set of roles allowed to perform the action
-                   -> YesodDB master AuthResult
-    isAuthorizedTo _           Nobody          = return $ Unauthorized "Access denied."
-    isAuthorizedTo _           Unauthenticated = return Authorized
-    isAuthorizedTo (Just _)    Authenticated   = return Authorized
-    isAuthorizedTo Nothing     _               = return AuthenticationRequired
-    isAuthorizedTo (Just userId) (Roles xs)    = do
-      y <- getYesod
-      ur <- getUserRoles y userId
-      case (not . S.null $ ur `intersection` xs) of
-        True -> return Authorized
-        False -> return $ Unauthorized "Access denied."
+                   -> AuthResult
+    isAuthorizedTo _ _           Nobody          = Unauthorized "Access denied."
+    isAuthorizedTo _ _           Unauthenticated = Authorized
+    isAuthorizedTo _ (Just _)    Authenticated   = Authorized
+    isAuthorizedTo _ Nothing     _               = AuthenticationRequired
+    isAuthorizedTo _ (Just urs) (Roles rrs)    = do
+      case (not . S.null $ urs `intersection` rrs) of
+        True -> Authorized
+        False -> Unauthorized "Access denied."
 
     actionAllowedFor :: Route master -> ByteString -> Allow (Set (Roles master))
     actionAllowedFor _ _ = Nobody
@@ -107,9 +113,10 @@ class ( YesodAuth master
           Just auth -> do
             cr <- getCurrentRoute
             mmsg <- getMessage
-            am <- filterM (\i -> canUser (entityKey auth) (route i) "GET") adminMenu
+            can <- getCan
 
-            let gravatarSize = 28 :: Int
+            let am = filter (isJust . flip can "GET" . route) adminMenu
+                gravatarSize = 28 :: Int
                 gOpts = def
                         { gSize = Just $ Size $ gravatarSize * 2 -- retina
                         }
