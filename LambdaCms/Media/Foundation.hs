@@ -1,24 +1,25 @@
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE QuasiQuotes           #-}
 {-# LANGUAGE RankNTypes            #-}
 {-# LANGUAGE TemplateHaskell       #-}
-{-# LANGUAGE OverloadedStrings     #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE FlexibleInstances     #-}
-{-# LANGUAGE QuasiQuotes           #-}
 
 module LambdaCms.Media.Foundation where
 
-import Yesod
-import Data.Text (Text, unpack)
-import qualified Data.Text as T
-import System.FilePath ((</>))
-import Data.Monoid ((<>))
+import           Data.Monoid             ((<>))
+import           Data.Text               (Text, unpack)
+import qualified Data.Text               as T
+import           System.FilePath         ((</>))
+import           Yesod
 
-import LambdaCms.Core
+import           LambdaCms.Core
 
-import LambdaCms.Media.Models
-import LambdaCms.Media.Routes
-import LambdaCms.Media.Message (MediaMessage, defaultMessage, englishMessage, dutchMessage)
+import           LambdaCms.Media.Message (MediaMessage, defaultMessage,
+                                          dutchMessage, englishMessage)
 import qualified LambdaCms.Media.Message as Msg
+import           LambdaCms.Media.Models
+import           LambdaCms.Media.Routes
 
 class LambdaCmsAdmin master => LambdaCmsMedia master where
   staticDir :: master -> FilePath

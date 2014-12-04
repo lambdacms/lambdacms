@@ -35,13 +35,14 @@ postMediaFileRenameR  :: MediaFileId -> MediaHandler Html
 getMediaFileOverviewR = do
   tp <- getRouteToParent
   lift $ do
+    can <- getCan
     y <- getYesod
     let sr = unpack $ staticRoot y
     (files :: [Entity MediaFile]) <- runDB $ selectList [] []
     adminLayout $ do
       setTitleI Msg.MediaOverview
       toWidget $(luciusFile "templates/media.lucius")
-      $(whamletFile "templates/overview.hamlet")
+      $(whamletFile "templates/index.hamlet")
 
 getMediaFileNewR = do
   tp <- getRouteToParent
