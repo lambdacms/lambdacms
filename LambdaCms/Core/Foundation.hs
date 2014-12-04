@@ -40,26 +40,26 @@ import           Text.Lucius                (luciusFile)
 import           Yesod
 import           Yesod.Auth
 
-data Core = Core
+data CoreAdmin = CoreAdmin
 
 data Allow a = Unauthenticated -- ^ Allow anyone (no authentication required)
              | Authenticated   -- ^ Allow any authenticated user
              | Roles a         -- ^ Allow anyone who as at least one matching role
              | Nobody          -- ^ Allow nobody
-  
+
 data AdminMenuItem master = MenuItem
                             { label :: SomeMessage master
                             , route :: Route master
                             , icon  :: Text -- make this type-safe?
                             }
-               
-mkYesodSubData "Core" $(parseRoutesFile "config/routes")
+
+mkYesodSubData "CoreAdmin" $(parseRoutesFile "config/routes")
 
 instance LambdaCmsAdmin master => RenderMessage master CoreMessage where
   renderMessage = renderCoreMessage
 
 -- Fairly complex "handler" type, allowing persistent queries on the master's db connection, hereby simplified
-type CoreHandler a = forall master. LambdaCmsAdmin master => HandlerT Core (HandlerT master IO) a
+type CoreHandler a = forall master. LambdaCmsAdmin master => HandlerT CoreAdmin (HandlerT master IO) a
 
 type CoreForm a = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT master IO) (FormResult a, WidgetT master IO ())
 
@@ -97,7 +97,7 @@ class ( YesodAuth master
     actionAllowedFor :: Route master -> ByteString -> Allow (Set (Roles master))
     actionAllowedFor _ _ = Nobody
 
-    coreR :: Route Core -> Route master
+    coreR :: Route CoreAdmin -> Route master
     authR :: Route Auth -> Route master
     -- | Gives the route which LambdaCms should use as the master site homepage
     masterHomeR :: Route master
@@ -192,7 +192,7 @@ getCan = do
     y <- getYesod
     return $ canFor y murs
 
-defaultCoreAdminMenu :: LambdaCmsAdmin master => (Route Core -> Route master) -> [AdminMenuItem master]
+defaultCoreAdminMenu :: LambdaCmsAdmin master => (Route CoreAdmin -> Route master) -> [AdminMenuItem master]
 defaultCoreAdminMenu tp = [ MenuItem (SomeMessage Msg.MenuDashboard) (tp AdminHomeR) "home"
                           , MenuItem (SomeMessage Msg.MenuUsers) (tp $ UserAdminR UserAdminIndexR) "user"
                           ]
@@ -205,7 +205,7 @@ adminLayoutSub widget = widgetToParentWidget widget >>= lift . adminLayout
 -- Extension for bootstrap (give a name to input field)
 withName :: Text -> FieldSettings site -> FieldSettings site
 withName name fs = fs { fsName = Just name }
-                   
+
 -- | Wrapper for humanReadableTimeI18N'. It uses Yesod's own i18n functionality
 lambdaCmsHumanTimeLocale :: LambdaCmsAdmin master => HandlerT master IO HumanTimeLocale
 lambdaCmsHumanTimeLocale = do

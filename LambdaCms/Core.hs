@@ -28,5 +28,5 @@ import           Network.Mail.Mime             as Export
 --          , SqlBackend ~ (YesodPersistBackend master)
 --          , PersistQuery (YesodPersistBackend master)
 --          ) => YesodSubDispatch Core (HandlerT master IO) where
-instance LambdaCmsAdmin master => YesodSubDispatch Core (HandlerT master IO) where
-    yesodSubDispatch = $(mkYesodSubDispatch resourcesCore)
+instance LambdaCmsAdmin master => YesodSubDispatch CoreAdmin (HandlerT master IO) where
+    yesodSubDispatch = $(mkYesodSubDispatch resourcesCoreAdmin)
