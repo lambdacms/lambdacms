@@ -1,35 +1,41 @@
 <div .page-header>
-  <h1>_{Msg.UserIndex}
+    <h1>_{Msg.UserIndex}
 <div .row .button-toolbar>
-  <div .col-xs-12>
-    <a .btn .btn-primary href=@{coreR AdminHomeR}>
-      <span .glyphicon .glyphicon-arrow-left>
-      _{Msg.Back}
-    <a .btn .btn-primary href=@{coreR $ UserAdminR UserAdminNewR}>
-      <span .glyphicon .glyphicon-plus>
-      _{Msg.NewUser}
+    <div .col-xs-12>
+        $maybe r <- can (coreR AdminHomeR) "GET"
+            <a .btn .btn-primary href=@{r}>
+                <span .glyphicon .glyphicon-arrow-left>
+                _{Msg.Back}
+        $maybe r <- can (coreR $ UserAdminR UserAdminNewR) "GET"
+            <a .btn .btn-primary href=@{r}>
+                <span .glyphicon .glyphicon-plus>
+                _{Msg.NewUser}
 <div .row>
-  <div .col-xs-12>
-    $if null users
-      <p .bg-info>_{Msg.NoUsersFound}
-    $else
-      <div .table-responsive>
-        <table .table .table-striped .table-hover>
-          <thead>
-            <tr>
-              <th>_{Msg.Username}
-              <th .text-right>Roles
-              <th>_{Msg.EmailAddress}
-              <th>_{Msg.CreatedOn}
-              <th>_{Msg.LastLogin}
-          <tbody>
-            $forall ((Entity userId user), roles) <- users
-              <tr onclick="document.location.href='@{coreR $ UserAdminR $ UserAdminEditR userId}'">
-                <td>
-                  <a href=@{coreR $ UserAdminR $ UserAdminEditR userId}> #{userName user}
-                <td .text-right>
-                  $forall role <- roles
-                    <span .label .label-info>#{show role}
-                <td>#{userEmail user}
-                <td>#{show $ utctDay $ userCreatedAt user}
-                <td>#{humanReadableTimeI18N' hrtLocale timeNow $ userLastLogin user}
+    <div .col-xs-12>
+        $if null users
+            <p .bg-info>_{Msg.NoUsersFound}
+        $else
+            <div .table-responsive>
+                <table .table .table-striped .table-hover>
+                    <thead>
+                        <tr>
+                            <th>_{Msg.Username}
+                            <th .text-right>Roles
+                            <th>_{Msg.EmailAddress}
+                            <th>_{Msg.CreatedOn}
+                            <th>_{Msg.LastLogin}
+                    <tbody>
+                        $forall ((Entity userId user), roles) <- users
+                            $with mroute <- can (coreR $ UserAdminR $ UserAdminEditR userId) "GET"
+                                <tr :isJust mroute:onclick="document.location.href='@{fromJust mroute}'">
+                                    <td>
+                                        $maybe r <- mroute
+                                            <a href=@{r}>#{userName user}
+                                        $nothing
+                                            #{userName user}
+                                    <td .text-right>
+                                        $forall role <- roles
+                                            <span .label .label-info>#{show role}
+                                    <td>#{userEmail user}
+                                    <td>#{show $ utctDay $ userCreatedAt user}
+                                    <td>#{humanReadableTimeI18N' hrtLocale timeNow $ userLastLogin user}

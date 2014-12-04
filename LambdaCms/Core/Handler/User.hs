@@ -10,13 +10,13 @@
 
 module LambdaCms.Core.Handler.User
   ( getUserAdminIndexR
-  , postUserAdminChangeRolesR
+  , putUserAdminChangeRolesR
   , getUserAdminNewR
   , postUserAdminNewR
   , getUserAdminEditR
-  , postUserAdminEditR
+  , patchUserAdminEditR
   , deleteUserAdminEditR
-  , postUserAdminChangePasswordR
+  , patchUserAdminChangePasswordR
   , getUserAdminActivateR
   , postUserAdminActivateR
   ) where
@@ -32,7 +32,7 @@ import qualified Data.Text.Lazy            as LT (Text)
 import           Data.Time.Format
 
 import           Control.Arrow             ((&&&))
-import           Data.Maybe                (fromMaybe)
+import           Data.Maybe                (fromMaybe, isJust, fromJust)
 import qualified Data.Set                  as S
 import           Data.Time.Clock
 import           Data.Time.Format.Human
@@ -48,9 +48,9 @@ getUserAdminIndexR           :: CoreHandler Html
 getUserAdminNewR             :: CoreHandler Html
 postUserAdminNewR            :: CoreHandler Html
 getUserAdminEditR            :: UserId -> CoreHandler Html
-postUserAdminEditR           :: UserId -> CoreHandler Html
-postUserAdminChangePasswordR :: UserId -> CoreHandler Html
-postUserAdminChangeRolesR    :: UserId -> CoreHandler Html
+patchUserAdminEditR           :: UserId -> CoreHandler Html
+patchUserAdminChangePasswordR :: UserId -> CoreHandler Html
+putUserAdminChangeRolesR    :: UserId -> CoreHandler Html
 deleteUserAdminEditR         :: UserId -> CoreHandler Html
 getUserAdminActivateR        :: UserId -> Text -> CoreHandler Html
 postUserAdminActivateR       :: UserId -> Text -> CoreHandler Html
@@ -131,6 +131,7 @@ sendAccountActivationToken core user body bodyHtml = do
 getUserAdminIndexR = do
   timeNow <- liftIO getCurrentTime
   lift $ do
+    can <- getCan
     (users' :: [Entity User]) <- runDB $ selectList [] []
     users <- mapM (\user -> do
                      ur <- getUserRoles $ entityKey user
@@ -144,6 +145,7 @@ getUserAdminIndexR = do
 getUserAdminNewR = do
   eu <- liftIO emptyUser
   lift $ do
+    can <- getCan
     (formWidget, enctype) <- generateFormPost $ userForm eu (Just Msg.Create)
     adminLayout $ do
       setTitleI Msg.NewUser
@@ -168,14 +170,16 @@ postUserAdminNewR = do
            lift $ setMessageI Msg.SuccessCreate
            redirectUltDest $ UserAdminR $ UserAdminEditR userId
          Nothing -> error "No token found."
-      _ -> do
-        lift . adminLayout $ do
+      _ -> lift $ do
+        can <- getCan
+        adminLayout $ do
           setTitleI Msg.NewUser
           $(widgetFile "user/new")
 
 getUserAdminEditR userId = do
     timeNow <- liftIO getCurrentTime
     lift $ do
+      can <- getCan
       user <- runDB $ get404 userId
       ur <- getUserRoles userId
       hrtLocale <- lambdaCmsHumanTimeLocale
@@ -186,7 +190,7 @@ getUserAdminEditR userId = do
         setTitleI . Msg.EditUser $ userName user
         $(widgetFile "user/edit")
 
-postUserAdminEditR userId = do
+patchUserAdminEditR userId = do
   user <- lift . runDB $ get404 userId
   timeNow <- liftIO getCurrentTime
   hrtLocale <- lift lambdaCmsHumanTimeLocale
@@ -199,12 +203,13 @@ postUserAdminEditR userId = do
      _ <- lift $ runDB $ update userId [UserName =. userName updatedUser, UserEmail =. userEmail updatedUser]
      lift $ setMessageI Msg.SuccessReplace
      redirect $ UserAdminR $ UserAdminEditR userId
-   _ -> do
-     lift . adminLayout $ do
+   _ -> lift $ do
+     can <- getCan
+     adminLayout $ do
        setTitleI . Msg.EditUser $ userName user
        $(widgetFile "user/edit")
 
-postUserAdminChangePasswordR userId = do
+patchUserAdminChangePasswordR userId = do
   user <- lift . runDB $ get404 userId
   timeNow <- liftIO getCurrentTime
   hrtLocale <- lift lambdaCmsHumanTimeLocale
@@ -218,13 +223,14 @@ postUserAdminChangePasswordR userId = do
      _ <- lift . runDB $ update userId [UserPassword =. Just (originalPassword f)]
      lift $ setMessageI Msg.SuccessChgPwd
      redirect $ UserAdminR $ UserAdminEditR userId
-   _ -> do
-     lift . adminLayout $ do
+   _ -> lift $ do
+     can <- getCan
+     adminLayout $ do
        setTitleI . Msg.EditUser $ userName user
        $(widgetFile "user/edit")
 
 
-postUserAdminChangeRolesR userId = do
+putUserAdminChangeRolesR userId = do
   timeNow <- liftIO getCurrentTime
   user <- lift . runDB $ get404 userId
   hrtLocale <- lift lambdaCmsHumanTimeLocale
@@ -236,9 +242,9 @@ postUserAdminChangeRolesR userId = do
     FormSuccess roles -> do
       lift $ setUserRoles userId (S.fromList roles)
       redirect $ UserAdminR $ UserAdminEditR userId
-    _ -> do
-      tp <- getRouteToParent
-      lift . adminLayout $ do
+    _ -> lift $ do
+      can <- getCan
+      adminLayout $ do
         $(whamletFile "templates/user/edit.hamlet")
 
 deleteUserAdminEditR userId = do

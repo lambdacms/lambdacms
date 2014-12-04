@@ -1,39 +1,51 @@
 <div .page-header>
-  <h1>#{userName user}
+    <h1>#{userName user}
 <div .row .button-toolbar>
-  <div .col-xs-12>
-    <a .btn .btn-primary href=@{coreR $ UserAdminR UserAdminIndexR}>
-      <span .glyphicon .glyphicon-arrow-left>
-      _{Msg.Back}
-    <form .form-inline .display-inline method=post action=@{coreR $ UserAdminR $ UserAdminEditR userId}>
-      <input name="_method" type="hidden" value="DELETE" />
-      <button .btn .btn-danger type=submit>
-        <span .glyphicon .glyphicon-remove>
-        _{Msg.Remove}
+    <div .col-xs-12>
+        $maybe r <- can (coreR $ UserAdminR UserAdminIndexR) "GET"
+            <a .btn .btn-primary href=@{r}>
+                <span .glyphicon .glyphicon-arrow-left>
+                _{Msg.Back}
+        $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "DELETE"
+            <form .form-inline .display-inline method=post action=@{r}>
+                <input name="_method" type="hidden" value="DELETE" />
+                <button .btn .btn-danger type=submit>
+                    <span .glyphicon .glyphicon-remove>
+                    _{Msg.Remove}
 <div .row>
-  <div .col-sm-10 .col-md-7 .col-lg-4>
-    <form role=form method=post action=@{coreR $ UserAdminR $ UserAdminEditR userId} enctype=#{enctype}>
-      ^{formWidget}
-    <form role=form method=post action=@{coreR $ UserAdminR $ UserAdminChangeRolesR userId} enctype=#{urEnctype}>
-      ^{urWidget}
-    <form role=form method=post action=@{coreR $ UserAdminR $ UserAdminChangePasswordR userId} enctype=#{pwEnctype}>
-      ^{pwFormWidget}
-  <div .col-sm-10 .col-md-7 .col-lg-4>
-    <ul .list-group>
-      <li .list-group-item .list-group-item-info>
-        <strong>User information
-      <li .list-group-item .clearfix>
-        _{Msg.CreatedOn}
-        <span .pull-right>#{show $ utctDay $ userCreatedAt user}
-      <li .list-group-item .clearfix>
-        _{Msg.LastLogin}
-        <span .pull-right>#{humanReadableTimeI18N' hrtLocale timeNow $ userLastLogin user}
+    <div .col-sm-10 .col-md-7 .col-lg-4>
+        $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "PATCH"
+            <form role=form method=post action=@{r} enctype=#{enctype}>
+                <input type=hidden name=_method value=PATCH>
+                ^{formWidget}
+        $nothing
+            <p>Not yet implemented
+        $maybe r <- can (coreR $ UserAdminR $ UserAdminChangeRolesR userId) "PUT"
+            <form role=form method=post action=@{r} enctype=#{urEnctype}>
+                <input type=hidden name=_method value=PUT>
+                ^{urWidget}
+        $nothing
+            <p>Not yet implemented
+        $maybe r <- can (coreR $ UserAdminR $ UserAdminChangePasswordR userId) "PATCH"
+            <form role=form method=post action=@{r} enctype=#{pwEnctype}>
+                <input type=hidden name=_method value=PATCH>
+                ^{pwFormWidget}
+    <div .col-sm-10 .col-md-7 .col-lg-4>
+        <ul .list-group>
+            <li .list-group-item .list-group-item-info>
+                <strong>User information
+            <li .list-group-item .clearfix>
+                _{Msg.CreatedOn}
+                <span .pull-right>#{show $ utctDay $ userCreatedAt user}
+            <li .list-group-item .clearfix>
+                _{Msg.LastLogin}
+                <span .pull-right>#{humanReadableTimeI18N' hrtLocale timeNow $ userLastLogin user}
 
-      $maybe ut <- userToken user
-        <li .list-group-item .list-group-item-warning .clearfix>
-          Account status
-          <span .pull-right>_{Msg.AccountActivationPending}
-      $nothing
-        <li .list-group-item .list-group-item-success .clearfix>
-          Account status
-          <span .pull-right>_{Msg.AccountActivationSuccess}
+            $maybe ut <- userToken user
+                <li .list-group-item .list-group-item-warning .clearfix>
+                    Account status
+                    <span .pull-right>_{Msg.AccountActivationPending}
+            $nothing
+                <li .list-group-item .list-group-item-success .clearfix>
+                    Account status
+                    <span .pull-right>_{Msg.AccountActivationSuccess}
