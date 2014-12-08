@@ -25,6 +25,9 @@ body > div.container-fluid > div.row
     .nav-pills > li > a
         border-radius: 0
 
+.dropdown-toggle
+    cursor: pointer
+
 .display-inline
     display: inline
 
