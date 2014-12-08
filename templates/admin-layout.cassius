@@ -50,3 +50,6 @@ body > div.container-fluid > div.row
         a, button
             margin-left: 10px
             margin-bottom: 15px
+
+.table
+    border-bottom: 1px solid #ddd
