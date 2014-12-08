@@ -2,9 +2,9 @@
     <div .container-fluid>
         <div .navbar-header>
             $maybe r <- can (masterHomeR) "GET"
-                <a .navbar-brand href=@{r}>_{Msg.LambdaCms}
+                <a .navbar-brand href=@{r}>_{adminTitle}
             $nothing
-                _{Msg.LambdaCms}
+                _{adminTitle}
         <div .collapse .navbar-collapse>
             <ul .nav .navbar-nav .navbar-right>
                 $with Entity userId user <- auth
