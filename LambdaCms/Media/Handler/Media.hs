@@ -5,14 +5,14 @@
 {-# LANGUAGE TemplateHaskell     #-}
 
 module LambdaCms.Media.Handler.Media
-       ( getMediaOverviewR
-       , getMediaNewR
-       , postMediaNewR
-       , getMediaR
-       , postMediaR
-       , deleteMediaR
-       , postMediaRenameR
-       ) where
+    ( getMediaAdminIndexR
+    , getMediaAdminNewR
+    , postMediaAdminNewR
+    , getMediaAdminEditR
+    , patchMediaAdminEditR
+    , deleteMediaAdminEditR
+    , patchMediaAdminRenameR
+    ) where
 
 import           Data.Text               (pack, unpack)
 import qualified Data.Text               as T (concat, split)
@@ -24,30 +24,30 @@ import           System.Directory
 import           System.FilePath
 import           Text.Lucius             (luciusFile)
 
-getMediaOverviewR :: MediaHandler Html
-getMediaNewR      :: MediaHandler Html
-postMediaNewR     :: MediaHandler Html
-getMediaR         :: MediaId -> MediaHandler Html
-postMediaR        :: MediaId -> MediaHandler Html
-deleteMediaR      :: MediaId -> MediaHandler Html
-postMediaRenameR  :: MediaId -> MediaHandler Html
+getMediaAdminIndexR    :: MediaHandler Html
+getMediaAdminNewR      :: MediaHandler Html
+postMediaAdminNewR     :: MediaHandler Html
+getMediaAdminEditR     :: MediaId -> MediaHandler Html
+patchMediaAdminEditR   :: MediaId -> MediaHandler Html
+deleteMediaAdminEditR  :: MediaId -> MediaHandler Html
+patchMediaAdminRenameR :: MediaId -> MediaHandler Html
 
-getMediaOverviewR = lift $ do
+getMediaAdminIndexR = lift $ do
     can <- getCan
     y <- getYesod
     let sr = unpack $ staticRoot y
     (files :: [Entity Media]) <- runDB $ selectList [] []
     adminLayout $ do
-        setTitleI Msg.MediaOverview
+        setTitleI Msg.MediaIndex
         $(widgetFile "index")
 
-getMediaNewR = lift $ do
+getMediaAdminNewR = lift $ do
     (fWidget, enctype) <- generateFormPost uploadForm
     adminLayout $ do
         setTitleI Msg.NewMedia
         $(widgetFile "new")
 
-postMediaNewR = do
+postMediaAdminNewR = do
     ((results, fWidget), enctype) <- lift $ runFormPost uploadForm
     case results of
         FormSuccess (file, name, label, description) -> do
@@ -55,12 +55,12 @@ postMediaNewR = do
             (location, ctype) <- upload file (unpack name)
             _ <- lift . runDB . insert $ Media location ctype label description ct
             lift . setMessageI $ Msg.SaveSuccess label
-            redirect MediaOverviewR
+            redirect MediaAdminIndexR
         _ -> lift . adminLayout $ do
             setTitleI Msg.NewMedia
             $(widgetFile "new")
 
-getMediaR fileId = lift $ do
+getMediaAdminEditR fileId = lift $ do
     y <- getYesod
     let sr = unpack $ staticRoot y
     file <- runDB $ get404 fileId
@@ -70,14 +70,14 @@ getMediaR fileId = lift $ do
         setTitleI . Msg.EditMedia $ mediaLabel file
         $(widgetFile "edit")
 
-postMediaR fileId = do
+patchMediaAdminEditR fileId = do
     file <- lift . runDB $ get404 fileId
     ((results, fWidget), enctype) <- lift . runFormPost $ mediaForm file
     case results of
         FormSuccess mf -> do
             _ <- lift $ runDB $ update fileId [MediaLabel =. mediaLabel mf, MediaDescription =. mediaDescription mf]
             lift . setMessageI $ Msg.UpdateSuccess (mediaLabel mf)
-            redirect $ MediaR fileId
+            redirect $ MediaAdminEditR fileId
         _ -> lift $ do
             y <- getYesod
             let sr = unpack $ staticRoot y
@@ -86,34 +86,34 @@ postMediaR fileId = do
                 setTitleI . Msg.EditMedia $ mediaLabel file
                 $(widgetFile "edit")
 
-deleteMediaR fileId = do
+deleteMediaAdminEditR fileId = do
     file <- lift . runDB $ get404 fileId
     isDeleted <- deleteMedia file fileId
     case isDeleted of
         True -> do
             lift . setMessageI $ Msg.DeleteSuccess (mediaLabel file)
-            redirect MediaOverviewR
+            redirect MediaAdminIndexR
         False -> do
             lift . setMessageI $ Msg.DeleteFail (mediaLabel file)
-            redirect $ MediaR fileId
+            redirect $ MediaAdminEditR fileId
 
-postMediaRenameR fileId = do
+patchMediaAdminRenameR fileId = do
     file <- lift . runDB $ get404 fileId
     ((results, rfWidget), rEnctype) <- lift . runFormPost . renameForm $ mediaBaseName file
     case results of
         FormSuccess nn
             | nn == (mediaBaseName file) -> do
                 lift $ setMessageI Msg.RenameSuccess
-                redirect $ MediaR fileId
+                redirect $ MediaAdminEditR fileId
             | otherwise -> do
                 isRenamed <- renameMedia file fileId nn
                 case isRenamed of
                     True -> do
                         lift $ setMessageI Msg.RenameSuccess
-                        redirect $ MediaR fileId
+                        redirect $ MediaAdminEditR fileId
                     False -> do
                         lift $ setMessageI Msg.RenameFail
-                        redirect $ MediaR fileId
+                        redirect $ MediaAdminEditR fileId
         _ -> lift $ do
             y <- getYesod
             let sr = unpack $ staticRoot y

@@ -1,8 +1,8 @@
 <div .page-header>
-    <h1>_{Msg.MediaOverview}
+    <h1>_{Msg.MediaIndex}
 <div .row .button-toolbar>
     <div .col-xs-12>
-        $maybe r <- can (mediaR MediaNewR) "GET"
+        $maybe r <- can (mediaR MediaAdminNewR) "GET"
             <a .btn .btn-primary href=@{r}>
                 <span .glyphicon .glyphicon-plus>
                 _{Msg.AddMedia}
@@ -14,7 +14,7 @@
             <div .row>
                 $forall (Entity fileId file) <- files
                     <div .col-xs-6 .col-md-3 .col-lg-2>
-                        <a href=@{mediaR $ MediaR fileId}>
+                        <a href=@{mediaR $ MediaAdminEditR fileId}>
                             <div .panel .panel-default>
                                 <div .panel-body .gallery-panel-body>
                                     $if isImageFile file

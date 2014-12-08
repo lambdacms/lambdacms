@@ -2,10 +2,10 @@
     <h1>#{mediaLabel file}
 <div .row .button-toolbar>
     <div .col-xs-12>
-        <a .btn .btn-primary href=@{mediaR MediaOverviewR}>
+        <a .btn .btn-primary href=@{mediaR MediaAdminIndexR}>
             <span .glyphicon .glyphicon-arrow-left>
             _{Msg.Back}
-        <form .form-inline .display-inline method=POST action=@{mediaR $ MediaR fileId}>
+        <form .form-inline .display-inline method=POST action=@{mediaR $ MediaAdminEditR fileId}>
             <input name="_method" type="hidden" value="DELETE" />
             <button .btn .btn-danger type=submit>
                 <span .glyphicon .glyphicon-remove>
@@ -22,9 +22,9 @@
                     $else
                         _{Msg.UnknownFileType}
     <div .col-sm-10 .col-md-7 .col-lg-4>
-        <form role=form method=POST action=@{mediaR $ MediaR fileId} enctype=#{enctype}>
+        <form role=form method=POST action=@{mediaR $ MediaAdminEditR fileId} enctype=#{enctype}>
             ^{fWidget}
-        <form role=form method=POST action=@{mediaR $ MediaRenameR fileId} enctype=#{rEnctype}>
+        <form role=form method=POST action=@{mediaR $ MediaAdminRenameR fileId} enctype=#{rEnctype}>
             ^{rfWidget}
         <ul .list-group>
             <li .list-group-item .list-group-item-info>

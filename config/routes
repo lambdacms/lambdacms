@@ -1,4 +1,4 @@
-/                 MediaOverviewR  GET
-/new              MediaNewR       GET POST
-/#MediaId/rename  MediaRenameR    POST
-!/#MediaId        MediaR          GET POST DELETE
+/                 MediaAdminIndexR   GET
+/new              MediaAdminNewR     GET POST
+/#MediaId/rename  MediaAdminRenameR  PATCH
+!/#MediaId        MediaAdminEditR    GET PATCH DELETE
