@@ -41,7 +41,7 @@ body > div.container-fluid > div.row
     text-decoration: underline
 
 .main-content
-    padding-top: 20px
+    padding: 20px 40px 0 40px
 
     .page-header
         h1
