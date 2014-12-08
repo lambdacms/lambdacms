@@ -1,21 +1,25 @@
+<div .row>
+    <div .col-xs-12>
+        $maybe r <- can (coreR AdminHomeR) "GET"
+            <a href=@{r}>
+                <span .glyphicon .glyphicon-arrow-left>
+                _{Msg.Back}
 <div .page-header>
     <h1>_{Msg.MediaIndex}
-<div .row .button-toolbar>
-    <div .col-xs-12>
-        $maybe r <- can (mediaR MediaAdminNewR) "GET"
-            <a .btn .btn-primary href=@{r}>
-                <span .glyphicon .glyphicon-plus>
-                _{Msg.AddMedia}
+    $maybe r <- can (mediaR MediaAdminNewR) "GET"
+        <a .btn .btn-primary href=@{r}>
+            <span .glyphicon .glyphicon-plus>
+            _{Msg.AddMedia}
 <div .row>
     <div .col-xs-12>
         $if null files
-            <p .bg-info>_{Msg.NoMediaFound}
+            <p .alert .alert-info>_{Msg.NoMediaFound}
         $else
             <div .row>
                 $forall (Entity fileId file) <- files
                     <div .col-xs-6 .col-md-3 .col-lg-2>
-                        <a href=@{mediaR $ MediaAdminEditR fileId}>
-                            <div .panel .panel-default>
+                        $with mroute <- can (mediaR $ MediaAdminEditR fileId) "GET"
+                            <div .panel .panel-default :isJust mroute:onclick="document.location.href='@{fromJust mroute}'">
                                 <div .panel-body .gallery-panel-body>
                                     $if isImageFile file
                                         ^{mediaImg file ["img-responsive", "img-rounded"] []}
@@ -23,4 +27,8 @@
                                         _{Msg.CantDisplayFileType}
                                     $else
                                         _{Msg.UnknownFileType}
-                                <div .panel-footer>#{mediaLabel file}
+                                <div .panel-footer>
+                                    $maybe r <- mroute
+                                        <a href=@{r}>#{mediaLabel file}
+                                    $nothing
+                                        #{mediaLabel file}

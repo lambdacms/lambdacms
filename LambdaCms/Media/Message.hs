@@ -28,6 +28,8 @@ data MediaMessage =
   | Preview
   | Location
   | NewFilename
+  | ChangeMediaSettings
+  | ChangeFilename
   | Label
   | Description
   | UploadedOn
@@ -62,6 +64,8 @@ englishMessage Information           = "File information"
 englishMessage Preview               = "Preview"
 englishMessage Location              = "File"
 englishMessage NewFilename           = "New filename"
+englishMessage ChangeMediaSettings   = "Change media settings"
+englishMessage ChangeFilename        = "Change filename"
 englishMessage Label                 = "Label"
 englishMessage Description           = "Description"
 englishMessage UploadedOn            = "Uploaded on"
@@ -93,6 +97,8 @@ dutchMessage Information           = "Bestandsinformatie"
 dutchMessage Preview               = "Voorvertoning"
 dutchMessage Location              = "Bestand"
 dutchMessage NewFilename           = "Nieuwe bestandsnaam"
+dutchMessage ChangeMediaSettings   = "Pas media instellingen aan"
+dutchMessage ChangeFilename        = "Bestandsnaam wijzigen"
 dutchMessage Label                 = "Label"
 dutchMessage Description           = "Beschrijving"
 dutchMessage UploadedOn            = "Geüpload op"

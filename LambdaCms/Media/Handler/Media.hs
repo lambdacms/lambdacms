@@ -14,6 +14,7 @@ module LambdaCms.Media.Handler.Media
     , patchMediaAdminRenameR
     ) where
 
+import           Data.Maybe              (fromJust, isJust)
 import           Data.Text               (pack, unpack)
 import qualified Data.Text               as T (concat, split)
 import           Data.Time               (getCurrentTime, utctDay)
@@ -42,6 +43,7 @@ getMediaAdminIndexR = lift $ do
         $(widgetFile "index")
 
 getMediaAdminNewR = lift $ do
+    can <- getCan
     (fWidget, enctype) <- generateFormPost uploadForm
     adminLayout $ do
         setTitleI Msg.NewMedia
@@ -56,11 +58,14 @@ postMediaAdminNewR = do
             _ <- lift . runDB . insert $ Media location ctype label description ct
             lift . setMessageI $ Msg.SaveSuccess label
             redirect MediaAdminIndexR
-        _ -> lift . adminLayout $ do
-            setTitleI Msg.NewMedia
-            $(widgetFile "new")
+        _ -> lift $ do
+            can <- getCan
+            adminLayout $ do
+                setTitleI Msg.NewMedia
+                $(widgetFile "new")
 
 getMediaAdminEditR fileId = lift $ do
+    can <- getCan
     y <- getYesod
     let sr = unpack $ staticRoot y
     file <- runDB $ get404 fileId
@@ -79,6 +84,7 @@ patchMediaAdminEditR fileId = do
             lift . setMessageI $ Msg.UpdateSuccess (mediaLabel mf)
             redirect $ MediaAdminEditR fileId
         _ -> lift $ do
+            can <- getCan
             y <- getYesod
             let sr = unpack $ staticRoot y
             (rfWidget, rEnctype) <- generateFormPost . renameForm $ mediaBaseName file
@@ -115,6 +121,7 @@ patchMediaAdminRenameR fileId = do
                         lift $ setMessageI Msg.RenameFail
                         redirect $ MediaAdminEditR fileId
         _ -> lift $ do
+            can <- getCan
             y <- getYesod
             let sr = unpack $ staticRoot y
             (fWidget, enctype) <- generateFormPost $ mediaForm file

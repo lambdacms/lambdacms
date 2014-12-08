@@ -1,11 +1,13 @@
+<div .row>
+    <div .col-xs-12>
+        $maybe r <- can (mediaR MediaAdminIndexR) "GET"
+            <a href=@{r}>
+                <span .glyphicon .glyphicon-arrow-left>
+                _{Msg.Back}
 <div .page-header>
     <h1>_{Msg.NewMedia}
-<div .row .button-toolbar>
-    <div .col-xs-12>
-        <a .btn .btn-primary href=@{mediaR MediaAdminIndexR}>
-            <span .glyphicon .glyphicon-arrow-left>
-            _{Msg.Back}
 <div .row>
     <div .col-sm-10 .col-md-7 .col-lg-4>
-        <form role=form method=POST action=@{mediaR MediaAdminNewR} enctype=#{enctype}>
-            ^{fWidget}
+        $maybe r <- can (mediaR MediaAdminNewR) "POST"
+            <form role=form method=POST action=@{r} enctype=#{enctype}>
+                ^{fWidget}
