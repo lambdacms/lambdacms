@@ -21,12 +21,14 @@ data CoreMessage =
   | EmailAddress
   | NewUser
   | EditUser { name :: Text }
-  | AccountRoles
-  | AccountPassword
+  | ChangeAccountSettings
+  | ChangeRoles
+  | ChangePassword
   | PasswordTooShort
   | PasswordMismatch
   | Username
   | Password
+  | Roles
   | Confirm
   | Create
   | Save
@@ -76,12 +78,14 @@ englishMessage UserIndex                = "User overview"
 englishMessage EmailAddress             = "E-mail address"
 englishMessage NewUser                  = "New user"
 englishMessage (EditUser name)          = name
-englishMessage AccountRoles             = "Roles"
-englishMessage AccountPassword          = "Change password"
+englishMessage ChangeAccountSettings    = "Modify account settings"
+englishMessage ChangeRoles              = "Select roles"
+englishMessage ChangePassword           = "Change password"
 englishMessage PasswordTooShort         = "Password is too short"
 englishMessage PasswordMismatch         = "Passwords don't match"
 englishMessage Username                 = "Username"
 englishMessage Password                 = "Password"
+englishMessage Roles                    = "Roles"
 englishMessage Confirm                  = "Confirm"
 englishMessage Create                   = "Create"
 englishMessage Save                     = "Save"
@@ -128,12 +132,14 @@ dutchMessage AccountSettings          = "Accountinstellingen"
 dutchMessage EmailAddress             = "E-mailadres"
 dutchMessage NewUser                  = "Nieuwe gebruiker"
 dutchMessage (EditUser name)          = name
-dutchMessage AccountRoles             = "Rollen"
-dutchMessage AccountPassword          = "Wachtwoord wijzigen"
+dutchMessage ChangeAccountSettings    = "Pas accountinstellingen aan"
+dutchMessage ChangeRoles              = "Rollen selecteren"
+dutchMessage ChangePassword           = "Wachtwoord wijzigen"
 dutchMessage PasswordTooShort         = "Wachtwoord te kort"
 dutchMessage PasswordMismatch         = "Wachtwoorden komen niet overeen"
 dutchMessage Username                 = "Gebruikersnaam"
 dutchMessage Password                 = "Wachtwoord"
+dutchMessage Roles                    = "Rollen"
 dutchMessage Confirm                  = "Bevestig"
 dutchMessage Create                   = "Aanmaken"
 dutchMessage Save                     = "Opslaan"
