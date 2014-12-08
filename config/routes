@@ -1,0 +1,4 @@
+/                 MediaOverviewR  GET
+/new              MediaNewR       GET POST
+/#MediaId/rename  MediaRenameR    POST
+!/#MediaId        MediaR          GET POST DELETE

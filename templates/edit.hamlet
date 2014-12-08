@@ -1,43 +1,43 @@
 <div .page-header>
-  <h1>#{mediaFileLabel file}
+    <h1>#{mediaLabel file}
 <div .row .button-toolbar>
-  <div .col-xs-12>
-    <a .btn .btn-primary href=@{tp MediaFileOverviewR}>
-      <span .glyphicon .glyphicon-arrow-left>
-      _{Msg.Back}
-    <form .form-inline .display-inline method=POST action=@{tp $ MediaFileR fileId}>
-      <input name="_method" type="hidden" value="DELETE" />
-      <button .btn .btn-danger type=submit>
-        <span .glyphicon .glyphicon-remove>
-        _{Msg.Delete}
+    <div .col-xs-12>
+        <a .btn .btn-primary href=@{mediaR MediaOverviewR}>
+            <span .glyphicon .glyphicon-arrow-left>
+            _{Msg.Back}
+        <form .form-inline .display-inline method=POST action=@{mediaR $ MediaR fileId}>
+            <input name="_method" type="hidden" value="DELETE" />
+            <button .btn .btn-danger type=submit>
+                <span .glyphicon .glyphicon-remove>
+                _{Msg.Delete}
 <div .row>
-  <div .col-lg-7>
-    <div .panel .panel-default>
-      <div .panel-body>
-        <a href=#{sr </> mediaFileLocation file}>
-          $if isImageFile file
-            ^{mediaFileImg file ["img-responsive", "img-rounded"] []}
-          $elseif isApplicationFile file
-            _{Msg.CantDisplayFileType}
-          $else
-            _{Msg.UnknownFileType}
-  <div .col-sm-10 .col-md-7 .col-lg-4>
-    <form role=form method=POST action=@{tp $ MediaFileR fileId} enctype=#{enctype}>
-      ^{fWidget}
-    <form role=form method=POST action=@{tp $ MediaFileRenameR fileId} enctype=#{rEnctype}>
-      ^{rfWidget}
-    <ul .list-group>
-      <li .list-group-item .list-group-item-info>
-        <strong> _{Msg.Information}
-      <li .list-group-item .clearfix>
-        _{Msg.Filename}
-        <a .pull-right href=#{sr </> mediaFileLocation file}>#{takeFileName $ mediaFileLocation file}
-      <li .list-group-item .clearfix>
-        _{Msg.FileContentType}
-        <span .pull-right>#{mediaFileContentType file}
-      <li .list-group-item .clearfix>
-        _{Msg.FileLocation}
-        <span .pull-right>#{mediaFileFullLocation (staticDir y) file}
-      <li .list-group-item .clearfix>
-        _{Msg.UploadedOn}
-        <span .pull-right>#{show $ utctDay $ mediaFileUploadedAt file}
+    <div .col-lg-7>
+        <div .panel .panel-default>
+            <div .panel-body>
+                <a href=#{sr </> mediaLocation file}>
+                    $if isImageFile file
+                        ^{mediaImg file ["img-responsive", "img-rounded"] []}
+                    $elseif isApplicationFile file
+                        _{Msg.CantDisplayFileType}
+                    $else
+                        _{Msg.UnknownFileType}
+    <div .col-sm-10 .col-md-7 .col-lg-4>
+        <form role=form method=POST action=@{mediaR $ MediaR fileId} enctype=#{enctype}>
+            ^{fWidget}
+        <form role=form method=POST action=@{mediaR $ MediaRenameR fileId} enctype=#{rEnctype}>
+            ^{rfWidget}
+        <ul .list-group>
+            <li .list-group-item .list-group-item-info>
+                <strong> _{Msg.Information}
+            <li .list-group-item .clearfix>
+                _{Msg.Filename}
+                <a .pull-right href=#{sr </> mediaLocation file}>#{takeFileName $ mediaLocation file}
+            <li .list-group-item .clearfix>
+                _{Msg.FileContentType}
+                <span .pull-right>#{mediaContentType file}
+            <li .list-group-item .clearfix>
+                _{Msg.FileLocation}
+                <span .pull-right>#{mediaFullLocation (staticDir y) file}
+            <li .list-group-item .clearfix>
+                _{Msg.UploadedOn}
+                <span .pull-right>#{show $ utctDay $ mediaUploadedAt file}

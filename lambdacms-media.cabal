@@ -16,6 +16,8 @@ cabal-version:      >= 1.18
 tested-with:        GHC >= 7.6
 extra-source-files: README.md
                   , messages/*.msg
+                  , templates/*
+                  , config/*
 
 source-repository head
   type:             git
@@ -29,9 +31,8 @@ library
 
   other-modules:    LambdaCms.Media.Foundation
                   , LambdaCms.Media.Models
-                  , LambdaCms.Media.Routes
                   , LambdaCms.Media.Import
-                  , LambdaCms.Media.Handler.MediaFile
+                  , LambdaCms.Media.Handler.Media
 
   build-depends:    base
                   , yesod

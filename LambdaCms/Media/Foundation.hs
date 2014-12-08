@@ -4,6 +4,8 @@
 {-# LANGUAGE QuasiQuotes           #-}
 {-# LANGUAGE RankNTypes            #-}
 {-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE ViewPatterns          #-}
 
 module LambdaCms.Media.Foundation where
 
@@ -19,53 +21,53 @@ import           LambdaCms.Media.Message (MediaMessage, defaultMessage,
                                           dutchMessage, englishMessage)
 import qualified LambdaCms.Media.Message as Msg
 import           LambdaCms.Media.Models
-import           LambdaCms.Media.Routes
 
-class LambdaCmsAdmin master => LambdaCmsMedia master where
-  staticDir :: master -> FilePath
-  staticRoot :: master -> Text
-  uploadDir :: master -> FilePath
-  uploadDir _ = "uploads"
+data MediaAdmin = MediaAdmin
 
-  renderMediaMessage :: master
-                        -> [Text]
-                        -> MediaMessage
-                        -> Text
-  renderMediaMessage m (lang:langs) = do
-    case (lang `elem` (renderLanguages m), lang) of
-     (True, "en") -> englishMessage
-     (True, "nl") -> dutchMessage
-     _ -> renderMediaMessage m langs
-  renderMediaMessage _ _ = defaultMessage
-
-type MediaHandler a = forall master. LambdaCmsMedia master => HandlerT Media (HandlerT master IO) a
-
-type MediaWidget = forall master. LambdaCmsMedia master => WidgetT master IO ()
-
-type Form x = forall master. LambdaCmsMedia master => Html -> MForm (HandlerT master IO) (FormResult x, WidgetT master IO ())
-
-instance RenderMessage Media FormMessage where
-  renderMessage _ _ = defaultFormMessage
+mkYesodSubData "MediaAdmin" $(parseRoutesFile "config/routes")
 
 instance LambdaCmsMedia master => RenderMessage master MediaMessage where
-  renderMessage = renderMediaMessage
+    renderMessage = renderMediaMessage
 
-defaultMediaAdminMenu :: LambdaCmsMedia master => (Route Media -> Route master) -> [AdminMenuItem master]
-defaultMediaAdminMenu tp = [ MenuItem (SomeMessage Msg.MenuMedia) (tp MediaFileOverviewR) "picture" ]
+type MediaHandler a = forall master. LambdaCmsMedia master => HandlerT MediaAdmin (HandlerT master IO) a
 
-attachedMaybeMediaFile :: LambdaCmsMedia master
-                          => a
-                          -> (a -> Maybe MediaFileId)
-                          -> HandlerT master IO (Maybe MediaFile)
-attachedMaybeMediaFile model getId = do
-  case getId model of
-   Just mfid -> runDB $ get mfid
-   Nothing -> return Nothing
+type MediaForm x = forall master. LambdaCmsMedia master => Html -> MForm (HandlerT master IO) (FormResult x, WidgetT master IO ())
 
-mediaFileSrc :: LambdaCmsMedia master => master -> MediaFile -> FilePath
-mediaFileSrc y mf = (unpack $ staticRoot y) </> (mediaFileLocation mf)
+class LambdaCmsAdmin master => LambdaCmsMedia master where
+    mediaR :: Route MediaAdmin -> Route master
 
-mediaFileImg :: LambdaCmsMedia master => MediaFile -> [Text] -> [(Text, Text)] -> WidgetT master IO ()
-mediaFileImg mf classes attrs = do
-  y <- handlerToWidget getYesod
-  [whamlet|<img src=#{mediaFileSrc y mf} class=#{T.unwords classes} *{attrs} alt=#{mediaFileLabel mf}>|]
+    staticDir :: master -> FilePath
+    staticRoot :: master -> Text
+    uploadDir :: master -> FilePath
+    uploadDir _ = "uploads"
+
+    renderMediaMessage :: master
+                       -> [Text]
+                       -> MediaMessage
+                       -> Text
+    renderMediaMessage m (lang:langs) = do
+        case (lang `elem` (renderLanguages m), lang) of
+            (True, "en") -> englishMessage
+            (True, "nl") -> dutchMessage
+            _ -> renderMediaMessage m langs
+    renderMediaMessage _ _ = defaultMessage
+
+defaultMediaAdminMenu :: LambdaCmsMedia master => (Route MediaAdmin -> Route master) -> [AdminMenuItem master]
+defaultMediaAdminMenu tp = [ MenuItem (SomeMessage Msg.MenuMedia) (tp MediaOverviewR) "picture" ]
+
+attachedMaybeMedia :: LambdaCmsMedia master
+                       => model
+                       -> (model -> Maybe MediaId)
+                       -> HandlerT master IO (Maybe Media)
+attachedMaybeMedia model getId = do
+    case getId model of
+        Just mfid -> runDB $ get mfid
+        Nothing -> return Nothing
+
+mediaSrc :: LambdaCmsMedia master => master -> Media -> FilePath
+mediaSrc y mf = (unpack $ staticRoot y) </> (mediaLocation mf)
+
+mediaImg :: LambdaCmsMedia master => Media -> [Text] -> [(Text, Text)] -> WidgetT master IO ()
+mediaImg mf classes attrs = do
+    y <- handlerToWidget getYesod
+    [whamlet|<img src=#{mediaSrc y mf} class=#{T.unwords classes} *{attrs} alt=#{mediaLabel mf}>|]

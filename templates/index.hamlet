@@ -2,7 +2,7 @@
     <h1>_{Msg.MediaOverview}
 <div .row .button-toolbar>
     <div .col-xs-12>
-        $maybe r <- can (tp MediaFileNewR) "GET"
+        $maybe r <- can (mediaR MediaNewR) "GET"
             <a .btn .btn-primary href=@{r}>
                 <span .glyphicon .glyphicon-plus>
                 _{Msg.AddMedia}
@@ -14,13 +14,13 @@
             <div .row>
                 $forall (Entity fileId file) <- files
                     <div .col-xs-6 .col-md-3 .col-lg-2>
-                        <a href=@{tp $ MediaFileR fileId}>
+                        <a href=@{mediaR $ MediaR fileId}>
                             <div .panel .panel-default>
                                 <div .panel-body .gallery-panel-body>
                                     $if isImageFile file
-                                        ^{mediaFileImg file ["img-responsive", "img-rounded"] []}
+                                        ^{mediaImg file ["img-responsive", "img-rounded"] []}
                                     $elseif isApplicationFile file
                                         _{Msg.CantDisplayFileType}
                                     $else
                                         _{Msg.UnknownFileType}
-                                <div .panel-footer>#{mediaFileLabel file}
+                                <div .panel-footer>#{mediaLabel file}
