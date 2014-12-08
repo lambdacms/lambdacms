@@ -49,7 +49,7 @@
                 ^{formWidget}
         $maybe r <- can (coreR $ UserAdminR $ UserAdminChangeRolesR userId) "PUT"
             <h2>_{Msg.AccountRoles}
-            <form role=form method=post action=@{r} enctype=#{urEnctype}>
+            <form .roles-form role=form method=post action=@{r} enctype=#{urEnctype}>
                 <input type=hidden name=_method value=PUT>
                 ^{urWidget}
         $maybe r <- can (coreR $ UserAdminR $ UserAdminChangePasswordR userId) "PATCH"

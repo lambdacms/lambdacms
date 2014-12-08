@@ -67,9 +67,9 @@ userForm u submit = renderBootstrap3 BootstrapBasicForm $ User
              <*  bootstrapSubmit (BootstrapSubmit (fromMaybe Msg.Submit submit) " btn-success " [])
 
 userRoleForm :: (LambdaCmsAdmin master) => S.Set (Roles master) -> Html -> MForm (HandlerT master IO) (FormResult [Roles master], WidgetT master IO ())
-userRoleForm roles = renderBootstrap3 BootstrapBasicForm $
+userRoleForm roles = renderBootstrap3 BootstrapInlineForm $
            areq (checkboxesField roleList) "" (Just $ S.toList roles)
-           <*  bootstrapSubmit (BootstrapSubmit Msg.Submit " btn-success " [])
+           <*  bootstrapSubmit (BootstrapSubmit Msg.Save " btn-success " [])
   where roleList = optionsPairs $ map ((T.pack . show) &&& id) [minBound .. maxBound]
 
 userChangePasswordForm :: Maybe Text -> Maybe CoreMessage -> CoreForm ComparePassword
