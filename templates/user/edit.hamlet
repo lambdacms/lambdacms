@@ -1,51 +1,59 @@
-<div .page-header>
-    <h1>#{userName user}
-<div .row .button-toolbar>
+<div .row>
     <div .col-xs-12>
         $maybe r <- can (coreR $ UserAdminR UserAdminIndexR) "GET"
-            <a .btn .btn-primary href=@{r}>
+            <a href=@{r}>
                 <span .glyphicon .glyphicon-arrow-left>
                 _{Msg.Back}
-        $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "DELETE"
-            <form .form-inline .display-inline method=post action=@{r}>
-                <input name="_method" type="hidden" value="DELETE" />
-                <button .btn .btn-danger type=submit>
-                    <span .glyphicon .glyphicon-remove>
-                    _{Msg.Remove}
+<div .page-header>
+    <h1>_{Msg.EditUser $ userName user}
+    $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "DELETE"
+        <form .form-inline .display-inline method=post action=@{r}>
+            <input name="_method" type="hidden" value="DELETE" />
+            <button .btn .btn-danger type=submit>
+                <span .glyphicon .glyphicon-remove>
+                _{Msg.Remove}
 <div .row>
-    <div .col-sm-10 .col-md-7 .col-lg-4>
-        $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "PATCH"
-            <form role=form method=post action=@{r} enctype=#{enctype}>
-                <input type=hidden name=_method value=PATCH>
-                ^{formWidget}
-        $nothing
-            <p>Not yet implemented
-        $maybe r <- can (coreR $ UserAdminR $ UserAdminChangeRolesR userId) "PUT"
-            <form role=form method=post action=@{r} enctype=#{urEnctype}>
-                <input type=hidden name=_method value=PUT>
-                ^{urWidget}
-        $nothing
-            <p>Not yet implemented
-        $maybe r <- can (coreR $ UserAdminR $ UserAdminChangePasswordR userId) "PATCH"
-            <form role=form method=post action=@{r} enctype=#{pwEnctype}>
-                <input type=hidden name=_method value=PATCH>
-                ^{pwFormWidget}
-    <div .col-sm-10 .col-md-7 .col-lg-4>
+    <div .col-sm-12 .col-md-9 .col-lg-6>
         <ul .list-group>
-            <li .list-group-item .list-group-item-info>
-                <strong>User information
+            <li .list-group-item .clearfix>
+                _{Msg.Username}
+                <span .pull-right>#{userName user}
+            <li .list-group-item .clearfix>
+                _{Msg.EmailAddress}
+                <span .pull-right>#{userEmail user}
+            <li .list-group-item .clearfix>
+                _{Msg.AccountRoles}
+                <span .pull-right>
+                    $forall role <- urs
+                        <span .label .label-info>#{show role}
             <li .list-group-item .clearfix>
                 _{Msg.CreatedOn}
                 <span .pull-right>#{show $ utctDay $ userCreatedAt user}
             <li .list-group-item .clearfix>
                 _{Msg.LastLogin}
                 <span .pull-right>#{humanReadableTimeI18N' hrtLocale timeNow $ userLastLogin user}
-
             $maybe ut <- userToken user
                 <li .list-group-item .list-group-item-warning .clearfix>
-                    Account status
+                    _{Msg.AccountStatus}
                     <span .pull-right>_{Msg.AccountActivationPending}
             $nothing
                 <li .list-group-item .list-group-item-success .clearfix>
-                    Account status
+                    _{Msg.AccountStatus}
                     <span .pull-right>_{Msg.AccountActivationSuccess}
+<div .row>
+    <div .col-sm-12 .col-md-9 .col-lg-6>
+        $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "PATCH"
+            <h2>_{Msg.AccountSettings}
+            <form role=form method=post action=@{r} enctype=#{enctype}>
+                <input type=hidden name=_method value=PATCH>
+                ^{formWidget}
+        $maybe r <- can (coreR $ UserAdminR $ UserAdminChangeRolesR userId) "PUT"
+            <h2>_{Msg.AccountRoles}
+            <form role=form method=post action=@{r} enctype=#{urEnctype}>
+                <input type=hidden name=_method value=PUT>
+                ^{urWidget}
+        $maybe r <- can (coreR $ UserAdminR $ UserAdminChangePasswordR userId) "PATCH"
+            <h2>_{Msg.AccountPassword}
+            <form role=form method=post action=@{r} enctype=#{pwEnctype}>
+                <input type=hidden name=_method value=PATCH>
+                ^{pwFormWidget}

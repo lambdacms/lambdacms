@@ -21,6 +21,8 @@ data CoreMessage =
   | EmailAddress
   | NewUser
   | EditUser { name :: Text }
+  | AccountRoles
+  | AccountPassword
   | PasswordTooShort
   | PasswordMismatch
   | Username
@@ -34,6 +36,7 @@ data CoreMessage =
   | Remove
   | CreatedOn
   | LastLogin
+  | AccountStatus
   | AccountActivationPending
   | AccountActivationSuccess
   | AccountAlreadyActivated
@@ -73,6 +76,8 @@ englishMessage UserIndex                = "User overview"
 englishMessage EmailAddress             = "E-mail address"
 englishMessage NewUser                  = "New user"
 englishMessage (EditUser name)          = name
+englishMessage AccountRoles             = "Roles"
+englishMessage AccountPassword          = "Change password"
 englishMessage PasswordTooShort         = "Password is too short"
 englishMessage PasswordMismatch         = "Passwords don't match"
 englishMessage Username                 = "Username"
@@ -86,6 +91,7 @@ englishMessage Back                     = "Back"
 englishMessage Remove                   = "Remove"
 englishMessage CreatedOn                = "Created on"
 englishMessage LastLogin                = "Last login"
+englishMessage AccountStatus            = "Account status"
 englishMessage AccountActivationPending = "Pending"
 englishMessage AccountActivationSuccess = "Activated"
 englishMessage AccountAlreadyActivated  = "This account is already activated"
@@ -122,6 +128,8 @@ dutchMessage AccountSettings          = "Accountinstellingen"
 dutchMessage EmailAddress             = "E-mailadres"
 dutchMessage NewUser                  = "Nieuwe gebruiker"
 dutchMessage (EditUser name)          = name
+dutchMessage AccountRoles             = "Rollen"
+dutchMessage AccountPassword          = "Wachtwoord wijzigen"
 dutchMessage PasswordTooShort         = "Wachtwoord te kort"
 dutchMessage PasswordMismatch         = "Wachtwoorden komen niet overeen"
 dutchMessage Username                 = "Gebruikersnaam"
@@ -135,6 +143,7 @@ dutchMessage Back                     = "Terug"
 dutchMessage Remove                   = "Verwijderen"
 dutchMessage CreatedOn                = "Geregistreerd op"
 dutchMessage LastLogin                = "Laatst ingelogd"
+dutchMessage AccountStatus            = "Account status"
 dutchMessage AccountActivationPending = "In afwachting"
 dutchMessage AccountActivationSuccess = "Geactiveerd"
 dutchMessage AccountAlreadyActivated  = "Dit account is al geactiveerd"

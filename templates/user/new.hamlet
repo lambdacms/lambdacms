@@ -1,11 +1,11 @@
-<div .page-header>
-    <h1>_{Msg.NewUser}
-<div .row .button-toolbar>
+<div .row>
     <div .col-xs-12>
         $maybe r <- can (coreR $ UserAdminR UserAdminIndexR) "GET"
-            <a .btn .btn-primary href=@{r}>
+            <a href=@{r}>
                 <span .glyphicon .glyphicon-arrow-left>
                 _{Msg.Back}
+<div .page-header>
+    <h1>_{Msg.NewUser}
 <div .row>
     <div .col-sm-10 .col-md-7 .col-lg-4>
         $maybe r <- can (coreR $ UserAdminR UserAdminNewR) "POST"
