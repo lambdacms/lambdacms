@@ -17,9 +17,16 @@ body > div.container-fluid > div.row
         padding: 15px 0
         border: none
         border-radius: 0
+        background-color: #333
+
+    .glyphicon
+        margin-right: 10px
 
     .nav-pills > li > a
         border-radius: 0
+
+.dropdown-toggle
+    cursor: pointer
 
 .display-inline
     display: inline
@@ -33,5 +40,16 @@ body > div.container-fluid > div.row
 .table-hover tbody tr:hover a
     text-decoration: underline
 
-.button-toolbar
-    padding-bottom: 17px
+.main-content
+    padding: 20px 40px 0 40px
+
+    .page-header
+        h1
+            display: inline
+
+        a, button
+            margin-left: 10px
+            margin-bottom: 15px
+
+.table
+    border-bottom: 1px solid #ddd

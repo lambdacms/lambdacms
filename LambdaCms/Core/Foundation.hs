@@ -133,6 +133,9 @@ class ( YesodAuth master
     -- | Gives the route which LambdaCms should use as the master site homepage.
     masterHomeR :: Route master
 
+    adminTitle :: SomeMessage master
+    adminTitle = SomeMessage Msg.LambdaCms
+
     -- | Applies some form of layout to the contents of an admin section page.
     adminLayout :: WidgetT master IO () -> HandlerT master IO Html
     adminLayout widget = do

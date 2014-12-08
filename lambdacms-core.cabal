@@ -27,10 +27,10 @@ library
   default-language: Haskell2010
   exposed-modules:  LambdaCms.Core
                   , LambdaCms.Core.Message
+                  , LambdaCms.Core.Settings
 
   other-modules:    LambdaCms.Core.Foundation
                   , LambdaCms.Core.Models
-                  , LambdaCms.Core.Settings
                   , LambdaCms.Core.Classes
                   , LambdaCms.Core.Import
                   , LambdaCms.Core.Handler.Static

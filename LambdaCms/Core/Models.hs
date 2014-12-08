@@ -11,29 +11,12 @@
 
 module LambdaCms.Core.Models where
 
-import           Data.Text       (Text)
-import           Yesod
---import Database.Persist.Quasi
+import           Data.Text              (Text)
 import           Data.Time.Clock
-import           Data.Typeable   (Typeable)
+import           Data.Typeable          (Typeable)
+import           Database.Persist.Quasi
 import           Prelude
+import           Yesod
 
-share [mkPersist sqlSettings, mkMigrate "migrateLambdaCmsCore"] [persistLowerCase|
-User
-    ident Text
-    name Text
-    password Text Maybe
-    email Text
-    token Text Maybe
-    createdAt UTCTime
-    lastLogin UTCTime
-    UniqueUser ident
-    UniqueName name
-    UniqueEmail email
-    deriving Typeable Show
--- Email
---     email Text
---     user UserId Maybe
---     verkey Text Maybe
---     UniqueEmail email
-|]
+share [mkPersist sqlSettings, mkMigrate "migrateLambdaCmsCore"]
+    $(persistFileWith lowerCaseSettings "config/models")

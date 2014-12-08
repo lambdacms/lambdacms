@@ -21,10 +21,14 @@ data CoreMessage =
   | EmailAddress
   | NewUser
   | EditUser { name :: Text }
+  | ChangeAccountSettings
+  | ChangeRoles
+  | ChangePassword
   | PasswordTooShort
   | PasswordMismatch
   | Username
   | Password
+  | Roles
   | Confirm
   | Create
   | Save
@@ -34,6 +38,7 @@ data CoreMessage =
   | Remove
   | CreatedOn
   | LastLogin
+  | AccountStatus
   | AccountActivationPending
   | AccountActivationSuccess
   | AccountAlreadyActivated
@@ -73,10 +78,14 @@ englishMessage UserIndex                = "User overview"
 englishMessage EmailAddress             = "E-mail address"
 englishMessage NewUser                  = "New user"
 englishMessage (EditUser name)          = name
+englishMessage ChangeAccountSettings    = "Modify account settings"
+englishMessage ChangeRoles              = "Select roles"
+englishMessage ChangePassword           = "Change password"
 englishMessage PasswordTooShort         = "Password is too short"
 englishMessage PasswordMismatch         = "Passwords don't match"
 englishMessage Username                 = "Username"
 englishMessage Password                 = "Password"
+englishMessage Roles                    = "Roles"
 englishMessage Confirm                  = "Confirm"
 englishMessage Create                   = "Create"
 englishMessage Save                     = "Save"
@@ -86,6 +95,7 @@ englishMessage Back                     = "Back"
 englishMessage Remove                   = "Remove"
 englishMessage CreatedOn                = "Created on"
 englishMessage LastLogin                = "Last login"
+englishMessage AccountStatus            = "Account status"
 englishMessage AccountActivationPending = "Pending"
 englishMessage AccountActivationSuccess = "Activated"
 englishMessage AccountAlreadyActivated  = "This account is already activated"
@@ -122,10 +132,14 @@ dutchMessage AccountSettings          = "Accountinstellingen"
 dutchMessage EmailAddress             = "E-mailadres"
 dutchMessage NewUser                  = "Nieuwe gebruiker"
 dutchMessage (EditUser name)          = name
+dutchMessage ChangeAccountSettings    = "Pas accountinstellingen aan"
+dutchMessage ChangeRoles              = "Rollen selecteren"
+dutchMessage ChangePassword           = "Wachtwoord wijzigen"
 dutchMessage PasswordTooShort         = "Wachtwoord te kort"
 dutchMessage PasswordMismatch         = "Wachtwoorden komen niet overeen"
 dutchMessage Username                 = "Gebruikersnaam"
 dutchMessage Password                 = "Wachtwoord"
+dutchMessage Roles                    = "Rollen"
 dutchMessage Confirm                  = "Bevestig"
 dutchMessage Create                   = "Aanmaken"
 dutchMessage Save                     = "Opslaan"
@@ -135,6 +149,7 @@ dutchMessage Back                     = "Terug"
 dutchMessage Remove                   = "Verwijderen"
 dutchMessage CreatedOn                = "Geregistreerd op"
 dutchMessage LastLogin                = "Laatst ingelogd"
+dutchMessage AccountStatus            = "Account status"
 dutchMessage AccountActivationPending = "In afwachting"
 dutchMessage AccountActivationSuccess = "Geactiveerd"
 dutchMessage AccountAlreadyActivated  = "Dit account is al geactiveerd"

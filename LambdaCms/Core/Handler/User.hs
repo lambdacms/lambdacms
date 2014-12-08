@@ -60,9 +60,9 @@ userForm u submit = renderBootstrap3 BootstrapBasicForm $ User
 
 -- | Webform for user roles.
 userRoleForm :: (LambdaCmsAdmin master) => S.Set (Roles master) -> Html -> MForm (HandlerT master IO) (FormResult [Roles master], WidgetT master IO ())
-userRoleForm roles = renderBootstrap3 BootstrapBasicForm $
+userRoleForm roles = renderBootstrap3 BootstrapInlineForm $
            areq (checkboxesField roleList) "" (Just $ S.toList roles)
-           <*  bootstrapSubmit (BootstrapSubmit Msg.Submit " btn-success " [])
+           <*  bootstrapSubmit (BootstrapSubmit Msg.Save " btn-success " [])
   where roleList = optionsPairs $ map ((T.pack . show) &&& id) [minBound .. maxBound]
 
 -- | Webform for changing a user's password.
@@ -183,9 +183,9 @@ getUserAdminEditR userId = do
     lift $ do
         can <- getCan
         user <- runDB $ get404 userId
-        ur <- getUserRoles userId
+        urs <- getUserRoles userId
         hrtLocale <- lambdaCmsHumanTimeLocale
-        (urWidget, urEnctype)     <- generateFormPost $ userRoleForm ur                                  -- user role form
+        (urWidget, urEnctype)     <- generateFormPost $ userRoleForm urs                                 -- user role form
         (formWidget, enctype)     <- generateFormPost $ userForm user (Just Msg.Save)                    -- user form
         (pwFormWidget, pwEnctype) <- generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change) -- user password form
         adminLayout $ do
@@ -198,8 +198,8 @@ patchUserAdminEditR userId = do
     user <- lift . runDB $ get404 userId
     timeNow <- liftIO getCurrentTime
     hrtLocale <- lift lambdaCmsHumanTimeLocale
-    ur <- lift $ getUserRoles userId
-    (urWidget, urEnctype)               <- lift . generateFormPost $ userRoleForm ur
+    urs <- lift $ getUserRoles userId
+    (urWidget, urEnctype)               <- lift . generateFormPost $ userRoleForm urs
     (pwFormWidget, pwEnctype)           <- lift . generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change)
     ((formResult, formWidget), enctype) <- lift . runFormPost $ userForm user (Just Msg.Save)
     case formResult of
@@ -219,8 +219,8 @@ patchUserAdminChangePasswordR userId = do
     user <- lift . runDB $ get404 userId
     timeNow <- liftIO getCurrentTime
     hrtLocale <- lift lambdaCmsHumanTimeLocale
-    ur <- lift $ getUserRoles userId
-    (urWidget, urEnctype) <- lift . generateFormPost $ userRoleForm ur
+    urs <- lift $ getUserRoles userId
+    (urWidget, urEnctype) <- lift . generateFormPost $ userRoleForm urs
     (formWidget, enctype) <- lift . generateFormPost $ userForm user (Just Msg.Save)
     opw <- lookupPostParam "original-pw"
     ((formResult, pwFormWidget), pwEnctype) <- lift . runFormPost $ userChangePasswordForm opw (Just Msg.Change)
@@ -241,8 +241,8 @@ putUserAdminChangeRolesR userId = do
     timeNow <- liftIO getCurrentTime
     user <- lift . runDB $ get404 userId
     hrtLocale <- lift lambdaCmsHumanTimeLocale
-    ur <- lift $ getUserRoles userId
-    ((urResult, urWidget), urEnctype) <- lift . runFormPost      $ userRoleForm ur
+    urs <- lift $ getUserRoles userId
+    ((urResult, urWidget), urEnctype) <- lift . runFormPost      $ userRoleForm urs
     (pwFormWidget, pwEnctype)         <- lift . generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change)
     (formWidget, enctype)             <- lift . generateFormPost $ userForm user (Just Msg.Save)
     case urResult of
