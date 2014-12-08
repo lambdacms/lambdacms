@@ -1,12 +1,14 @@
 module LambdaCms.I18n.Dutch where
 
-import System.Locale
+import           System.Locale
 
+-- | Dutch time locale.
 dutchTimeLocale :: TimeLocale
-dutchTimeLocale =  TimeLocale {
+dutchTimeLocale =  TimeLocale
+    {
         wDays  = [("Zondag",    "Zo"),  ("Maandag",  "Ma"),
                   ("Dinsdag",   "Di"),  ("Woensdag", "Wo"),
-                  ("Donderdag", "Do"), ("Vrijdag",   "Vr"),
+                  ("Donderdag", "Do"),  ("Vrijdag",  "Vr"),
                   ("Zaterdag",  "Za")],
 
         months = [("Januari",   "Jan"), ("Februari",  "Feb"),
@@ -30,4 +32,4 @@ dutchTimeLocale =  TimeLocale {
         dateFmt = "%d-%m-%y",
         timeFmt = "%H:%M:%S",
         time12Fmt = "%H:%M:%S"
-        }
+    }

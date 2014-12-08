@@ -20,7 +20,7 @@ data Mail = Mail
 
 From, To, Cc and Bcc are self explanatory. Headers is for *other* headers (that are not from, to, cc or bcc). And Parts is for the Text and Html version of the message. Attachments go in here as well.
 
-Other packages can handle the `Mail` type or a ` ByteString` which is you get by calling `renderMail'`.
+Other packages can handle the `Mail` type or a ` ByteString` which is what you get by calling `renderMail'`.
 
 More on Mail.Mime can be found [here](http://hackage.haskell.org/package/mime-mail-0.4.6/docs/Network-Mail-Mime.html).
 
@@ -63,8 +63,8 @@ lambdaCmsSendMail _ = renderSendMail
 
 We've used [HaskellNet](http://hackage.haskell.org/package/HaskellNet) and [HaskellNet-SSL](http://hackage.haskell.org/package/HaskellNet-SSL) for sending mails over SMTP. These aren't included in the stackage we use so we cloned them from github. This also requires [base64-string](http://hackage.haskell.org/package/base64-string) to be installed (also not on our current stackage). How to install extra packages is described [here](https://github.com/lambdacms/lambdacms-core#other-packages).
 
- 
-HaskellNet comes with it's own `sendMail` which has the signature: 
+
+HaskellNet comes with it's own `sendMail` which has the signature:
 
 ```haskell
 sendMail :: String     -- ^ sender mail

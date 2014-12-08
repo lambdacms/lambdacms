@@ -1,7 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE RankNTypes        #-}
+{-# LANGUAGE TemplateHaskell   #-}
 
+
+-- |
+-- A collection of helper functions to get to static resources.
 module LambdaCms.Core.Handler.Static
        ( getNormalizeR
        , getBootstrapCssR
@@ -13,9 +16,9 @@ module LambdaCms.Core.Handler.Static
        , getGlyphiconsSvgR
        ) where
 
-import Data.FileEmbed (embedFile)
-import Data.ByteString (ByteString)
-import LambdaCms.Core.Import
+import           Data.ByteString       (ByteString)
+import           Data.FileEmbed        (embedFile)
+import           LambdaCms.Core.Import
 
 getStaticFile :: ByteString -> ByteString -> CoreHandler TypedContent
 getStaticFile mime efile = return $ TypedContent mime

@@ -1,17 +1,17 @@
 module LambdaCms.Core.Settings where
 
-import Prelude
-import Language.Haskell.TH.Syntax
-import Yesod.Default.Util
-import Data.Default (def)
-import Text.Hamlet
+import           Data.Default               (def)
+import           Language.Haskell.TH.Syntax
+import           Prelude
+import           Text.Hamlet
+import           Yesod.Default.Util
 
 widgetFileSettings :: WidgetFileSettings
 widgetFileSettings = def
-  { wfsHamletSettings = defaultHamletSettings
-      { hamletNewlines = AlwaysNewlines
-      }
-  }
+    { wfsHamletSettings = defaultHamletSettings
+            { hamletNewlines = AlwaysNewlines
+            }
+    }
 
 widgetFile :: String -> Q Exp
 widgetFile = widgetFileNoReload widgetFileSettings
