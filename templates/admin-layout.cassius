@@ -17,6 +17,10 @@ body > div.container-fluid > div.row
         padding: 15px 0
         border: none
         border-radius: 0
+        background-color: #333
+
+    .glyphicon
+        margin-right: 10px
 
     .nav-pills > li > a
         border-radius: 0
