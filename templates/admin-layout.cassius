@@ -31,9 +31,6 @@ body > div.container-fluid > div.row
 .display-inline
     display: inline
 
-.alert-top
-    margin-bottom: -15px
-
 .table-hover tbody tr:hover
     cursor: pointer
 
