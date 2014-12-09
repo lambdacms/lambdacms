@@ -35,7 +35,7 @@
                                             #{userName user}
                                     <td .text-right>
                                         $forall role <- roles
-                                            <span .label .label-info>#{show role}
+                                            <span .label .label-primary>#{show role}
                                     <td>#{userEmail user}
                                     <td>#{show $ utctDay $ userCreatedAt user}
                                     <td>#{humanReadableTimeI18N' hrtLocale timeNow $ userLastLogin user}

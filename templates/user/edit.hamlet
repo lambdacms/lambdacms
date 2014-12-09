@@ -27,7 +27,7 @@
                         <td>_{Msg.Roles}
                         <td .text-right>
                             $forall role <- urs
-                                <span .label .label-info>#{show role}
+                                <span .label .label-primary>#{show role}
                     <tr>
                         <td>_{Msg.CreatedOn}
                         <td .text-right>#{show $ utctDay $ userCreatedAt user}
