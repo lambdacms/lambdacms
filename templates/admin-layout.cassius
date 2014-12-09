@@ -1,11 +1,14 @@
 body > header.navbar
     border: none
 
+    .navbar-brand
+        padding-left: 37px
+
     .gravatar
         height: #{show gravatarSize}px
         width: #{show gravatarSize}px
         border-radius: #{show $ div gravatarSize 2}px
-        margin: -5px 0
+        margin: -5px 0 -5px 5px
 
 body > div.container-fluid > div.row
      margin-top: 32px
@@ -20,10 +23,24 @@ body > div.container-fluid > div.row
         background-color: #333
 
     .glyphicon
-        margin-right: 10px
+        margin-right: 5px
+        font-size: 14px
+        height: 14px
+        width: 14px
 
-    .nav-pills > li > a
-        border-radius: 0
+    .nav-pills > li
+        > a
+            border-radius: 0
+            color: #fff
+
+            &:hover, :active, :focus
+                color: #337ab7
+                background-color: #222
+
+        &.active > a
+            &:hover, :active, :focus
+                color: #fff
+                background-color: #337ab7
 
 .dropdown-toggle
     cursor: pointer
