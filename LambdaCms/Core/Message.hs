@@ -8,8 +8,8 @@ module LambdaCms.Core.Message
        , dutchMessage
        ) where
 
-import Data.Monoid (mappend)
-import Data.Text (Text)
+import           Data.Monoid (mappend)
+import           Data.Text   (Text)
 
 data CoreMessage =
     Dashboard

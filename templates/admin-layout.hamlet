@@ -37,7 +37,7 @@
                                     _{label menuItem}
         <main .col-sm-8 .col-md-9 .col-lg-10 .main-content>
             $maybe msg <- mmsg
-                <div .alert .alert-top .alert-info .alert-dismissible role=alert>
+                <div .alert .alert-info .alert-dismissible role=alert>
                     <button type=button .close data-dismiss=alert>
                         <span aria-hidden=true>&times;
                     #{msg}
