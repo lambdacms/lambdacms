@@ -53,6 +53,11 @@ body > div.container-fluid > div.row
             margin-left: 10px
             margin-bottom: 15px
 
+            .glyphicon
+                font-size: 12px
+                width: 12px
+                height: 12px
+
 .btn
     &.btn-primary, .btn-success, .btn-info, .btn-warning, .btn-danger
         color: #333
@@ -100,6 +105,8 @@ body > div.container-fluid > div.row
         .glyphicon
             float: left
             font-size: 14px
+            width: 14px
+            height: 14px
             margin: 3px 8px 0 0
 
     form
