@@ -22,4 +22,3 @@
     /new           UserAdminNewR            GET POST
     !/#UserId      UserAdminEditR           GET PATCH DELETE
     /#UserId/reset UserAdminChangePasswordR PATCH
-    /#UserId/roles UserAdminChangeRolesR    PUT

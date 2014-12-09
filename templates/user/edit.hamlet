@@ -48,12 +48,6 @@
                 <form role=form method=post action=@{r} enctype=#{enctype}>
                     <input type=hidden name=_method value=PATCH>
                     ^{formWidget}
-        $maybe r <- can (coreR $ UserAdminR $ UserAdminChangeRolesR userId) "PUT"
-            <div .form-toggle-wrapper>
-                <h2 .form-toggle data-expanded=false>_{Msg.ChangeRoles}
-                <form .roles-form role=form method=post action=@{r} enctype=#{urEnctype}>
-                    <input type=hidden name=_method value=PUT>
-                    ^{urWidget}
         $maybe r <- can (coreR $ UserAdminR $ UserAdminChangePasswordR userId) "PATCH"
             <div .form-toggle-wrapper>
                 <h2 .form-toggle data-expanded=false>_{Msg.ChangePassword}

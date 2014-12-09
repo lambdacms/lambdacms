@@ -266,6 +266,9 @@ adminLayoutSub widget = widgetToParentWidget widget >>= lift . adminLayout
 withName :: Text -> FieldSettings site -> FieldSettings site
 withName name fs = fs { fsName = Just name }
 
+withAttrs :: [(Text, Text)] -> FieldSettings site -> FieldSettings site
+withAttrs attrs fs = fs { fsAttrs = attrs }
+
 -- | Wrapper for humanReadableTimeI18N'. It uses Yesod's own i18n functionality.
 lambdaCmsHumanTimeLocale :: LambdaCmsAdmin master => HandlerT master IO HumanTimeLocale
 lambdaCmsHumanTimeLocale = do
