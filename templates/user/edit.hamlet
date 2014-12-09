@@ -9,7 +9,7 @@
     $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "DELETE"
         <form .form-inline .display-inline method=post action=@{r}>
             <input name="_method" type="hidden" value="DELETE" />
-            <button .btn .btn-danger type=submit>
+            <button .btn .btn-danger .btn-xs type=submit>
                 <span .glyphicon .glyphicon-remove>
                 _{Msg.Remove}
 <div .row>
@@ -43,17 +43,20 @@
 <div .row>
     <div .col-sm-12 .col-md-9 .col-lg-6>
         $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "PATCH"
-            <h2>_{Msg.ChangeAccountSettings}
-            <form role=form method=post action=@{r} enctype=#{enctype}>
-                <input type=hidden name=_method value=PATCH>
-                ^{formWidget}
+            <div .form-toggle-wrapper>
+                <h2 .form-toggle data-expanded=false>_{Msg.ChangeAccountSettings}
+                <form role=form method=post action=@{r} enctype=#{enctype}>
+                    <input type=hidden name=_method value=PATCH>
+                    ^{formWidget}
         $maybe r <- can (coreR $ UserAdminR $ UserAdminChangeRolesR userId) "PUT"
-            <h2>_{Msg.ChangeRoles}
-            <form .roles-form role=form method=post action=@{r} enctype=#{urEnctype}>
-                <input type=hidden name=_method value=PUT>
-                ^{urWidget}
+            <div .form-toggle-wrapper>
+                <h2 .form-toggle data-expanded=false>_{Msg.ChangeRoles}
+                <form .roles-form role=form method=post action=@{r} enctype=#{urEnctype}>
+                    <input type=hidden name=_method value=PUT>
+                    ^{urWidget}
         $maybe r <- can (coreR $ UserAdminR $ UserAdminChangePasswordR userId) "PATCH"
-            <h2>_{Msg.ChangePassword}
-            <form role=form method=post action=@{r} enctype=#{pwEnctype}>
-                <input type=hidden name=_method value=PATCH>
-                ^{pwFormWidget}
+            <div .form-toggle-wrapper>
+                <h2 .form-toggle data-expanded=false>_{Msg.ChangePassword}
+                <form role=form method=post action=@{r} enctype=#{pwEnctype}>
+                    <input type=hidden name=_method value=PATCH>
+                    ^{pwFormWidget}

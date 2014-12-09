@@ -1,2 +1,8 @@
-.roles-form label
-    margin-right: 10px
+.roles-form
+    margin-right: -50px
+
+    label
+        margin-right: 50px
+
+        input
+            margin-right: 10px
