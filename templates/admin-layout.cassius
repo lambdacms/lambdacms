@@ -128,3 +128,12 @@ body > div.container-fluid > div.row
 
     form
         padding-left: 40px
+
+.checkbox
+    margin-right: -50px
+
+    label
+        margin-right: 50px
+
+    input
+        margin-right: 10px

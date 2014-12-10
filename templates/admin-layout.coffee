@@ -4,8 +4,12 @@ do ($ = jQuery, scope = window) ->
 
     formToggles.each (index)->
       glyph = $('<span />').addClass('glyphicon')
+      btn = $(this)
+      # always open when form has errors
+      if btn.parent('.form-toggle-wrapper').find('.has-error').length
+        btn.data('expanded', true)
 
-      $(this).prepend glyph
+      btn.prepend glyph
       toggleForm this
       return
 

@@ -44,29 +44,25 @@ data ComparePassword = ComparePassword { originalPassword :: Text
                                        , confirmPassword  :: Text
                                        } deriving (Show, Eq)
 
-
-userAForm u = User
-    <$> pure            (userIdent u)
-    <*> areq textField  (bfs Msg.Username)        (Just $ userName u)
-    <*> pure            (userPassword u)
-    <*> areq emailField (bfs Msg.EmailAddress)   (Just $ userEmail u)
-    <*> pure            (userToken u)
-    <*> pure            (userCreatedAt u)
-    <*> pure            (userLastLogin u)
-
-rolesAForm rs = areq (checkboxesField roleList) (bfs Msg.Roles) (Just $ S.toList rs)
-    where roleList = optionsPairs $ map ((T.pack . show) &&& id) [minBound .. maxBound]
-
 accountSettingsForm :: LambdaCmsAdmin master
                     => User
                     -> S.Set (Roles master)
                     -> Maybe CoreMessage
                     -> Html
                     -> MForm (HandlerT master IO) (FormResult (User, [Roles master]), WidgetT master IO ())
-accountSettingsForm u rs label = renderBootstrap3 BootstrapBasicForm $ (,)
-    <$> userAForm u
-    <*> rolesAForm rs
-    <*  bootstrapSubmit (BootstrapSubmit (fromMaybe Msg.Submit label) " btn-success " [])
+accountSettingsForm user roles mlabel extra = do
+    -- User fields
+    (unameRes, unameView) <- mreq textField (bfs Msg.Username) (Just $ userName user)
+    (emailRes, emailView) <- mreq emailField (bfs Msg.EmailAddress) (Just $ userEmail user)
+    -- Roles field
+    (rolesRes, rolesView) <- mreq (checkboxesField roleList) "Not used" (Just $ S.toList roles)
+    let userRes = (\un ue -> user { userName = un, userEmail = ue })
+                  <$> unameRes
+                  <*> emailRes
+        formRes = (,) <$> userRes <*> rolesRes
+        widget = $(widgetFile "user/settings-form")
+    return (formRes, widget)
+    where roleList = optionsPairs $ map ((T.pack . show) &&& id) [minBound .. maxBound]
 
 -- | Webform for changing a user's password.
 userChangePasswordForm :: Maybe Text -> Maybe CoreMessage -> CoreForm ComparePassword
