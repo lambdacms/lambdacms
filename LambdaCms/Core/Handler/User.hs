@@ -79,8 +79,8 @@ userChangePasswordForm original submit = renderBootstrap3 BootstrapBasicForm $ C
             | otherwise = Left Msg.PasswordTooShort
 
         comparePasswords pw
-           | pw == fromMaybe "" original = Right pw
-           | otherwise = Left Msg.PasswordMismatch
+            | pw == fromMaybe "" original = Right pw
+            | otherwise = Left Msg.PasswordMismatch
 
 -- | Helper to create a user with email address.
 generateUserWithEmail :: Text -> IO User
