@@ -5,7 +5,7 @@ User
     email Text
     token Text Maybe
     createdAt UTCTime
-    lastLogin UTCTime
+    lastLogin UTCTime Maybe
     UniqueUser ident
     UniqueName name
     UniqueEmail email

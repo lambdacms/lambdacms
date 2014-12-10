@@ -38,4 +38,8 @@
                                             <span .label .label-primary>#{show role}
                                     <td>#{userEmail user}
                                     <td>#{show $ utctDay $ userCreatedAt user}
-                                    <td>#{humanReadableTimeI18N' hrtLocale timeNow $ userLastLogin user}
+                                    <td>
+                                        $maybe ll <- userLastLogin user
+                                            #{humanReadableTimeI18N' hrtLocale timeNow $ ll}
+                                        $nothing
+                                            -

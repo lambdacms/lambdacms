@@ -33,7 +33,11 @@
                         <td .text-right>#{show $ utctDay $ userCreatedAt user}
                     <tr>
                         <td>_{Msg.LastLogin}
-                        <td .text-right>#{humanReadableTimeI18N' hrtLocale timeNow $ userLastLogin user}
+                        <td .text-right>
+                            $maybe ll <- userLastLogin user
+                                #{humanReadableTimeI18N' hrtLocale timeNow $ ll}
+                            $nothing
+                                -
                     <tr>
                         <td>_{Msg.AccountStatus}
                         $maybe ut <- userToken user

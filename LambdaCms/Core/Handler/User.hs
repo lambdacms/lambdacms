@@ -94,7 +94,7 @@ generateUserWithEmail e = do
                   , userEmail     = e
                   , userToken     = Just token
                   , userCreatedAt = timeNow
-                  , userLastLogin = timeNow
+                  , userLastLogin = Nothing
                   }
 
 -- | Helper to create an empty user.
