@@ -167,7 +167,7 @@ postUserAdminNewR = do
 
                     _ <- liftIO $ sendAccountActivationToken y user bodyText bodyHtml
                     lift $ setMessageI Msg.SuccessCreate
-                    redirectUltDest $ UserAdminR $ UserAdminEditR userId
+                    redirectUltDest $ UserAdminR UserAdminIndexR
                 Nothing -> error "No token found."
         _ -> lift $ do
             can <- getCan
