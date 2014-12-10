@@ -43,7 +43,6 @@ library
                   , yesod
                   , yesod-auth
                   , yesod-form
-                  , yesod-form-nl
                   , persistent
                   , text
                   , shakespeare
