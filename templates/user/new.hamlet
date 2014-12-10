@@ -7,7 +7,7 @@
 <div .page-header>
     <h1>_{Msg.NewUser}
 <div .row>
-    <div .col-sm-10 .col-md-7 .col-lg-4>
+    <div .col-sm-12 .col-md-9 .col-lg-6>
         $maybe r <- can (coreR $ UserAdminR UserAdminNewR) "POST"
             <form method=post action=@{r} enctype=#{enctype}>
                 ^{formWidget}
