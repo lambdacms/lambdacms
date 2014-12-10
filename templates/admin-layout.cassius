@@ -1,3 +1,6 @@
+html, body
+    height: 100%
+
 body > header.navbar
     border: none
 
@@ -11,7 +14,13 @@ body > header.navbar
         margin: -5px 0 -5px 5px
 
 body > div.container-fluid > div.row
-     margin-top: 32px
+    margin-top: 32px
+
+.main-nav-back
+    position: fixed
+    top: 0
+    bottom: 0
+    background-color: #333
 
 .main-nav
     padding: 0

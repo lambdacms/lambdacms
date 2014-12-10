@@ -26,6 +26,7 @@
                                         _{Msg.Logout}
 <div .container-fluid>
     <div .row>
+        <div .col-sm-4 .col-md-3 .col-lg-2 .hidden-xs .main-nav-back>
         <div .col-sm-4 .col-md-3 .col-lg-2 .main-nav>
             $if not $ null am
                 <nav .navbar role=navigation>
