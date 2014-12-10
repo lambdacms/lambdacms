@@ -20,7 +20,6 @@ module LambdaCms.Core.Handler.User
   , postUserAdminActivateR
   ) where
 
-import           LambdaCms.Core.AuthHelper
 import           LambdaCms.Core.Import
 import           LambdaCms.Core.Message        (CoreMessage)
 import qualified LambdaCms.Core.Message        as Msg
