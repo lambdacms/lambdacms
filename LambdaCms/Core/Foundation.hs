@@ -193,18 +193,17 @@ class ( YesodAuth master
 
     -- | A default way of sending email. See <https://github.com/lambdacms/lambdacms-core/blob/master/sending-emails.md github> for details.
     -- The default is to print it all to stdout.
-    lambdaCmsSendMail :: master -> Mail -> IO ()
-    lambdaCmsSendMail _ (Mail from tos ccs bccs headers parts) =
-        putStrLn . unpack $
-        "MAIL"
-        <> "\n  From: "        <> (address from)
-        <> "\n  To: "          <> (maddress tos)
-        <> "\n  Cc: "          <> (maddress ccs)
-        <> "\n  Bcc: "         <> (maddress bccs)
-        <> "\n  Subject: "     <> subject
-        <> "\n  Attachment: "  <> attachment
-        <> "\n  Plain body: "  <> plainBody
-        <> "\n  Html body: "   <> htmlBody
+    lambdaCmsSendMail :: Mail -> HandlerT master IO ()
+    lambdaCmsSendMail (Mail from tos ccs bccs headers parts) =
+        liftIO . putStrLn . unpack $ "MAIL"
+            <> "\n  From: "        <> (address from)
+            <> "\n  To: "          <> (maddress tos)
+            <> "\n  Cc: "          <> (maddress ccs)
+            <> "\n  Bcc: "         <> (maddress bccs)
+            <> "\n  Subject: "     <> subject
+            <> "\n  Attachment: "  <> attachment
+            <> "\n  Plain body: "  <> plainBody
+            <> "\n  Html body: "   <> htmlBody
         where
             subject = Data.Text.concat . map snd $ filter (\(k,_) -> k == "Subject") headers
             attachment :: Text

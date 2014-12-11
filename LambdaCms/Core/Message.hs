@@ -24,6 +24,9 @@ data CoreMessage =
   | ChangeAccountSettings
   | ChangeRoles
   | ChangePassword
+  | ResetPassword
+  | RequestResetToken
+  | PasswordResetTokenSend
   | PasswordTooShort
   | PasswordMismatch
   | Username
@@ -36,11 +39,17 @@ data CoreMessage =
   | Change
   | Back
   | Remove
+  | Disable
+  | Enable
+  | UserDisabled
+  | UserEnabled
+  | UserStillPending
   | CreatedOn
   | LastLogin
   | AccountStatus
-  | AccountActivationPending
-  | AccountActivationSuccess
+  | AccountPending
+  | AccountActive
+  | AccountInactive
   | AccountAlreadyActivated
   | TokenMismatch
   | NoUsersFound
@@ -81,6 +90,9 @@ englishMessage (EditUser name)          = name
 englishMessage ChangeAccountSettings    = "Modify account settings"
 englishMessage ChangeRoles              = "Select roles"
 englishMessage ChangePassword           = "Change password"
+englishMessage ResetPassword            = "Reset password"
+englishMessage RequestResetToken        = "Request password reset"
+englishMessage PasswordResetTokenSend   = "Password reset link send"
 englishMessage PasswordTooShort         = "Password is too short"
 englishMessage PasswordMismatch         = "Passwords don't match"
 englishMessage Username                 = "Username"
@@ -93,11 +105,17 @@ englishMessage Submit                   = "Submit"
 englishMessage Change                   = "Change"
 englishMessage Back                     = "Back"
 englishMessage Remove                   = "Remove"
+englishMessage Disable                  = "Deactivate"
+englishMessage Enable                   = "Activate"
+englishMessage UserDisabled             = "User deactivated"
+englishMessage UserEnabled              = "User activated"
+englishMessage UserStillPending         = "Can't perform action user is still pending"
 englishMessage CreatedOn                = "Created on"
 englishMessage LastLogin                = "Last login"
 englishMessage AccountStatus            = "Account status"
-englishMessage AccountActivationPending = "Pending"
-englishMessage AccountActivationSuccess = "Activated"
+englishMessage AccountPending           = "Pending"
+englishMessage AccountActive            = "Active"
+englishMessage AccountInactive          = "Inactive"
 englishMessage AccountAlreadyActivated  = "This account is already activated"
 englishMessage TokenMismatch            = "Invalid token"
 englishMessage NoUsersFound             = "No users found."
@@ -135,6 +153,9 @@ dutchMessage (EditUser name)          = name
 dutchMessage ChangeAccountSettings    = "Pas accountinstellingen aan"
 dutchMessage ChangeRoles              = "Rollen selecteren"
 dutchMessage ChangePassword           = "Wachtwoord wijzigen"
+dutchMessage ResetPassword            = "Wachtwoord wijzigen"
+dutchMessage RequestResetToken        = "Aanvraag doen om wachtwoord te wijzigen"
+dutchMessage PasswordResetTokenSend   = "Link om wachtwoord te wijzigen verzonden"
 dutchMessage PasswordTooShort         = "Wachtwoord te kort"
 dutchMessage PasswordMismatch         = "Wachtwoorden komen niet overeen"
 dutchMessage Username                 = "Gebruikersnaam"
@@ -147,11 +168,17 @@ dutchMessage Submit                   = "Verzenden"
 dutchMessage Change                   = "Aanpassen"
 dutchMessage Back                     = "Terug"
 dutchMessage Remove                   = "Verwijderen"
+dutchMessage Disable                  = "Deactiveren"
+dutchMessage Enable                   = "Activeren"
+dutchMessage UserDisabled             = "Gebruiker gedeactifeerd"
+dutchMessage UserEnabled              = "Gebruiker geactiveerd"
+dutchMessage UserStillPending         = "Kan actie niet voltooien omdat de gebruiker nog in afwachting is"
 dutchMessage CreatedOn                = "Geregistreerd op"
 dutchMessage LastLogin                = "Laatst ingelogd"
 dutchMessage AccountStatus            = "Account status"
-dutchMessage AccountActivationPending = "In afwachting"
-dutchMessage AccountActivationSuccess = "Geactiveerd"
+dutchMessage AccountPending           = "In afwachting"
+dutchMessage AccountActive            = "Actief"
+dutchMessage AccountInactive          = "Inactief"
 dutchMessage AccountAlreadyActivated  = "Dit account is al geactiveerd"
 dutchMessage TokenMismatch            = "Ongeldig token"
 dutchMessage NoUsersFound             = "Geen gebruikers gevonden."
