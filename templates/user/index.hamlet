@@ -44,7 +44,7 @@
                                         $if userActive user
                                             <td .text-right .text-success>_{Msg.AccountActive}
                                         $else
-                                            <td .text-right .text-error>_{Msg.AccountInactive}
+                                            <td .text-right .text-danger>_{Msg.AccountInactive}
                                     <td>#{show $ utctDay $ userCreatedAt user}
                                     <td>
                                         $maybe ll <- userLastLogin user

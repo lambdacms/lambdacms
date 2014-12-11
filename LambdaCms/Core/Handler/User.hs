@@ -17,6 +17,8 @@ module LambdaCms.Core.Handler.User
   , deleteUserAdminEditR
   , chngpwdUserAdminEditR
   , rqstpwdUserAdminEditR
+  , disableUserAdminEditR
+  , enableUserAdminEditR
   , getUserAdminActivateR
   , postUserAdminActivateR
   ) where
@@ -277,23 +279,47 @@ rqstpwdUserAdminEditR userId = do
     lift $ setMessageI Msg.PasswordResetTokenSend
     redirectUltDest . UserAdminR $ UserAdminEditR userId
 
+disableUserAdminEditR :: UserId -> CoreHandler Html
+disableUserAdminEditR userId = do
+    user' <- lift . runDB $ get404 userId
+    case userToken user' of
+        Nothing -> do
+            let user = user' { userActive = False }
+
+            _ <- lift . runDB $ replace userId user
+            lift $ setMessageI Msg.UserDisabled
+        _ -> lift $ setMessageI Msg.UserStillPending
+    redirectUltDest . UserAdminR $ UserAdminEditR userId
+
+enableUserAdminEditR :: UserId -> CoreHandler Html
+enableUserAdminEditR userId = do
+    user' <- lift . runDB $ get404 userId
+    case userToken user' of
+        Nothing -> do
+            let user = user' { userActive = True }
+
+            _ <- lift . runDB $ replace userId user
+            lift $ setMessageI Msg.UserEnabled
+        _ -> lift $ setMessageI Msg.UserStillPending
+    redirectUltDest . UserAdminR $ UserAdminEditR userId
+
 -- | Delete an existing user.
 -- TODO: Don\'t /actually/ delete the DB record!
 deleteUserAdminEditR :: UserId -> CoreHandler Html
 deleteUserAdminEditR userId = do
     lift $ do
-        user <- runDB $ get404 userId
+        user' <- runDB $ get404 userId
         timeNow <- liftIO getCurrentTime
         uuid <- liftIO generateUUID
         let random = T.takeWhile (/= '-') uuid
-        let deletedUser = user
-                          { userEmail = random <> "@@@" <> (userEmail user)
-                          , userToken = Nothing
-                          , userActive = False
-                          , userDeletedAt = Just timeNow
-                          }
+        let user = user'
+                 { userEmail = random <> "@@@" <> (userEmail user')
+                 , userToken = Nothing
+                 , userActive = False
+                 , userDeletedAt = Just timeNow
+                 }
 
-        _ <- runDB $ replace userId deletedUser
+        _ <- runDB $ replace userId user
         setMessageI Msg.SuccessDelete
     redirectUltDest $ UserAdminR UserAdminIndexR
 
@@ -304,13 +330,13 @@ getUserAdminActivateR userId token = do
     case validateUserToken user token of
         Just True -> do
             (pwFormWidget, pwEnctype) <- lift . generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change)
-            lift . adminLayout $ do
+            lift . defaultLayout $ do
                 setTitle . toHtml $ userName user
                 $(widgetFile "user/activate")
-        Just False -> lift . adminLayout $ do
+        Just False -> lift . defaultLayout $ do
             setTitleI Msg.TokenMismatch
             $(widgetFile "user/tokenmismatch")
-        Nothing -> lift . adminLayout $ do
+        Nothing -> lift . defaultLayout $ do
             setTitleI Msg.AccountAlreadyActivated
             $(widgetFile "user/account-already-activated")
 
@@ -324,16 +350,19 @@ postUserAdminActivateR userId token = do
             ((formResult, pwFormWidget), pwEnctype) <- lift . runFormPost $ userChangePasswordForm opw (Just Msg.Change)
             case formResult of
                 FormSuccess f -> do
-                    _ <- lift . runDB $ update userId [UserPassword =. Just (originalPassword f), UserToken =. Nothing]
+                    _ <- lift . runDB $ update userId [ UserPassword =. Just (originalPassword f)
+                                                      , UserToken =. Nothing
+                                                      , UserActive =. True
+                                                      ]
                     setMessage "Msg: Successfully activated"
                     redirect $ AdminHomeR
                 _ -> do
-                    lift . adminLayout $ do
+                    lift . defaultLayout $ do
                         setTitle . toHtml $ userName user
                         $(widgetFile "user/activate")
-        Just False -> lift . adminLayout $ do
+        Just False -> lift . defaultLayout $ do
             setTitleI Msg.TokenMismatch
             $(widgetFile "user/tokenmismatch")
-        Nothing -> lift . adminLayout $ do
+        Nothing -> lift . defaultLayout $ do
             setTitleI Msg.AccountAlreadyActivated
             $(widgetFile "user/account-already-activated")

@@ -20,4 +20,4 @@
 /users             UserAdminR:
     /              UserAdminIndexR          GET
     /new           UserAdminNewR            GET POST
-    !/#UserId      UserAdminEditR           GET PATCH DELETE CHNGPWD RQSTPWD
+    !/#UserId      UserAdminEditR           GET PATCH DELETE CHNGPWD RQSTPWD DISABLE ENABLE

@@ -39,6 +39,11 @@ data CoreMessage =
   | Change
   | Back
   | Remove
+  | Disable
+  | Enable
+  | UserDisabled
+  | UserEnabled
+  | UserStillPending
   | CreatedOn
   | LastLogin
   | AccountStatus
@@ -100,6 +105,11 @@ englishMessage Submit                   = "Submit"
 englishMessage Change                   = "Change"
 englishMessage Back                     = "Back"
 englishMessage Remove                   = "Remove"
+englishMessage Disable                  = "Deactivate"
+englishMessage Enable                   = "Activate"
+englishMessage UserDisabled             = "User deactivated"
+englishMessage UserEnabled              = "User activated"
+englishMessage UserStillPending         = "Can't perform action user is still pending"
 englishMessage CreatedOn                = "Created on"
 englishMessage LastLogin                = "Last login"
 englishMessage AccountStatus            = "Account status"
@@ -158,6 +168,11 @@ dutchMessage Submit                   = "Verzenden"
 dutchMessage Change                   = "Aanpassen"
 dutchMessage Back                     = "Terug"
 dutchMessage Remove                   = "Verwijderen"
+dutchMessage Disable                  = "Deactiveren"
+dutchMessage Enable                   = "Activeren"
+dutchMessage UserDisabled             = "Gebruiker gedeactifeerd"
+dutchMessage UserEnabled              = "Gebruiker geactiveerd"
+dutchMessage UserStillPending         = "Kan actie niet voltooien omdat de gebruiker nog in afwachting is"
 dutchMessage CreatedOn                = "Geregistreerd op"
 dutchMessage LastLogin                = "Laatst ingelogd"
 dutchMessage AccountStatus            = "Account status"
