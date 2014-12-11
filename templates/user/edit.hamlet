@@ -14,19 +14,19 @@
                 _{Msg.Remove}
     $if (userToken user) == Nothing
         $if userActive user
-            $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "DISABLE"
+            $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "DEACTIVATE"
                 <form .form-inline .display-inline method=post action=@{r}>
-                    <input name="_method" type="hidden" value="DISABLE" />
+                    <input name=_method type=hidden value=DEACTIVATE />
                     <button .btn .btn-warning .btn-xs type=submit>
                         <span .glyphicon .glyphicon-ban-circle>
-                        _{Msg.Disable}
+                        _{Msg.Deactivate}
         $else
-            $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "ENABLE"
+            $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "ACTIVATE"
                 <form .form-inline .display-inline method=post action=@{r}>
-                    <input name="_method" type="hidden" value="ENABLE" />
+                    <input name=_method type=hidden value=ACTIVATE />
                     <button .btn .btn-success .btn-xs type=submit>
                         <span .glyphicon .glyphicon-ok-circle>
-                        _{Msg.Enable}
+                        _{Msg.Activate}
 <div .row>
     <div .col-sm-12 .col-md-9 .col-lg-6>
         <div .table-responsive>
@@ -72,16 +72,16 @@
                     ^{formWidget}
         $if (userActive user) || (isJust $ userToken user)
             $if authId == userId
-                $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "CHNGPWD"
+                $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "CHPASS"
                     <div .form-toggle-wrapper>
                         <h2 .form-toggle data-expanded=false>_{Msg.ChangePassword}
                         <form role=form method=post action=@{r} enctype=#{pwEnctype}>
-                            <input type=hidden name=_method value=CHNGPWD>
+                            <input type=hidden name=_method value=CHPASS>
                             ^{pwFormWidget}
             $else
-                $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "RQSTPWD"
+                $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "RQPASS"
                     <div .form-toggle-wrapper>
                         <h2 .form-toggle data-expanded=false>_{Msg.ResetPassword}
                         <form role=form method=post action=@{r}>
-                            <input type=hidden name=_method value=RQSTPWD>
+                            <input type=hidden name=_method value=RQPASS>
                             <button .btn .btn-success type=submit>_{Msg.RequestResetToken}

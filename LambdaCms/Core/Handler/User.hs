@@ -15,10 +15,10 @@ module LambdaCms.Core.Handler.User
   , getUserAdminEditR
   , patchUserAdminEditR
   , deleteUserAdminEditR
-  , chngpwdUserAdminEditR
-  , rqstpwdUserAdminEditR
-  , disableUserAdminEditR
-  , enableUserAdminEditR
+  , chpassUserAdminEditR
+  , rqpassUserAdminEditR
+  , deactivateUserAdminEditR
+  , activateUserAdminEditR
   , getUserAdminActivateR
   , postUserAdminActivateR
   ) where
@@ -241,8 +241,8 @@ patchUserAdminEditR userId = do
                 $(widgetFile "user/edit")
 
 -- | Edit password of an existing user.
-chngpwdUserAdminEditR :: UserId -> CoreHandler Html
-chngpwdUserAdminEditR userId = do
+chpassUserAdminEditR :: UserId -> CoreHandler Html
+chpassUserAdminEditR userId = do
     authId <- lift requireAuthId
     case userId == authId of
         True -> do
@@ -265,8 +265,8 @@ chngpwdUserAdminEditR userId = do
                         $(widgetFile "user/edit")
         False -> error "Can't change this uses password"
 
-rqstpwdUserAdminEditR :: UserId -> CoreHandler Html
-rqstpwdUserAdminEditR userId = do
+rqpassUserAdminEditR :: UserId -> CoreHandler Html
+rqpassUserAdminEditR userId = do
     user' <- lift . runDB $ get404 userId
     token <- liftIO generateActivationToken
     let user = user'
@@ -279,27 +279,27 @@ rqstpwdUserAdminEditR userId = do
     lift $ setMessageI Msg.PasswordResetTokenSend
     redirectUltDest . UserAdminR $ UserAdminEditR userId
 
-disableUserAdminEditR :: UserId -> CoreHandler Html
-disableUserAdminEditR userId = do
+deactivateUserAdminEditR :: UserId -> CoreHandler Html
+deactivateUserAdminEditR userId = do
     user' <- lift . runDB $ get404 userId
     case userToken user' of
         Nothing -> do
             let user = user' { userActive = False }
 
             _ <- lift . runDB $ replace userId user
-            lift $ setMessageI Msg.UserDisabled
+            lift $ setMessageI Msg.UserDeactivated
         _ -> lift $ setMessageI Msg.UserStillPending
     redirectUltDest . UserAdminR $ UserAdminEditR userId
 
-enableUserAdminEditR :: UserId -> CoreHandler Html
-enableUserAdminEditR userId = do
+activateUserAdminEditR :: UserId -> CoreHandler Html
+activateUserAdminEditR userId = do
     user' <- lift . runDB $ get404 userId
     case userToken user' of
         Nothing -> do
             let user = user' { userActive = True }
 
             _ <- lift . runDB $ replace userId user
-            lift $ setMessageI Msg.UserEnabled
+            lift $ setMessageI Msg.UserActivated
         _ -> lift $ setMessageI Msg.UserStillPending
     redirectUltDest . UserAdminR $ UserAdminEditR userId
 

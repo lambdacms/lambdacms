@@ -21,7 +21,7 @@ import qualified Data.Set                   as S (null)
 import           Data.Text                  (Text, concat, intercalate, pack,
                                              unpack)
 import           Data.Text.Encoding         (decodeUtf8)
-import           Data.Time                  (utc)
+import           Data.Time                  (utc, getCurrentTime)
 import           Data.Time.Format.Human
 import           Data.Traversable           (forM)
 import           Database.Persist.Sql       (SqlBackend)
@@ -218,6 +218,27 @@ class ( YesodAuth master
                                         Just n' -> n' <> " " <> e'
                                         Nothing -> e'
                 where e' = "<" <> e <> ">"
+
+getLambdaCmsAuthId :: LambdaCmsAdmin master => Creds master -> HandlerT master IO (Maybe (AuthId master))
+getLambdaCmsAuthId creds = runDB $ do
+    user <- getBy $ UniqueAuth (credsIdent creds) True
+    case user of
+        Just (Entity uid _) -> do
+            timeNow <- liftIO getCurrentTime
+            _ <- update uid [UserLastLogin =. Just timeNow]
+            return $ Just uid
+        Nothing -> return Nothing
+
+lambdaCmsMaybeAuthId :: LambdaCmsAdmin master => HandlerT master IO (Maybe (AuthId master))
+lambdaCmsMaybeAuthId = do
+    mauthId <- defaultMaybeAuthId
+    maybe (return Nothing) maybeActiveAuthId mauthId
+    where
+        maybeActiveAuthId authId = do
+            user <- runDB $ get404 authId
+            return $ case userActive user of
+                True -> Just authId
+                False -> Nothing
 
 -- | Checks whether a user is allowed perform an action and returns the route to that action if he is.
 -- This way, users only see routes they're allowed to visit.
