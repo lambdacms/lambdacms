@@ -39,8 +39,9 @@ data CoreMessage =
   | CreatedOn
   | LastLogin
   | AccountStatus
-  | AccountActivationPending
-  | AccountActivationSuccess
+  | AccountPending
+  | AccountActive
+  | AccountInactive
   | AccountAlreadyActivated
   | TokenMismatch
   | NoUsersFound
@@ -96,8 +97,9 @@ englishMessage Remove                   = "Remove"
 englishMessage CreatedOn                = "Created on"
 englishMessage LastLogin                = "Last login"
 englishMessage AccountStatus            = "Account status"
-englishMessage AccountActivationPending = "Pending"
-englishMessage AccountActivationSuccess = "Activated"
+englishMessage AccountPending           = "Pending"
+englishMessage AccountActive            = "Active"
+englishMessage AccountInactive          = "Inactive"
 englishMessage AccountAlreadyActivated  = "This account is already activated"
 englishMessage TokenMismatch            = "Invalid token"
 englishMessage NoUsersFound             = "No users found."
@@ -150,8 +152,9 @@ dutchMessage Remove                   = "Verwijderen"
 dutchMessage CreatedOn                = "Geregistreerd op"
 dutchMessage LastLogin                = "Laatst ingelogd"
 dutchMessage AccountStatus            = "Account status"
-dutchMessage AccountActivationPending = "In afwachting"
-dutchMessage AccountActivationSuccess = "Geactiveerd"
+dutchMessage AccountPending           = "In afwachting"
+dutchMessage AccountActive            = "Actief"
+dutchMessage AccountInactive          = "Inactief"
 dutchMessage AccountAlreadyActivated  = "Dit account is al geactiveerd"
 dutchMessage TokenMismatch            = "Ongeldig token"
 dutchMessage NoUsersFound             = "Geen gebruikers gevonden."

@@ -41,9 +41,12 @@
                     <tr>
                         <td>_{Msg.AccountStatus}
                         $maybe ut <- userToken user
-                            <td .text-right .text-warning>_{Msg.AccountActivationPending}
+                            <td .text-right .text-warning>_{Msg.AccountPending}
                         $nothing
-                            <td .text-right .text-success>_{Msg.AccountActivationSuccess}
+                            $if userActive user
+                                <td .text-right .text-success>_{Msg.AccountActive}
+                            $else
+                                <td .text-right .text-error>_{Msg.AccountInactive}
 <div .row>
     <div .col-sm-12 .col-md-9 .col-lg-6>
         $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "PATCH"

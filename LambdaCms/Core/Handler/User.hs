@@ -27,7 +27,7 @@ import           LambdaCms.I18n
 import           Yesod                         (Route)
 
 import qualified Data.Text                     as T (breakOn, concat, length,
-                                                     pack)
+                                                     pack, takeWhile)
 import qualified Data.Text.Lazy                as LT (Text)
 import           Data.Time.Format
 
@@ -93,9 +93,11 @@ generateUserWithEmail e = do
                   , userName      = fst $ T.breakOn "@" e
                   , userPassword  = Nothing
                   , userEmail     = e
+                  , userActive    = False
                   , userToken     = Just token
                   , userCreatedAt = timeNow
                   , userLastLogin = Nothing
+                  , userDeletedAt = Nothing
                   }
 
 -- | Helper to create an empty user.
@@ -157,7 +159,7 @@ getUserAdminIndexR = do
     timeNow <- liftIO getCurrentTime
     lift $ do
       can <- getCan
-      (users' :: [Entity User]) <- runDB $ selectList [] []
+      (users' :: [Entity User]) <- runDB $ selectList [UserDeletedAt ==. Nothing] []
       users <- mapM (\user -> do
                        ur <- getUserRoles $ entityKey user
                        return (user, S.toList ur)
@@ -259,7 +261,17 @@ deleteUserAdminEditR :: UserId -> CoreHandler Html
 deleteUserAdminEditR userId = do
     lift $ do
         user <- runDB $ get404 userId
-        _ <- runDB $ delete userId
+        timeNow <- liftIO getCurrentTime
+        uuid <- liftIO generateUUID
+        let random = T.takeWhile (/= '-') uuid
+        let deletedUser = user
+                          { userEmail = random <> "@@@" <> (userEmail user)
+                          , userToken = Nothing
+                          , userActive = False
+                          , userDeletedAt = Just timeNow
+                          }
+
+        _ <- runDB $ replace userId deletedUser
         setMessageI Msg.SuccessDelete
     redirectUltDest $ UserAdminR UserAdminIndexR
 
