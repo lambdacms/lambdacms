@@ -24,6 +24,7 @@ import           LambdaCms.Core.Import
 import           LambdaCms.Core.Message        (CoreMessage)
 import qualified LambdaCms.Core.Message        as Msg
 import           LambdaCms.I18n
+import           Yesod                         (Route)
 
 import qualified Data.Text                     as T (breakOn, concat, length,
                                                      pack)
@@ -110,16 +111,45 @@ validateUserToken user token =
           | otherwise  -> Just False -- tokens don't match
         Nothing        -> Nothing    -- there is no token (account already actived)
 
-sendAccountActivationToken :: (LambdaCmsAdmin a) => a -> User -> LT.Text -> LT.Text -> IO ()
-sendAccountActivationToken core user body bodyHtml = do
-     mail <- simpleMail
-             (Address (Just $ userName user) (userEmail user))
-             (Address (Just "LambdaCms") "lambdacms@example.com")
-             "Account Activation"
-             (body)
-             (bodyHtml)
-             []
-     lambdaCmsSendMail core mail
+sendAccountActivationToken :: Entity User -> CoreHandler ()
+sendAccountActivationToken (Entity userId user) = case userToken user of
+    Just token -> do
+        lift $ sendMailToUser user "Account activation"
+            $(hamletFile "templates/mail/activation-text.hamlet")
+            $(hamletFile "templates/mail/activation-html.hamlet")
+    Nothing -> error "No activation token found"
+
+sendAccountResetToken :: Entity User -> CoreHandler ()
+sendAccountResetToken (Entity userId user) = case userToken user of
+    Just token -> do
+        lift $ sendMailToUser user "Account password reset"
+            $(hamletFile "templates/mail/reset-text.hamlet")
+            $(hamletFile "templates/mail/reset-html.hamlet")
+    Nothing -> error "No reset token found"
+
+sendMailToUser :: LambdaCmsAdmin master
+               => User
+               -> Text
+               -> ((Route master -> [(Text, Text)] -> Text) -> Html)
+               -> ((Route master -> [(Text, Text)] -> Text) -> Html)
+               -> HandlerT master IO ()
+sendMailToUser user subj ttemp htemp = do
+    text <- getRenderedTemplate ttemp
+    html <- getRenderedTemplate htemp
+    mail <- liftIO $ simpleMail
+            (Address (Just $ userName user) (userEmail user))
+            (Address (Just "LambdaCms") "lambdacms@example.com")
+            subj
+            text
+            html
+            []
+
+    lambdaCmsSendMail mail
+    where
+        getRenderedTemplate template = do
+            markup <- withUrlRenderer template
+            return $ renderHtml markup
+
 
 -- | User overview.
 getUserAdminIndexR :: CoreHandler Html
@@ -155,20 +185,11 @@ postUserAdminNewR = do
     ((formResult, formWidget), enctype) <- lift . runFormPost $ accountSettingsForm eu S.empty (Just Msg.Create)
     case formResult of
         FormSuccess (user, roles) -> do
-            case userToken user of
-                Just token -> do
-                    userId <- lift $ runDB $ insert user
-                    lift $ setUserRoles userId (S.fromList roles)
-                    html <- lift $ withUrlRenderer $(hamletFile "templates/mail/activation-html.hamlet")
-                    text <- lift $ withUrlRenderer $(hamletFile "templates/mail/activation-text.hamlet")
-                    y <- lift getYesod
-                    let bodyHtml = renderHtml html
-                        bodyText = renderHtml text
-
-                    _ <- liftIO $ sendAccountActivationToken y user bodyText bodyHtml
-                    lift $ setMessageI Msg.SuccessCreate
-                    redirectUltDest $ UserAdminR UserAdminIndexR
-                Nothing -> error "No token found."
+            userId <- lift $ runDB $ insert user
+            lift $ setUserRoles userId (S.fromList roles)
+            _ <- sendAccountActivationToken (Entity userId user)
+            lift $ setMessageI Msg.SuccessCreate
+            redirectUltDest $ UserAdminR UserAdminIndexR
         _ -> lift $ do
             can <- getCan
             adminLayout $ do
