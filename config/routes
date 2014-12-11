@@ -20,5 +20,4 @@
 /users             UserAdminR:
     /              UserAdminIndexR          GET
     /new           UserAdminNewR            GET POST
-    !/#UserId      UserAdminEditR           GET PATCH DELETE
-    /#UserId/reset UserAdminChangePasswordR PATCH
+    !/#UserId      UserAdminEditR           GET PATCH DELETE CHNGPWD RQSTPWD

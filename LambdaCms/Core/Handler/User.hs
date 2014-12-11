@@ -15,7 +15,8 @@ module LambdaCms.Core.Handler.User
   , getUserAdminEditR
   , patchUserAdminEditR
   , deleteUserAdminEditR
-  , patchUserAdminChangePasswordR
+  , chngpwdUserAdminEditR
+  , rqstpwdUserAdminEditR
   , getUserAdminActivateR
   , postUserAdminActivateR
   ) where
@@ -25,6 +26,7 @@ import           LambdaCms.Core.Message        (CoreMessage)
 import qualified LambdaCms.Core.Message        as Msg
 import           LambdaCms.I18n
 import           Yesod                         (Route)
+import           Yesod.Auth                    (requireAuthId)
 
 import qualified Data.Text                     as T (breakOn, concat, length,
                                                      pack, takeWhile)
@@ -203,6 +205,7 @@ getUserAdminEditR :: UserId -> CoreHandler Html
 getUserAdminEditR userId = do
     timeNow <- liftIO getCurrentTime
     lift $ do
+        authId <- requireAuthId
         can <- getCan
         user <- runDB $ get404 userId
         urs <- getUserRoles userId
@@ -229,31 +232,50 @@ patchUserAdminEditR userId = do
             lift $ setMessageI Msg.SuccessReplace
             redirect $ UserAdminR $ UserAdminEditR userId
         _ -> lift $ do
+            authId <- requireAuthId
             can <- getCan
             adminLayout $ do
                 setTitleI . Msg.EditUser $ userName user
                 $(widgetFile "user/edit")
 
 -- | Edit password of an existing user.
-patchUserAdminChangePasswordR :: UserId -> CoreHandler Html
-patchUserAdminChangePasswordR userId = do
-    user <- lift . runDB $ get404 userId
-    timeNow <- liftIO getCurrentTime
-    hrtLocale <- lift lambdaCmsHumanTimeLocale
-    urs <- lift $ getUserRoles userId
-    (formWidget, enctype) <- lift . generateFormPost $ accountSettingsForm user urs (Just Msg.Save)
-    opw <- lookupPostParam "original-pw"
-    ((formResult, pwFormWidget), pwEnctype) <- lift . runFormPost $ userChangePasswordForm opw (Just Msg.Change)
-    case formResult of
-        FormSuccess f -> do
-            _ <- lift . runDB $ update userId [UserPassword =. Just (originalPassword f)]
-            lift $ setMessageI Msg.SuccessChgPwd
-            redirect $ UserAdminR $ UserAdminEditR userId
-        _ -> lift $ do
-            can <- getCan
-            adminLayout $ do
-                setTitleI . Msg.EditUser $ userName user
-                $(widgetFile "user/edit")
+chngpwdUserAdminEditR :: UserId -> CoreHandler Html
+chngpwdUserAdminEditR userId = do
+    authId <- lift requireAuthId
+    case userId == authId of
+        True -> do
+            user <- lift . runDB $ get404 userId
+            timeNow <- liftIO getCurrentTime
+            hrtLocale <- lift lambdaCmsHumanTimeLocale
+            urs <- lift $ getUserRoles userId
+            (formWidget, enctype) <- lift . generateFormPost $ accountSettingsForm user urs (Just Msg.Save)
+            opw <- lookupPostParam "original-pw"
+            ((formResult, pwFormWidget), pwEnctype) <- lift . runFormPost $ userChangePasswordForm opw (Just Msg.Change)
+            case formResult of
+                FormSuccess f -> do
+                    _ <- lift . runDB $ update userId [UserPassword =. Just (originalPassword f)]
+                    lift $ setMessageI Msg.SuccessChgPwd
+                    redirect $ UserAdminR $ UserAdminEditR userId
+                _ -> lift $ do
+                    can <- getCan
+                    adminLayout $ do
+                        setTitleI . Msg.EditUser $ userName user
+                        $(widgetFile "user/edit")
+        False -> error "Can't change this uses password"
+
+rqstpwdUserAdminEditR :: UserId -> CoreHandler Html
+rqstpwdUserAdminEditR userId = do
+    user' <- lift . runDB $ get404 userId
+    token <- liftIO generateActivationToken
+    let user = user'
+               { userToken = Just token
+               , userPassword = Nothing
+               , userActive = False
+               }
+    _ <- lift . runDB $ replace userId user
+    _ <- sendAccountResetToken (Entity userId user)
+    lift $ setMessageI Msg.PasswordResetTokenSend
+    redirectUltDest . UserAdminR $ UserAdminEditR userId
 
 -- | Delete an existing user.
 -- TODO: Don\'t /actually/ delete the DB record!

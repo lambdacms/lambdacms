@@ -24,6 +24,9 @@ data CoreMessage =
   | ChangeAccountSettings
   | ChangeRoles
   | ChangePassword
+  | ResetPassword
+  | RequestResetToken
+  | PasswordResetTokenSend
   | PasswordTooShort
   | PasswordMismatch
   | Username
@@ -82,6 +85,9 @@ englishMessage (EditUser name)          = name
 englishMessage ChangeAccountSettings    = "Modify account settings"
 englishMessage ChangeRoles              = "Select roles"
 englishMessage ChangePassword           = "Change password"
+englishMessage ResetPassword            = "Reset password"
+englishMessage RequestResetToken        = "Request password reset"
+englishMessage PasswordResetTokenSend   = "Password reset link send"
 englishMessage PasswordTooShort         = "Password is too short"
 englishMessage PasswordMismatch         = "Passwords don't match"
 englishMessage Username                 = "Username"
@@ -137,6 +143,9 @@ dutchMessage (EditUser name)          = name
 dutchMessage ChangeAccountSettings    = "Pas accountinstellingen aan"
 dutchMessage ChangeRoles              = "Rollen selecteren"
 dutchMessage ChangePassword           = "Wachtwoord wijzigen"
+dutchMessage ResetPassword            = "Wachtwoord wijzigen"
+dutchMessage RequestResetToken        = "Aanvraag doen om wachtwoord te wijzigen"
+dutchMessage PasswordResetTokenSend   = "Link om wachtwoord te wijzigen verzonden"
 dutchMessage PasswordTooShort         = "Wachtwoord te kort"
 dutchMessage PasswordMismatch         = "Wachtwoorden komen niet overeen"
 dutchMessage Username                 = "Gebruikersnaam"

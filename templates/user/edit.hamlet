@@ -55,9 +55,17 @@
                 <form role=form method=post action=@{r} enctype=#{enctype}>
                     <input type=hidden name=_method value=PATCH>
                     ^{formWidget}
-        $maybe r <- can (coreR $ UserAdminR $ UserAdminChangePasswordR userId) "PATCH"
-            <div .form-toggle-wrapper>
-                <h2 .form-toggle data-expanded=false>_{Msg.ChangePassword}
-                <form role=form method=post action=@{r} enctype=#{pwEnctype}>
-                    <input type=hidden name=_method value=PATCH>
-                    ^{pwFormWidget}
+            $if authId == userId
+                $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "CHNGPWD"
+                    <div .form-toggle-wrapper>
+                        <h2 .form-toggle data-expanded=false>_{Msg.ChangePassword}
+                        <form role=form method=post action=@{r} enctype=#{pwEnctype}>
+                            <input type=hidden name=_method value=CHNGPWD>
+                            ^{pwFormWidget}
+            $else
+                $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "RQSTPWD"
+                    <div .form-toggle-wrapper>
+                        <h2 .form-toggle data-expanded=false>_{Msg.ResetPassword}
+                        <form role=form method=post action=@{r}>
+                            <input type=hidden name=_method value=RQSTPWD>
+                            <button .btn .btn-success type=submit>_{Msg.RequestResetToken}
