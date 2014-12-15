@@ -39,6 +39,7 @@ data CoreMessage =
   | Submit
   | Change
   | Back
+  | BackHome
   | Remove
   | Deactivate
   | Activate
@@ -52,6 +53,7 @@ data CoreMessage =
   | AccountActive
   | AccountInactive
   | AccountAlreadyActivated
+  | ActivationSuccess
   | TokenMismatch
   | NoUsersFound
   | SuccessCreate
@@ -106,6 +108,7 @@ englishMessage Save                     = "Save"
 englishMessage Submit                   = "Submit"
 englishMessage Change                   = "Change"
 englishMessage Back                     = "Back"
+englishMessage BackHome                 = "back to homepage"
 englishMessage Remove                   = "Remove"
 englishMessage Deactivate               = "Deactivate"
 englishMessage Activate                 = "Activate"
@@ -119,6 +122,7 @@ englishMessage AccountPending           = "Pending"
 englishMessage AccountActive            = "Active"
 englishMessage AccountInactive          = "Inactive"
 englishMessage AccountAlreadyActivated  = "This account is already activated"
+englishMessage ActivationSuccess        = "Account successfully activated"
 englishMessage TokenMismatch            = "Invalid token"
 englishMessage NoUsersFound             = "No users found."
 englishMessage SuccessCreate            = "successfully created"
@@ -170,6 +174,7 @@ dutchMessage Save                     = "Opslaan"
 dutchMessage Submit                   = "Verzenden"
 dutchMessage Change                   = "Aanpassen"
 dutchMessage Back                     = "Terug"
+dutchMessage BackHome                 = "terug naar homepagina"
 dutchMessage Remove                   = "Verwijderen"
 dutchMessage Deactivate               = "Deactiveren"
 dutchMessage Activate                 = "Activeren"
@@ -183,6 +188,7 @@ dutchMessage AccountPending           = "In afwachting"
 dutchMessage AccountActive            = "Actief"
 dutchMessage AccountInactive          = "Inactief"
 dutchMessage AccountAlreadyActivated  = "Dit account is al geactiveerd"
+dutchMessage ActivationSuccess        = "Account succesvol geactiveerd"
 dutchMessage TokenMismatch            = "Ongeldig token"
 dutchMessage NoUsersFound             = "Geen gebruikers gevonden."
 dutchMessage SuccessCreate            = "Succesvol aangemaakt"

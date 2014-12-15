@@ -13,6 +13,9 @@
         /glyphicons-halflings-regular.eot  GlyphiconsEotR  GET
         /glyphicons-halflings-regular.svg  GlyphiconsSvgR  GET
 
+    /img                    ImageAdminR:
+        /lambdacms-logo.png LambdaCmsLogoR GET
+
 /                       AdminHomeR         GET
 /activate/#UserId/#Text UserAdminActivateR GET POST
 

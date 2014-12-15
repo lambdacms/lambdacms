@@ -155,22 +155,28 @@ class ( YesodAuth master
                     }
 
         pc <- widgetToPageContent $ do
-          addStylesheet $ coreR $ AdminStaticR $ CssAdminR NormalizeR
-          addStylesheet $ coreR $ AdminStaticR $ CssAdminR BootstrapCssR
-          addScript $ coreR $ AdminStaticR $ JsAdminR JQueryR
-          addScript $ coreR $ AdminStaticR $ JsAdminR BootstrapJsR
-          $(widgetFile "admin-layout")
+            addStylesheet $ coreR $ AdminStaticR $ CssAdminR NormalizeR
+            addStylesheet $ coreR $ AdminStaticR $ CssAdminR BootstrapCssR
+            addScript $ coreR $ AdminStaticR $ JsAdminR JQueryR
+            addScript $ coreR $ AdminStaticR $ JsAdminR BootstrapJsR
+            $(widgetFile "admin-layout")
         withUrlRenderer $(hamletFile "templates/admin-layout-wrapper.hamlet")
 
-    defaultLambdaCmsAdminAuthLayout :: WidgetT master IO () -> HandlerT master IO Html
-    defaultLambdaCmsAdminAuthLayout widget = do
-        p <- widgetToPageContent $ do
-            widget
-            toWidget $(luciusFile "templates/adminauthlayout.lucius")
-            toWidget $(juliusFile "templates/adminauthlayout.julius")
+    adminAuthLayout :: WidgetT master IO () -> HandlerT master IO Html
+    adminAuthLayout widget = do
         mmsg <- getMessage
-        withUrlRenderer $(hamletFile "templates/adminauthlayout.hamlet")
+        logoRowId <- newIdent
 
+        pc <- widgetToPageContent $ do
+            addStylesheet $ coreR $ AdminStaticR $ CssAdminR NormalizeR
+            addStylesheet $ coreR $ AdminStaticR $ CssAdminR BootstrapCssR
+            addScript $ coreR $ AdminStaticR $ JsAdminR JQueryR
+            addScript $ coreR $ AdminStaticR $ JsAdminR BootstrapJsR
+            $(widgetFile "admin-auth-layout")
+        withUrlRenderer $(hamletFile "templates/admin-auth-layout-wrapper.hamlet")
+
+    authLogoR :: Route master
+    authLogoR = coreR $ AdminStaticR $ ImageAdminR LambdaCmsLogoR
     -- | A list of menu items to show in the backend.
     -- Each site is different so what goes in the list should be provided by the Base app.
     --

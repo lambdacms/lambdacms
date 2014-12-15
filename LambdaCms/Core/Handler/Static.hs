@@ -14,6 +14,7 @@ module LambdaCms.Core.Handler.Static
        , getGlyphiconsTtfR
        , getGlyphiconsEotR
        , getGlyphiconsSvgR
+       , getLambdaCmsLogoR
        ) where
 
 import           Data.ByteString       (ByteString)
@@ -47,3 +48,6 @@ getGlyphiconsEotR = getStaticFile "application/font-eot" $(embedFile "static/fon
 
 getGlyphiconsSvgR :: CoreHandler TypedContent
 getGlyphiconsSvgR = getStaticFile "image/svg+xml" $(embedFile "static/fonts/glyphicons.svg")
+
+getLambdaCmsLogoR :: CoreHandler TypedContent
+getLambdaCmsLogoR = getStaticFile "image/png" $(embedFile "static/img/logo.png")

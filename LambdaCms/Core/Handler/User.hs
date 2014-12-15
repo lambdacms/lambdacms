@@ -24,7 +24,7 @@ import           LambdaCms.Core.Message        (CoreMessage)
 import qualified LambdaCms.Core.Message        as Msg
 import           LambdaCms.I18n
 import           Yesod                         (Route)
-import           Yesod.Auth                    (requireAuthId)
+import           Yesod.Auth                    (Creds (..), requireAuthId, setCreds)
 
 import qualified Data.Text                     as T (breakOn, concat, length,
                                                      pack, takeWhile)
@@ -334,14 +334,14 @@ getUserAdminActivateR userId token = do
     user <- lift . runDB $ get404 userId
     case validateUserToken user token of
         Just True -> do
-            (pwFormWidget, pwEnctype) <- lift . generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change)
-            lift . defaultLayout $ do
+            (pwFormWidget, pwEnctype) <- lift . generateFormPost $ userChangePasswordForm Nothing (Just Msg.Save)
+            lift . adminAuthLayout $ do
                 setTitle . toHtml $ userName user
                 $(widgetFile "user/activate")
-        Just False -> lift . defaultLayout $ do
+        Just False -> lift . adminAuthLayout $ do
             setTitleI Msg.TokenMismatch
             $(widgetFile "user/tokenmismatch")
-        Nothing -> lift . defaultLayout $ do
+        Nothing -> lift . adminAuthLayout $ do
             setTitleI Msg.AccountAlreadyActivated
             $(widgetFile "user/account-already-activated")
 
@@ -352,22 +352,23 @@ postUserAdminActivateR userId token = do
     case validateUserToken user token of
         Just True -> do
             opw <- lookupPostParam "original-pw"
-            ((formResult, pwFormWidget), pwEnctype) <- lift . runFormPost $ userChangePasswordForm opw (Just Msg.Change)
+            ((formResult, pwFormWidget), pwEnctype) <- lift . runFormPost $ userChangePasswordForm opw (Just Msg.Save)
             case formResult of
                 FormSuccess f -> do
                     _ <- lift . runDB $ update userId [ UserPassword =. Just (originalPassword f)
                                                       , UserToken =. Nothing
                                                       , UserActive =. True
                                                       ]
-                    setMessage "Msg: Successfully activated"
+                    lift $ setMessageI Msg.ActivationSuccess
+                    lift . setCreds False $ Creds "lambdacms-token-activation" (userEmail user) []
                     redirect $ AdminHomeR
                 _ -> do
-                    lift . defaultLayout $ do
+                    lift . adminAuthLayout $ do
                         setTitle . toHtml $ userName user
                         $(widgetFile "user/activate")
-        Just False -> lift . defaultLayout $ do
+        Just False -> lift . adminAuthLayout $ do
             setTitleI Msg.TokenMismatch
             $(widgetFile "user/tokenmismatch")
-        Nothing -> lift . defaultLayout $ do
+        Nothing -> lift . adminAuthLayout $ do
             setTitleI Msg.AccountAlreadyActivated
             $(widgetFile "user/account-already-activated")
