@@ -52,16 +52,23 @@ accountSettingsForm :: LambdaCmsAdmin master
                     -> Html
                     -> MForm (HandlerT master IO) (FormResult (User, [Roles master]), WidgetT master IO ())
 accountSettingsForm user roles mlabel extra = do
+    maRoles <- lift mayAssignRoles
     -- User fields
     (unameRes, unameView) <- mreq textField (bfs Msg.Username) (Just $ userName user)
     (emailRes, emailView) <- mreq emailField (bfs Msg.EmailAddress) (Just $ userEmail user)
     -- Roles field
-    (rolesRes, rolesView) <- mreq (checkboxesField roleList) "Not used" (Just $ S.toList roles)
+    (rolesRes, mrolesView) <- case maRoles of
+        True -> do
+            (rolesRes', rolesView) <- mreq (checkboxesField roleList) "Not used" (Just $ S.toList roles)
+            return (rolesRes', Just rolesView)
+        False -> return (FormSuccess $ S.toList roles, Nothing)
+
     let userRes = (\un ue -> user { userName = un, userEmail = ue })
                   <$> unameRes
                   <*> emailRes
         formRes = (,) <$> userRes <*> rolesRes
         widget = $(widgetFile "user/settings-form")
+
     return (formRes, widget)
     where roleList = optionsPairs $ map ((T.pack . show) &&& id) [minBound .. maxBound]
 
@@ -175,7 +182,8 @@ getUserAdminNewR = do
     eu <- liftIO emptyUser
     lift $ do
         can <- getCan
-        (formWidget, enctype) <- generateFormPost $ accountSettingsForm eu S.empty (Just Msg.Create)
+        drs <- defaultRoles
+        (formWidget, enctype) <- generateFormPost $ accountSettingsForm eu drs (Just Msg.Create)
         adminLayout $ do
             setTitleI Msg.NewUser
             $(widgetFile "user/new")
@@ -184,7 +192,8 @@ getUserAdminNewR = do
 postUserAdminNewR :: CoreHandler Html
 postUserAdminNewR = do
     eu <- liftIO emptyUser
-    ((formResult, formWidget), enctype) <- lift . runFormPost $ accountSettingsForm eu S.empty (Just Msg.Create)
+    drs <- lift $ defaultRoles
+    ((formResult, formWidget), enctype) <- lift . runFormPost $ accountSettingsForm eu drs (Just Msg.Create)
     case formResult of
         FormSuccess (user, roles) -> do
             userId <- lift $ runDB $ insert user

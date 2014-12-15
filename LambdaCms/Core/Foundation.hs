@@ -14,7 +14,7 @@ import           Data.ByteString            (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as LB (concat, toStrict)
 import           Data.Maybe                 (catMaybes, isJust)
 import           Data.Monoid                ((<>))
-import           Data.Set                   (Set, fromList, intersection)
+import           Data.Set                   (Set, fromList, intersection, empty)
 import qualified Data.Set                   as S (null)
 import           Data.Text                  (Text, concat, intercalate, pack,
                                              unpack)
@@ -99,6 +99,12 @@ class ( YesodAuth master
 
     -- | Replace the current roles of a user by the given Set.
     setUserRoles :: Key User -> Set (Roles master) -> HandlerT master IO ()
+
+    mayAssignRoles :: HandlerT master IO Bool
+
+    -- | Gives the default roles a user should have on create
+    defaultRoles :: HandlerT master IO (Set (Roles master))
+    defaultRoles = return empty
 
     -- | See if a user is authorized to perform an action.
     isAuthorizedTo :: master                     -- Needed to make function injective.

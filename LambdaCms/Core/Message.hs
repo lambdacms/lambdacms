@@ -15,6 +15,7 @@ data CoreMessage =
     Dashboard
   | LambdaCms
   | NotLoggedIn
+  | You
   | Logout
   | AccountSettings
   | UserIndex
@@ -81,6 +82,7 @@ englishMessage :: CoreMessage -> Text
 englishMessage Dashboard                = "Dashboard"
 englishMessage LambdaCms                = "LambdaCms"
 englishMessage NotLoggedIn              = "Not logged in"
+englishMessage You                      = "You"
 englishMessage Logout                   = "Logout"
 englishMessage AccountSettings          = "Account settings"
 englishMessage UserIndex                = "User overview"
@@ -145,6 +147,7 @@ dutchMessage Dashboard                = "Dashboard"
 dutchMessage UserIndex                = "Gebruikers overzicht"
 dutchMessage LambdaCms                = "LambdaCms"
 dutchMessage NotLoggedIn              = "Niet ingelogd"
+dutchMessage You                      = "Jij"
 dutchMessage Logout                   = "Uitloggen"
 dutchMessage AccountSettings          = "Accountinstellingen"
 dutchMessage EmailAddress             = "E-mailadres"

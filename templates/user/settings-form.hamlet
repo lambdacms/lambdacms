@@ -5,12 +5,13 @@ $forall view <- [unameView, emailView]
         ^{fvInput view}
         $maybe errors <- fvErrors view
             <span .help-block>#{errors}
-<div .form-group :fvRequired rolesView:.required :isJust $ fvErrors rolesView:.has-error>
-    <label>_{Msg.Roles}
-    <div .checkbox>
-        ^{fvInput rolesView}
-    $maybe errors <- fvErrors rolesView
-        <span .help-block>#{errors}
+$maybe view <- mrolesView
+    <div .form-group :fvRequired view:.required :isJust $ fvErrors view:.has-error>
+        <label>_{Msg.Roles}
+        <div .checkbox>
+            ^{fvInput view}
+        $maybe errors <- fvErrors view
+            <span .help-block>#{errors}
 <div .form-group .optional>
     <button .btn .btn-success type=submit>
         $maybe label <- mlabel
