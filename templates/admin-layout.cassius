@@ -75,7 +75,9 @@ body > div.container-fluid > div.row
         h1
             display: inline
 
-        a, button
+        a, button, span.label
+            display: inline-block
+            vertical-align: middle
             margin-left: 10px
             margin-bottom: 15px
 
