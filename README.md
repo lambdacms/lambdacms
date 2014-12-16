@@ -12,62 +12,52 @@
 
 # Rationale
 
-LambdaCms is a set of libraries that contain sub-sites for the
+LambdaCms is a bunch of packaged libraries that contain sub-sites for the
 [Yesod application framework](http://www.yesodweb.com).  The LambdaCms
-sub-sites can be composed to quickly create a performant website with
-content management funcationality.
-The `lambdacms-*` packages contain the sub-sites and should be installed
-in a "master application" (a standard Yesod application) by adding them as
-dependencies to the master application's cabal file and writing some glue code.
+sub-sites can be composed to quickly develop a performant website with
+content management functionality.
 
-The master application is responsible for the database connection, the model
-definitions, the authentication strategies, and overrides default behavior
-of the `lambdacms-*` packages.
+The `lambdacms-*` packages each provide some specific behavior and can in
+turn depend on eachother.  The only mandatory package is `lambdacms-core`
+(this package), it provides functionality that all other `lambdacms-*` packages
+may rely on.
 
-The `lambdacms-*` packages each provide some specific behavior and can in turn
-depend on eachother.  The only mandatory package is `lambdacms-core`, this package,
-it provides the elementary CMS functionality that all other `lambdacms-*` packages
-extend on.
+Each `lambdacms-*` package contains a sub-site.  To use these sub-sites we
+need to create a standard Yesod application, which we will refer to as the
+"base application".
+It is in this base app that the LambdaCms sub-sites can be installed,
+which is as simple as adding the packages as dependencies to the base app's
+`.cabal` file and writing some glue code (as explained below).
+
+In the base app we have to:
+* organize the main menu of the admin backend,
+* configure a the database connection,
+* specify the authentication strategies, and
+* define admin user roles and their permissions.
+
+In the base app we may also:
+* override default behavior,
+* override UI texts,
+* provide a means to send email notifications, and
+* last but not least, write the themes so the website can actually be
+  visited (recommended).
 
 
-# Disclaimer
+# Getting started
 
-This software is in the "alpha" stage: it may break, it may change, it is
-certainly not feature complete.
-
-# Installation
-
-In this installation guide we expect the project to named `YourApp`, obviously
-you want to replace that with the name of your project (or keep it in case you
-are just testing it out and want the convenience of blind copy-pasting the
-instructions that follow).
+We about to start a project named `YourApp`. For a real project you obviously
+want to substitute a more descriptive name.  For testing things out you may
+want to keep this name as you enjoy the convenience of copy-pasting the
+instructions that follow.
 
 
-## Haskell & co
+### The tool chain
 
 Make sure to have **GHC** 7.8.3+, **cabal-install** 1.20+, **happy**, **alex**
-and **yesod-bin** 1.4.1+ installed, and their binaries available to your shell's `$PATH`.
+and **yesod-bin** 1.4.1+ installed, and their binaries available to your
+shell's `$PATH`.
 
-To get GHC and Cabal ready we used Yann Esposito's [Safer Haskell Install](http://yannesposito.com/Scratch/en/blog/Safer-Haskell-Install/)
-script. This script can be used for Linux and OSX and will install GHC and Cabal.
-It also enables the usage of stackage to make sure all libraries which are
-installed are compatible. We are currently using the following stackage repository:
-
-    remote-repo: stackage-2014-12-04-ghc76-exc:http://www.stackage.org/snapshot/2014-12-04-ghc76-exc
-
-We recommend using this same stackage repository when working with LambdaCms. To
-do so you should change the stackage url currently used by the install script to
-this one. Already working with a different stackage or not using stackage at all?
-Don't worry! Switching to a different stackage repositories is documented on the
-[stackage information page](http://www.stackage.org/stackage/1ee16e7b56ea1e1ac4e15ce7a1cc72018b2117c1)
-with 4 easy steps. To start using stackage those same 4 steps can be used.
-
-After installing GHC and Cabal just run the following command to install happy, alex
-and yesod-bin:
-
-    cabal install happy alex yesod-bin
-
-To check that you are good to go:
+To check that you are good to go, you can use these commands.
 
     ghc -V
     cabal -V
@@ -75,34 +65,65 @@ To check that you are good to go:
     alex -V
     yesod version
 
-## Yesod with Stackage
+In case you are not good to go, you may want to follow the
+[installation guide on the Stackage website](http://www.stackage.org/install)
+which provides instructions for all dependencies but `yesod-bin`
+for a variety of platforms.
 
-Scaffold the master application, this interactively takes some configuration values and
-initializes a new yesod project inside a folder. This folder's name is based on the project
-name you picked, we used `YourApp`. After scaffolding move into the project folder.
+Once you meet all the requirements except for `yesod-bin`, instal it.
+
+    cabal install "yesod-bin >= 1.4.1"
+
+
+### Create the base application
+
+With the following command you create a "scaffolded" Yesod application.
+The command is interactive, you need to supply some configuration values,
+pick your database of choice, and name it `YourApp` if you want follow this
+guide closely.
 
     yesod init
+
+After scaffolding move into the project folder.
+
     cd YourApp
 
-If you have chosen a database other then Sqlite, then configure it in one of the `.yml` files
-the can be found in the `config/` directory.  Also make sure the database can be accessed with
-the given configuration -- for `lambdacms` we've chosen postgres w/o fay.
+If you have chosen a database other then Sqlite: create a database and a
+user with the right permissions for your specific database, and supply the
+credentials to the `config/setting.yml` file.
 
-Install the dependencies and run the app in development mode.
+
+### Specify a Stackage snapshot
+
+To avoid spending too much time on build issues we recomend to make use
+of the "Stackage LTS 0" snapshots. The developers of LambdaCms also
+make use of these snapshots, which should leave little room for
+build issues.  In case you are using "LTS 0" and experience problems
+during builds, we consider this a bug, please
+[raise an issue](https://github.com/lambdacms/lambdacms-core/issues).
+
+To make use of "LTS 0" run the following commands from within your
+project folder.
+
+    wget http://www.stackage.org/lts/0/cabal.config
+    cabal update
+    cabal install
+
+The following commands will build your Yesod application and run it in
+development mode.
 
     cabal install --enable-tests . --max-backjumps=-1 --reorder-goals
     yesod devel
 
 Now test it by pointing the browser to `localhost:3000`.
 
-If all goes well you can procede to the next step: adding LambdaCms to your app.
+If all went well you are ready to add LambdaCms to your app.
 
 
-## Add LambdaCms
+### Add LambdaCms
 
 At some point the `lambdacms-core` package will be distributed from Hackage.
-Currently this is not the case so we install it from github and register it
-locally.
+Currently this is not the case so we install it from Github.
 
     cd ..
     git clone git@github.com:lambdacms/lambdacms-core.git
@@ -110,32 +131,27 @@ locally.
     cabal install
     cd ../YourApp
 
----
+In the following sub-sections we explain how to install `lambdacms-core` into
+the base application.  Much of what we show here can be accomplished in
+many different ways, what we provide here is merely to get you started.
 
-# Wiring
 
-The next thing to do is to wire everything together such that the base app can use all the goods of Core. To do that, several files need to be modified.
+#### Modify the `.cabal` file (name depends on the name of your project)
 
-Before we begin, you should know that this how-to also describes what you need to do to setup Role-based authorization. LambdaCms.Core requires a Role-based system to be implemented, but you're free to come up with something else than is described below.
-
-The following steps can be copy/pasted (almost) blindly, however cursive text will elaborate a bit about whats happening.
-
-## Cabal file (name depends on the name of your project)
-
-Add to `build-depends`:
+Add to the `build-depends` section:
 
 ```
 , lambdacms-core                >= 0.0.7      && < 0.1
 , wai                           >= 3.0.2      && < 3.1
 ```
 
-Add to `library/exposed-modules`:
+Add to `library/exposed-modules` section:
 
 ```
 Roles
 ```
 
-## config/routes
+#### Modify the `config/routes` file
 
 Add the following routes:
 
@@ -145,17 +161,18 @@ Add the following routes:
 /admin         AdminHomeRedirectR    GET
 ```
 
-## config/settings.yml
+#### Modify the `config/settings.yml` file
 
-Add this line:
-*If no user exists, this email address will be inserted. The resulting account will be activated too.*
+Add the following line, which sets the email address for an admin user account
+that is created (and activated) in case no admin user exists.
+
 ```
 admin: <your email address>
 ```
 
-## Settings.hs
+#### Modify the `Settings.hs` file
 
-Add the following property to `AppSettings`:
+Append the following record to the `AppSettings` data type:
 
 ```haskell
     , appAdmin                  :: Text
@@ -168,9 +185,9 @@ Make sure you do this in the same order as properties appear in `settings.yml`.
         appAdmin                  <- o .: "admin"
 ```
 
-## config/models
+#### Modify the `config/models` file
 
-Remove any content created by the scaffold. For me, this is the `User` and `Email` model. And create a `UserRole` model:
+Replace **all** of the file's contant with the following `UserRole` definition:
 
 ```
 UserRole
@@ -180,7 +197,7 @@ UserRole
     deriving Typeable Show
 ```
 
-## Models.hs
+#### Modify the `Models.hs` file
 
 Add the following imports:
 
@@ -189,7 +206,7 @@ import Roles
 import LambdaCms.Core
 ```
 
-## Application.hs
+#### Modify the `Application.hs` file
 
 Add the following imports:
 
@@ -207,8 +224,9 @@ getAdminHomeRedirectR = do
     redirect $ CoreAdminR AdminHomeR
 ```
 
-Change the function `makeFoundation` to:
-*This will create the `admin` user as provided in `settings.yml`. It will also run all needed migrations.*
+Replace the `makeFoundation` function with the following code, so it will
+create the `admin` user as provided in `settings.yml` and run all needed migrations:
+
 ```haskell
 makeFoundation :: AppSettings -> IO App
 makeFoundation appSettings' = do
@@ -265,17 +283,22 @@ makeFoundation appSettings' = do
     return theFoundation
 ```
 
-In the function `makeApplication`:
+In the function `makeApplication` replace this line:
 
 ```haskell
--- replace
     return $ logWare $ defaultMiddlewaresNoLogging appPlain
+```
 
--- with
+With this line, adding a WAI middleware needed to make RESTful forms work
+on older browsers:
+
+```haskell
     return $ logWare $ MiddlewareMOP.methodOverridePost appPlain
 ```
 
-## Roles.hs (create this file)
+## Create the `Roles.hs` file
+
+Add the following content to it:
 
 ```haskell
 module Roles where
@@ -291,33 +314,25 @@ data RoleName = Admin
 derivePersistField "RoleName"
 ```
 
-## Foundation.hs
+## Modify the `Foundation.hs` file
 
 Add the following imports:
 
 ```haskell
-import LambdaCms.Core
-import Roles
 import qualified Data.Set                    as S
 import qualified Network.Wai                 as W
+import LambdaCms.Core
+import Roles
 ```
 
-- Change the implementation of `data App = App { ... }` to:
-Note that only addition is `getLambdaCms :: CoreAdmin`. This sets up the Core submodule.
+Append the following record to the `App` data type:
 
 ```haskell
-data App = App
-    { appSettings    :: AppSettings
-    , appStatic      :: Static         -- ^ Settings for static file serving.
-    , appConnPool    :: ConnectionPool -- ^ Database connection pool.
-    , appHttpManager :: Manager
-    , appLogger      :: Logger
     , getLambdaCms   :: CoreAdmin
-    }
 ```
 
-- Change the implementation of `isAuthorized` (in `instance Yesod App`) to:
-*This is a 1-stop to see whether someone is allowed to perform an action. It fetches what a user can do and what is required for what they requested to do. As a bonus, it doesn't just use `isWrite` but rather the actual method such as PUT or DELETE.*
+Change the implementation of `isAuthorized` (in `instance Yesod App`) to the
+following, which allows fine-grained authorization based on `UserRoles`:
 
 ```haskell
 isAuthorized theRoute _ = do
@@ -329,8 +344,6 @@ isAuthorized theRoute _ = do
 ```
 
 Change the implementation of `getAuthId` (in `instance YesodAuth App`) to:
-
-> this will likely change soon.
 
 ```haskell
     getAuthId creds = do
@@ -344,20 +357,24 @@ Change the implementation of `getAuthId` (in `instance YesodAuth App`) to:
                 Nothing -> return Nothing
 ```
 
-In `instance YesodAuth App`:
+In `instance YesodAuth App` replace:
 
 ```haskell
--- replace
     loginDest _ = HomeR
     logoutDest _ = HomeR
+```
 
--- with
+With:
+
+```haskell
     loginDest _ = CoreAdminR AdminHomeR
     logoutDest _ = AuthR LoginR
 ```
 
-Add the following instance:
-*Here we define that everyone (`Unauthenticated`) can preform `GET` requests for the route `HomeR` (which is likely to be just `/`). The same applies to other common routes such as robots.txt. The last pattern is to catch any other route and simply forbids access. This is where you'd want to add your own routes and permissions.*
+Add the following instance to allow `Unauthenticated` `GET` requests for the
+`HomeR` route (likely to be `/`) and other common routes such as `/robots.txt`.
+The last pattern forbids access to any unspecified routes.
+It is in `actionAllowedFor` that you will setup permissions for the roles.
 
 ```haskell
 instance LambdaCmsAdmin App where
@@ -384,6 +401,8 @@ instance LambdaCmsAdmin App where
     adminMenu =  (defaultCoreAdminMenu CoreAdminR)
     renderLanguages _ = ["en", "nl"]
 ```
+
+---
 
 ---
 
