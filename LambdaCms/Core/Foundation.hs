@@ -10,6 +10,9 @@
 module LambdaCms.Core.Foundation where
 
 import           Control.Monad              (filterM)
+import           Control.Arrow              ((&&&))
+import           Data.List                  (find, sortBy)
+import           Data.Ord                   (comparing)
 import           Data.ByteString            (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as LB (concat, toStrict)
 import           Data.Maybe                 (catMaybes, isJust)
@@ -144,11 +147,12 @@ class ( YesodAuth master
     adminLayout :: WidgetT master IO () -> HandlerT master IO Html
     adminLayout widget = do
         auth <- requireAuth
-        cr <- getCurrentRoute
+        mcr <- getCurrentRoute
         mmsg <- getMessage
         can <- getCan
 
         let am = filter (isJust . flip can "GET" . route) adminMenu
+            mhighlightR = routeBestMatch mcr $ map route am
             gravatarSize = 28 :: Int
             gOpts = def
                     { gSize = Just $ Size $ gravatarSize * 2 -- retina
@@ -323,3 +327,22 @@ lambdaCmsHumanTimeLocale = do
         , thisYearFmt   = "%b %e"
         , prevYearFmt   = "%b %e, %Y"
         }
+
+isCurrentRouteActive :: RenderRoute master => Maybe (Route master) -> Route master -> Bool
+isCurrentRouteActive (Just cr) domain = dparts == (take (length dparts) cparts)
+    where
+        (cparts, _) = renderRoute cr
+        (dparts, _) = renderRoute domain
+isCurrentRouteActive _ _ = False
+
+routeBestMatch :: RenderRoute master
+                  => Maybe (Route master)
+                  -> [Route master]
+                  -> Maybe (Route master)
+routeBestMatch (Just cr) rs = fmap snd $ find cmp orrs
+    where
+        (cparts, _) = renderRoute cr
+        rrs = map ((fst . renderRoute) &&& id) rs
+        orrs = reverse $ sortBy (comparing (length . fst)) rrs
+        cmp (route, _) = route == (take (length route) cparts)
+routeBestMatch _ _ = Nothing
