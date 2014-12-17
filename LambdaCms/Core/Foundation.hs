@@ -11,6 +11,7 @@ module LambdaCms.Core.Foundation where
 
 import           Control.Monad              (filterM)
 import           Control.Arrow              ((&&&))
+import           Control.Applicative        ((<$>))
 import           Data.List                  (find, sortBy)
 import           Data.Ord                   (comparing)
 import           Data.ByteString            (ByteString)
@@ -21,6 +22,7 @@ import           Data.Set                   (Set, fromList, intersection, empty)
 import qualified Data.Set                   as S (null)
 import           Data.Text                  (Text, concat, intercalate, pack,
                                              unpack)
+import qualified Data.Text                  as T
 import           Data.Text.Encoding         (decodeUtf8)
 import           Data.Time                  (utc, getCurrentTime)
 import           Data.Time.Format.Human
@@ -34,6 +36,7 @@ import           LambdaCms.Core.Settings
 import           LambdaCms.I18n
 import           Network.Gravatar           (GravatarOptions (..), Size (..),
                                              def, gravatar)
+import           Network.Wai                (requestMethod)
 import           Network.Mail.Mime
 import           Text.Hamlet                (hamletFile)
 import           Text.Julius                (juliusFile)
@@ -147,12 +150,12 @@ class ( YesodAuth master
     adminLayout :: WidgetT master IO () -> HandlerT master IO Html
     adminLayout widget = do
         auth <- requireAuth
-        mcr <- getCurrentRoute
+        mCurrentR <- getCurrentRoute
         mmsg <- getMessage
         can <- getCan
 
         let am = filter (isJust . flip can "GET" . route) adminMenu
-            mhighlightR = routeBestMatch mcr $ map route am
+            mActiveMenuR = routeBestMatch mCurrentR $ map route am
             gravatarSize = 28 :: Int
             gOpts = def
                     { gSize = Just $ Size $ gravatarSize * 2 -- retina
@@ -328,13 +331,6 @@ lambdaCmsHumanTimeLocale = do
         , prevYearFmt   = "%b %e, %Y"
         }
 
-isCurrentRouteActive :: RenderRoute master => Maybe (Route master) -> Route master -> Bool
-isCurrentRouteActive (Just cr) domain = dparts == (take (length dparts) cparts)
-    where
-        (cparts, _) = renderRoute cr
-        (dparts, _) = renderRoute domain
-isCurrentRouteActive _ _ = False
-
 routeBestMatch :: RenderRoute master
                   => Maybe (Route master)
                   -> [Route master]
@@ -346,3 +342,47 @@ routeBestMatch (Just cr) rs = fmap snd $ find cmp orrs
         orrs = reverse $ sortBy (comparing (length . fst)) rrs
         cmp (route, _) = route == (take (length route) cparts)
 routeBestMatch _ _ = Nothing
+
+class LambdaCmsLoggable entity where
+    logMessage :: LambdaCmsAdmin master => master -> ByteString -> entity -> Maybe (SomeMessage master)
+    logRoute :: LambdaCmsAdmin master => master -> Key entity -> Maybe (Route master)
+
+instance LambdaCmsLoggable User where
+    logMessage _ "POST"       user = Just . SomeMessage . Msg.LogCreatedUser $ userName user
+    logMessage _ "PATCH"      user = Just . SomeMessage . Msg.LogUpdatedUser $ userName user
+    logMessage _ "DELETE"     user = Just . SomeMessage . Msg.LogDeletedUser $ userName user
+    logMessage _ "CHPASS"     user = Just . SomeMessage . Msg.LogChangedPasswordUser $ userName user
+    logMessage _ "RQPASS"     user = Just . SomeMessage . Msg.LogRequestedPasswordUser $ userName user
+    logMessage _ "DEACTIVATE" user = Just . SomeMessage . Msg.LogDeactivatedUser $ userName user
+    logMessage _ "ACTIVATE"   user = Just . SomeMessage . Msg.LogActivatedUser $ userName user
+    logMessage _ _ _ = Nothing
+
+    logRoute _ userId = Just . coreR . UserAdminR $ UserAdminEditR userId
+
+logAction :: (LambdaCmsAdmin master, LambdaCmsLoggable entity) => Entity entity -> HandlerT master IO ()
+logAction (Entity objectId object) = do
+    wai <- waiRequest
+    y <- getYesod
+    authId <- requireAuthId
+    timeNow <- liftIO getCurrentTime
+    ident <- liftIO generateUUID
+
+    let method = requestMethod wai
+        langs = renderLanguages y
+        mRoute = logRoute y objectId
+        mPath = T.concat . map ("/" <>) . fst . renderRoute <$> mRoute
+
+    mapM_ (saveLog y ident method timeNow object mPath authId) langs
+    where
+        saveLog y ident method time entity mPath userId lang = case logMessage y method entity of
+            Just message' -> do
+                let message = renderMessage y [lang] message'
+                runDB . insert_ $ ActionLog
+                                  { actionLogIdent = ident
+                                  , actionLogUserId = userId
+                                  , actionLogMessage = message
+                                  , actionLogLang = lang
+                                  , actionLogPath = mPath
+                                  , actionLogCreatedAt = time
+                                  }
+            Nothing -> return ()

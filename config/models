@@ -18,3 +18,13 @@ User
 --     user UserId Maybe
 --     verkey Text Maybe
 --     UniqueEmail email
+
+ActionLog json
+    ident Text
+    userId UserId
+    message Text
+    lang Text
+    path Text Maybe
+    createdAt UTCTime
+    UniqueLog ident lang
+    deriving Typeable Show

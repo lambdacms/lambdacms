@@ -36,6 +36,7 @@ library
                   , LambdaCms.Core.Handler.Static
                   , LambdaCms.Core.Handler.Home
                   , LambdaCms.Core.Handler.User
+                  , LambdaCms.Core.Handler.ActionLog
                   , LambdaCms.I18n
                   , LambdaCms.I18n.Dutch
 
@@ -58,5 +59,8 @@ library
                   , template-haskell
                   , gravatar
                   , file-embed
+                  , lists
+                  , wai
+                  , esqueleto
 
   ghc-options:      -Wall -O2

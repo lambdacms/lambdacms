@@ -24,3 +24,5 @@
     /              UserAdminIndexR          GET
     /new           UserAdminNewR            GET POST
     !/#UserId      UserAdminEditR           GET PATCH DELETE CHPASS RQPASS DEACTIVATE ACTIVATE
+
+/activities ActionLogAdminR GET

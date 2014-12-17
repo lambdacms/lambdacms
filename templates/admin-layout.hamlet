@@ -32,7 +32,7 @@
                 <nav .navbar role=navigation>
                     <ul .nav .nav-pills .nav-stacked role=tablist>
                         $forall menuItem <- am
-                            <li role=presentation :Just (route menuItem) == mhighlightR:.active>
+                            <li role=presentation :Just (route menuItem) == mActiveMenuR:.active>
                                 <a href=@{route menuItem}>
                                     <span .glyphicon .glyphicon-#{icon menuItem}>
                                     _{label menuItem}
