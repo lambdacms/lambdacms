@@ -85,6 +85,8 @@ data CoreMessage =
   | LogRequestedPasswordUser { name :: Text }
   | LogDeactivatedUser { name :: Text }
   | LogActivatedUser { name :: Text }
+  | AllLogs
+  | PersonalLogs
 
 defaultMessage :: CoreMessage -> Text
 defaultMessage = englishMessage
@@ -148,7 +150,7 @@ englishMessage TimeOneMinuteAgo                = "a minute ago"
 englishMessage (TimeMinutesAgo time)           = time `mappend` " minutes ago"
 englishMessage TimeOneHourAgo                  = "an hour ago"
 englishMessage (TimeAboutHoursAgo time)        = "about " `mappend` time `mappend` " hours ago"
-englishMessage (TimeAt time)                   = "At " `mappend` time
+englishMessage (TimeAt time)                   = "at " `mappend` time
 englishMessage (TimeDaysAgo time)              = time `mappend` " days ago"
 englishMessage (TimeWeekAgo time)              = time `mappend` " week ago"
 englishMessage (TimeWeeksAgo time)             = time `mappend` " weeks ago"
@@ -163,6 +165,8 @@ englishMessage (LogChangedPasswordUser name)   = "Changed password for user \"" 
 englishMessage (LogRequestedPasswordUser name) = "Send a password reset token to user \"" `mappend` name `mappend` "\""
 englishMessage (LogDeactivatedUser name)       = "Deactivated user \"" `mappend` name `mappend` "\""
 englishMessage (LogActivatedUser name)         = "Activated user \"" `mappend` name `mappend` "\""
+englishMessage AllLogs                         = "All activities"
+englishMessage PersonalLogs                    = "Your activities"
 
 dutchMessage :: CoreMessage -> Text
 dutchMessage Dashboard                       = "Dashboard"
@@ -223,7 +227,7 @@ dutchMessage TimeOneMinuteAgo                = "een minuut geleden"
 dutchMessage (TimeMinutesAgo time)           = time `mappend` " minuten geleden"
 dutchMessage TimeOneHourAgo                  = "een uur geleden"
 dutchMessage (TimeAboutHoursAgo time)        = "ongeveer " `mappend` time `mappend` " uur geleden"
-dutchMessage (TimeAt time)                   = "Om " `mappend` time
+dutchMessage (TimeAt time)                   = "om " `mappend` time
 dutchMessage (TimeDaysAgo time)              = time `mappend` " dagen geleden"
 dutchMessage (TimeWeekAgo time)              = time `mappend` " week geleden"
 dutchMessage (TimeWeeksAgo time)             = time `mappend` " weken geleden"
@@ -238,3 +242,5 @@ dutchMessage (LogChangedPasswordUser name)   = "Heeft het wachtwoord van gebruik
 dutchMessage (LogRequestedPasswordUser name) = "Heeft een wachtwoord reset token verzonden naar gebruiker \"" `mappend` name `mappend` "\""
 dutchMessage (LogDeactivatedUser name)       = "Heeft gebruiker \"" `mappend` name `mappend` "\" gedeactiveerd"
 dutchMessage (LogActivatedUser name)         = "Heeft gebruiker \"" `mappend` name `mappend` "\" geactiveerd"
+dutchMessage AllLogs                         = "Alle activiteiten"
+dutchMessage PersonalLogs                    = "Jouw activiteiten"

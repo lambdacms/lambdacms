@@ -7,13 +7,14 @@
 <div .page-header>
     <h1>_{Msg.ActionLogIndex}
 <div .row>
-    $forall currentLogs <- [logs, personalLogs]
+    $forall (currentLogs, title) <- [(logs, Msg.AllLogs), (personalLogs, Msg.PersonalLogs)]
         <div .col-xs-12 .col-md-6>
-            $if null currentLogs
-                <p .alert .alert-info>_{Msg.NoActionLogsFound}
-            $else
-                <div .panel .panel-default>
-                    <div .panel-heading>Activities
+            <div .panel .panel-default>
+                <div .panel-heading>_{title}
+                $if null currentLogs
+                    <div .panel-body>
+                        <p .alert .alert-info>_{Msg.NoActionLogsFound}
+                $else
                     <table .table>
                         <tbody>
                             $forall (Entity _ log, Entity userId user) <- currentLogs

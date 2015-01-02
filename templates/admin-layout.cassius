@@ -72,6 +72,9 @@ body > div.container-fluid > div.row
         margin: 9px 0 0 0
         padding-top: 15px
 
+        &.no-border-top
+            border-top: none;
+
         h1
             display: inline
 
