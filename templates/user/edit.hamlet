@@ -86,5 +86,6 @@
                     <div .form-toggle-wrapper>
                         <h2 .form-toggle data-expanded=false>_{Msg.ResetPassword}
                         <form role=form method=post action=@{r}>
+                            <p>_{Msg.RequestResetToken_Text}.
                             <input type=hidden name=_method value=RQPASS>
-                            <button .btn .btn-success type=submit>_{Msg.RequestResetToken}
+                            <button .btn .btn-success type=submit>_{Msg.RequestResetToken_Button}
