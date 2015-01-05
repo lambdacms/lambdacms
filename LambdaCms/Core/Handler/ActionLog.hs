@@ -13,7 +13,7 @@ import           Control.Applicative    ((<$>))
 import           Data.Int               (Int64)
 import           Data.List              (intersect)
 import           Data.Lists             (firstOr)
-import           Data.Maybe             (maybe, fromJust)
+import           Data.Maybe             (fromJust, maybe)
 import           Data.Text
 import           Data.Time.Clock
 import           Data.Time.Clock
@@ -23,10 +23,10 @@ import qualified Database.Esqueleto     as E
 import           LambdaCms.Core.Import
 import qualified LambdaCms.Core.Message as Msg
 import           Network.Wai
+import           Text.Read              (readEither)
 import           Yesod.Auth             (requireAuthId)
 import           Yesod.Core
 import           Yesod.Core.Types
-import           Text.Read              (readEither)
 
 data JsonLog = JsonLog
                { message  :: Text
