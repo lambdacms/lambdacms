@@ -26,7 +26,8 @@ data CoreMessage =
   | ChangeRoles
   | ChangePassword
   | ResetPassword
-  | RequestResetToken
+  | RequestResetToken_Text
+  | RequestResetToken_Button
   | PasswordResetTokenSend
   | PasswordTooShort
   | PasswordMismatch
@@ -109,7 +110,8 @@ englishMessage ChangeAccountSettings           = "Modify account settings"
 englishMessage ChangeRoles                     = "Select roles"
 englishMessage ChangePassword                  = "Change password"
 englishMessage ResetPassword                   = "Reset password"
-englishMessage RequestResetToken               = "Request password reset"
+englishMessage RequestResetToken_Text          = "Reset this user's password and send him/her an email with a new verification token"
+englishMessage RequestResetToken_Button        = "Request password reset"
 englishMessage PasswordResetTokenSend          = "Password reset link send"
 englishMessage PasswordTooShort                = "Password is too short"
 englishMessage PasswordMismatch                = "Passwords don't match"
@@ -189,7 +191,8 @@ dutchMessage ChangeAccountSettings           = "Pas accountinstellingen aan"
 dutchMessage ChangeRoles                     = "Rollen selecteren"
 dutchMessage ChangePassword                  = "Wachtwoord wijzigen"
 dutchMessage ResetPassword                   = "Wachtwoord wijzigen"
-dutchMessage RequestResetToken               = "Aanvraag doen om wachtwoord te wijzigen"
+dutchMessage RequestResetToken_Text          = "Reset het wachtwoord van deze gebruiker en stuur hem/haar een email met een nieuw verificatie-token"
+dutchMessage RequestResetToken_Button        = "Aanvraag doen om wachtwoord te wijzigen"
 dutchMessage PasswordResetTokenSend          = "Link om wachtwoord te wijzigen verzonden"
 dutchMessage PasswordTooShort                = "Wachtwoord te kort"
 dutchMessage PasswordMismatch                = "Wachtwoorden komen niet overeen"
