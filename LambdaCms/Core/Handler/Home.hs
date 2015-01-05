@@ -1,4 +1,5 @@
-{-# LANGUAGE TemplateHaskell     #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell   #-}
 
 module LambdaCms.Core.Handler.Home
   ( getAdminHomeR
@@ -6,8 +7,12 @@ module LambdaCms.Core.Handler.Home
 
 import           LambdaCms.Core.Import
 import qualified LambdaCms.Core.Message as Msg
+import           Yesod.Auth             (requireAuthId)
 
 getAdminHomeR :: CoreHandler Html
-getAdminHomeR = lift . adminLayout $ do
-    setTitleI Msg.Dashboard
-    $(widgetFile "adminhome")
+getAdminHomeR = lift $ do
+    can <- getCan
+    authId <- requireAuthId
+    adminLayout $ do
+        setTitleI Msg.Dashboard
+        $(widgetFile "adminhome")

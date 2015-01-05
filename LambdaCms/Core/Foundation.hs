@@ -9,22 +9,23 @@
 
 module LambdaCms.Core.Foundation where
 
-import           Control.Monad              (filterM)
-import           Control.Arrow              ((&&&))
 import           Control.Applicative        ((<$>))
-import           Data.List                  (find, sortBy)
-import           Data.Ord                   (comparing)
+import           Control.Arrow              ((&&&))
+import           Control.Monad              (filterM)
 import           Data.ByteString            (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as LB (concat, toStrict)
+import           Data.Int
+import           Data.List                  (find, sortBy)
 import           Data.Maybe                 (catMaybes, isJust)
 import           Data.Monoid                ((<>))
-import           Data.Set                   (Set, fromList, intersection, empty)
+import           Data.Ord                   (comparing)
+import           Data.Set                   (Set, empty, fromList, intersection)
 import qualified Data.Set                   as S (null)
 import           Data.Text                  (Text, concat, intercalate, pack,
                                              unpack)
 import qualified Data.Text                  as T
 import           Data.Text.Encoding         (decodeUtf8)
-import           Data.Time                  (utc, getCurrentTime)
+import           Data.Time                  (getCurrentTime, utc)
 import           Data.Time.Format.Human
 import           Data.Traversable           (forM)
 import           Database.Persist.Sql       (SqlBackend)
@@ -36,8 +37,8 @@ import           LambdaCms.Core.Settings
 import           LambdaCms.I18n
 import           Network.Gravatar           (GravatarOptions (..), Size (..),
                                              def, gravatar)
-import           Network.Wai                (requestMethod)
 import           Network.Mail.Mime
+import           Network.Wai                (requestMethod)
 import           Text.Hamlet                (hamletFile)
 import           Text.Julius                (juliusFile)
 import           Text.Lucius                (luciusFile)
@@ -78,6 +79,7 @@ class ( YesodAuth master
       , AuthEntity master ~ User
       , YesodAuthPersist master
       , YesodPersistBackend master ~ SqlBackend
+      , ParseRoute master
       , Ord (Roles master)     -- Roles must be Ord to be a Set
       , Enum (Roles master)    -- Roles must be Enum to be able to do [minBound .. maxBound]
       , Bounded (Roles master) -- see Enum
@@ -348,16 +350,18 @@ class LambdaCmsLoggable entity where
     logRoute :: LambdaCmsAdmin master => master -> Key entity -> Maybe (Route master)
 
 instance LambdaCmsLoggable User where
-    logMessage _ "POST"       user = Just . SomeMessage . Msg.LogCreatedUser $ userName user
-    logMessage _ "PATCH"      user = Just . SomeMessage . Msg.LogUpdatedUser $ userName user
-    logMessage _ "DELETE"     user = Just . SomeMessage . Msg.LogDeletedUser $ userName user
-    logMessage _ "CHPASS"     user = Just . SomeMessage . Msg.LogChangedPasswordUser $ userName user
-    logMessage _ "RQPASS"     user = Just . SomeMessage . Msg.LogRequestedPasswordUser $ userName user
-    logMessage _ "DEACTIVATE" user = Just . SomeMessage . Msg.LogDeactivatedUser $ userName user
-    logMessage _ "ACTIVATE"   user = Just . SomeMessage . Msg.LogActivatedUser $ userName user
-    logMessage _ _ _ = Nothing
+    logMessage _ "POST"       = jsm Msg.LogCreatedUser
+    logMessage _ "PATCH"      = jsm Msg.LogUpdatedUser
+    logMessage _ "DELETE"     = jsm Msg.LogDeletedUser
+    logMessage _ "CHPASS"     = jsm Msg.LogChangedPasswordUser
+    logMessage _ "RQPASS"     = jsm Msg.LogRequestedPasswordUser
+    logMessage _ "DEACTIVATE" = jsm Msg.LogDeactivatedUser
+    logMessage _ "ACTIVATE"   = jsm Msg.LogActivatedUser
+    logMessage _ _            = const Nothing
 
     logRoute _ userId = Just . coreR . UserAdminR $ UserAdminEditR userId
+
+jsm msg = Just . SomeMessage . msg . userName
 
 logAction :: (LambdaCmsAdmin master, LambdaCmsLoggable entity) => Entity entity -> HandlerT master IO ()
 logAction (Entity objectId object) = do
@@ -370,7 +374,7 @@ logAction (Entity objectId object) = do
     let method = requestMethod wai
         langs = renderLanguages y
         mRoute = logRoute y objectId
-        mPath = T.concat . map ("/" <>) . fst . renderRoute <$> mRoute
+        mPath = T.intercalate "/" . fst . renderRoute <$> mRoute
 
     mapM_ (saveLog y ident method timeNow object mPath authId) langs
     where

@@ -42,6 +42,7 @@ library
 
   build-depends:    base
                   , yesod
+                  , yesod-core
                   , yesod-auth
                   , yesod-form
                   , persistent
