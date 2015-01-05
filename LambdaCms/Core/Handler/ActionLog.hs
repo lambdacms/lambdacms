@@ -107,9 +107,9 @@ getFilters = do
     mOffsetText <- lookupGetParam "offset"
 
     case (defaultTo 10 mLimitText, defaultTo 0 mOffsetText) of
-        (Left limitText, Left offsetText) -> invalidArgs ["Invalid limit", "Invalid offset"]
-        (Left limitText, _) -> invalidArgs ["Invalid limit"]
-        (_ , Left offsetText) -> invalidArgs ["Invalid offset"]
+        (Left _, Left _) -> lift $ invalidArgsI [Msg.InvalidLimit, Msg.InvalidOffset]
+        (Left _, _) -> lift $ invalidArgsI [Msg.InvalidLimit]
+        (_ , Left _) -> lift $ invalidArgsI [Msg.InvalidOffset]
         (Right limit, Right offset) -> return (limit, offset)
 
     where

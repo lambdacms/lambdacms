@@ -26,7 +26,7 @@ do ($ = jQuery, scope = window)->
               btn = $("<button></button>",
                 type: "button"
                 class: "btn btn-primary btn-xs"
-                text: "load more"
+                text: panel_body.data("more")
                 click: ->
                   $(this).remove()
                   load_activities(url, amount, panel_body)

@@ -87,6 +87,9 @@ data CoreMessage =
   | LogActivatedUser { name :: Text }
   | AllLogs
   | PersonalLogs
+  | InvalidOffset
+  | InvalidLimit
+  | LoadMore
 
 defaultMessage :: CoreMessage -> Text
 defaultMessage = englishMessage
@@ -167,6 +170,9 @@ englishMessage (LogDeactivatedUser name)       = "Deactivated user \"" `mappend`
 englishMessage (LogActivatedUser name)         = "Activated user \"" `mappend` name `mappend` "\""
 englishMessage AllLogs                         = "All activities"
 englishMessage PersonalLogs                    = "Your activities"
+englishMessage InvalidOffset                   = "Invalid value for \"offset\""
+englishMessage InvalidLimit                    = "Invalid value for \"limit\""
+englishMessage LoadMore                        = "load more"
 
 dutchMessage :: CoreMessage -> Text
 dutchMessage Dashboard                       = "Dashboard"
@@ -244,3 +250,6 @@ dutchMessage (LogDeactivatedUser name)       = "Heeft gebruiker \"" `mappend` na
 dutchMessage (LogActivatedUser name)         = "Heeft gebruiker \"" `mappend` name `mappend` "\" geactiveerd"
 dutchMessage AllLogs                         = "Alle activiteiten"
 dutchMessage PersonalLogs                    = "Jouw activiteiten"
+dutchMessage InvalidOffset                   = "Ongeldige waarde voor \"offset\""
+dutchMessage InvalidLimit                    = "Ongeldige waarde voor \"limit\""
+dutchMessage LoadMore                        = "meer laden"
