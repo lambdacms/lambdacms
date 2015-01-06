@@ -148,6 +148,13 @@ class ( YesodAuth master
     adminTitle :: SomeMessage master
     adminTitle = SomeMessage Msg.LambdaCms
 
+    -- | Gives a widget to use as the welcome banner on the admin dashboard
+    welcomeWidget :: Maybe (WidgetT master IO ())
+    welcomeWidget = Just $ do
+        Entity _ user <- handlerToWidget requireAuth
+        renderMessage <- getMessageRender
+        $(widgetFile "admin-welcome")
+
     -- | Applies some form of layout to the contents of an admin section page.
     adminLayout :: WidgetT master IO () -> HandlerT master IO Html
     adminLayout widget = do

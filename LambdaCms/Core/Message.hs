@@ -91,6 +91,10 @@ data CoreMessage =
   | InvalidOffset
   | InvalidLimit
   | LoadMore
+  | WelcomeTitle { name :: Text }
+  | WelcomeIntro { site :: Text }
+  | WelcomeMenu
+  | WelcomeInfo
 
 defaultMessage :: CoreMessage -> Text
 defaultMessage = englishMessage
@@ -175,6 +179,10 @@ englishMessage PersonalLogs                    = "Your activities"
 englishMessage InvalidOffset                   = "Invalid value for \"offset\""
 englishMessage InvalidLimit                    = "Invalid value for \"limit\""
 englishMessage LoadMore                        = "load more"
+englishMessage (WelcomeTitle name)             = "Welcome, " `mappend` name `mappend` "!"
+englishMessage (WelcomeIntro site)             = "You're viewing the backend interface of " `mappend` site `mappend` ", which is build using LambdaCms."
+englishMessage WelcomeMenu                     = "With the menu on the left you can navigate the admin interface and manage this website."
+englishMessage WelcomeInfo                     = "For more information about LambdaCms please visit <a href='http://www.lambdacms.org'>www.lambdacms.org</a>."
 
 dutchMessage :: CoreMessage -> Text
 dutchMessage Dashboard                       = "Dashboard"
@@ -256,3 +264,7 @@ dutchMessage PersonalLogs                    = "Jouw activiteiten"
 dutchMessage InvalidOffset                   = "Ongeldige waarde voor \"offset\""
 dutchMessage InvalidLimit                    = "Ongeldige waarde voor \"limit\""
 dutchMessage LoadMore                        = "meer laden"
+dutchMessage (WelcomeTitle name)             = "Welkom, " `mappend` name `mappend` "!"
+dutchMessage (WelcomeIntro site)             = "Je bekijkt de beheeromgeving van " `mappend` site `mappend` ", die gebouwd is met behulp van LambdaCms."
+dutchMessage WelcomeMenu                     = "Met het menu aan de linker kant kan je navigeren door de beheeromgeving om deze website te beheren."
+dutchMessage WelcomeInfo                     = "Voor meer informatie over LambdaCms kan je terecht op <a href='http://www.lambdacms.org'>www.lambdacms.org</a>."

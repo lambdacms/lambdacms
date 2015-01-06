@@ -1,0 +1,7 @@
+<div .row>
+    <div .col-xs-12>
+        <div .jumbotron>
+            <h2>_{Msg.WelcomeTitle $ userName user}
+            <p>_{Msg.WelcomeIntro $ renderMessage adminTitle}
+            <p>_{Msg.WelcomeMenu}
+            <p>#{preEscapedToMarkup $ renderMessage $ SomeMessage Msg.WelcomeInfo}
