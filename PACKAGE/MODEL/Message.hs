@@ -31,6 +31,7 @@ defaultMessage = englishMessage
 
 englishMessage :: %MODEL%Message -> Text
 englishMessage Menu%MODEL%           = "%MODEL%s"
+englishMessage %MODEL%Index          = "%MODEL% overview"
 englishMessage New%MODEL%            = "New %LC_MODEL%"
 englishMessage Edit%MODEL%           = "Edit %LC_MODEL%"
 englishMessage SaveSuccess           = "Successfully saved"
