@@ -15,7 +15,7 @@ import qualified Data.Text               as T
 import           System.FilePath         ((</>))
 import           Yesod
 
-import           %PACKAGE%.Core
+import           LambdaCms.Core
 
 import           %PACKAGE%.%MODEL%.Message (%MODEL%Message, defaultMessage,
                                           englishMessage)
