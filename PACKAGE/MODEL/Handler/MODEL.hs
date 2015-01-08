@@ -77,7 +77,7 @@ patch%MODEL%AdminEditR %LC_MODEL%Id = do
             can <- getCan
             adminLayout $ do
                 setTitleI Msg.Edit%MODEL%
-                $(widget%LC_MODEL% "edit")
+                $(widgetFile "edit")
 
 delete%MODEL%AdminEditR %LC_MODEL%Id = do
     %LC_MODEL% <- lift . runDB $ get404 %LC_MODEL%Id
