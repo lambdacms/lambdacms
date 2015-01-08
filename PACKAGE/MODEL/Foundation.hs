@@ -17,8 +17,7 @@ import           Yesod
 
 import           LambdaCms.Core
 
-import           %PACKAGE%.%MODEL%.Message (%MODEL%Message, defaultMessage,
-                                          englishMessage)
+import           %PACKAGE%.%MODEL%.Message (%MODEL%Message, defaultMessage, englishMessage)
 import qualified %PACKAGE%.%MODEL%.Message as Msg
 import           %PACKAGE%.%MODEL%.Models
 
