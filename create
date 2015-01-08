@@ -1,0 +1,19 @@
+#!/bin/bash
+
+package=$1
+model=$2
+lc_model=$(echo "$model" | tr '[:upper:]' '[:lower:]')
+files=$(find ./PACKAGE -type f)
+files+=('README.md' 'LICENCE')
+
+for f in ${files[@]}; do
+    echo $f
+    # sed "s/%PACKAGE%/$package/g" "$f" >replacement && mv replacement "$f"
+    # sed "s/%MODEL%/$model/g" "$f" >replacement && mv replacement "$f"
+    # sed "s/%LC_MODEL%/$lc_model/g" "$f" >replacement && mv replacement "$f"
+done
+
+unset package
+unset model
+unset lc_model
+unset files
