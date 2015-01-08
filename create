@@ -1,5 +1,13 @@
 #!/bin/bash
 
+if [ $# -eq 0 ]; then
+    echo "Needs 2 arguments: Package & Model"
+    exit
+elif [ $# != 2 ]; then
+    echo "Allows only 2 arguments: Package & Model"
+    exit
+fi
+
 package=$1
 model=$2
 lc_package=$(echo "$package" | tr '[:upper:]' '[:lower:]')
