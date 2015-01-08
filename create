@@ -11,10 +11,12 @@ files+=('README.md' 'extension.cabal')
 
 # Insert package and model into files
 for f in ${files[@]}; do
-    sed "s/%PACKAGE%/$package/g" "$f" >replacement && mv replacement "$f"
-    sed "s/%MODEL%/$model/g" "$f" >replacement && mv replacement "$f"
-    sed "s/%LC_PACKAGE%/$lc_package/g" "$f" >replacement && mv replacement "$f"
-    sed "s/%LC_MODEL%/$lc_model/g" "$f" >replacement && mv replacement "$f"
+    if test -f $f; then
+        sed "s/%PACKAGE%/$package/g" "$f" >replacement && mv replacement "$f"
+        sed "s/%MODEL%/$model/g" "$f" >replacement && mv replacement "$f"
+        sed "s/%LC_PACKAGE%/$lc_package/g" "$f" >replacement && mv replacement "$f"
+        sed "s/%LC_MODEL%/$lc_model/g" "$f" >replacement && mv replacement "$f"
+    fi
 done
 
 # Move files to final dir structure
