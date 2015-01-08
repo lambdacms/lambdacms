@@ -10,6 +10,7 @@
 module %PACKAGE%.%MODEL%.Foundation where
 
 import           Yesod
+import           Data.Text                 (Text)
 
 import           LambdaCms.Core
 

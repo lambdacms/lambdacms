@@ -22,7 +22,7 @@ data %MODEL%Message =
   | Save
   | Back
   | Delete
-  | CreatedAt
+  | CreatedOn
   | Change%MODEL%Settings
   | No%MODEL%sFound
 
@@ -40,6 +40,6 @@ englishMessage Title                 = "Title"
 englishMessage Save                  = "Save"
 englishMessage Back                  = "Back"
 englishMessage Delete                = "Delete"
-englishMessage CreatedAt             = "Created at"
+englishMessage CreatedOn             = "Created on"
 englishMessage Change%MODEL%Settings = "Change %LC_MODEL% settings"
 englishMessage No%MODEL%sFound       = "No %LC_MODEL%s found"

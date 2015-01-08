@@ -13,8 +13,8 @@ module %PACKAGE%.%MODEL%.Handler.%MODEL%
     , delete%MODEL%AdminEditR
     ) where
 
-import           Data.Maybe              (fromJust)
-import           Data.Time               (getCurrentTime, utctDay)
+import           Data.Maybe              (fromJust, isJust)
+import           Data.Time               (UTCTime, getCurrentTime, utctDay)
 import           LambdaCms.Core.Settings
 import           %PACKAGE%.%MODEL%.Import
 import qualified %PACKAGE%.%MODEL%.Message as Msg

@@ -6,7 +6,7 @@
                 _{Msg.Back}
 <div .page-header>
     <h1>_{Msg.%MODEL%Index}
-    $maybe r <- can (coreR $ %MODEL%AdminR %MODEL%AdminNewR) "GET"
+    $maybe r <- can (%LC_MODEL%R %MODEL%AdminNewR) "GET"
         <a .btn .btn-primary .btn-xs href=@{r}>
             <span .glyphicon .glyphicon-plus>
             _{Msg.New%MODEL%}
