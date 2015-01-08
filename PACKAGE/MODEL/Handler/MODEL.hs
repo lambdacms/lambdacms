@@ -67,7 +67,7 @@ get%MODEL%AdminEditR %LC_MODEL%Id = lift $ do
 patch%MODEL%AdminEditR %LC_MODEL%Id = do
     %LC_MODEL% <- lift . runDB $ get404 %LC_MODEL%Id
     ct <- liftIO getCurrentTime
-    ((results, fWidget), enctype) <- lift . runFormPost $ %LC_MODEL%Form %LC_MODEL% ct
+    ((results, fWidget), enctype) <- lift . runFormPost $ %LC_MODEL%Form (Just %LC_MODEL%) ct
     case results of
         FormSuccess new%MODEL% -> do
             lift $ runDB $ replace %LC_MODEL%Id new%MODEL%
