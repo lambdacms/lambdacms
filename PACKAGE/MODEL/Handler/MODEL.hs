@@ -28,7 +28,7 @@ delete%MODEL%AdminEditR  :: %MODEL%Id -> %MODEL%Handler Html
 
 get%MODEL%AdminIndexR = lift $ do
     can <- getCan
-    (%LC_MODEL%s :: Entity %MODEL%) <- runDB $ selectList [] []
+    (%LC_MODEL%s :: [Entity %MODEL%]) <- runDB $ selectList [] []
     adminLayout $ do
         setTitleI Msg.%MODEL%Index
         $(widgetFile "index")
