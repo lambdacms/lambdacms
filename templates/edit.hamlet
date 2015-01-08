@@ -21,7 +21,7 @@
                         <td>_{Msg.Title}
                         <td .text-right>#{%LC_MODEL%Title %LC_MODEL%}
                     <tr>
-                        <td>_{Msg.CreatedAt}
+                        <td>_{Msg.CreatedOn}
                         <td .text-right>#{show $ utctDay $ %LC_MODEL%CreatedAt file}
 <div .row>
     <div .col-sm-12 .col-md-9 .col-lg-6>
