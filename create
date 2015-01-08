@@ -2,16 +2,25 @@
 
 package=$1
 model=$2
+lc_package=$(echo "$package" | tr '[:upper:]' '[:lower:]')
 lc_model=$(echo "$model" | tr '[:upper:]' '[:lower:]')
-files=$(find PACKAGE -type f)
-files+=('README.md' 'LICENCE')
+files=($(find PACKAGE -type f))
+files+=($(find config -type f))
+files+=('README.md' 'extension.cabal')
 
 for f in ${files[@]}; do
     echo $f
     # sed "s/%PACKAGE%/$package/g" "$f" >replacement && mv replacement "$f"
     # sed "s/%MODEL%/$model/g" "$f" >replacement && mv replacement "$f"
+    # sed "s/%LC_PACKAGE%/$lc_package/g" "$f" >replacement && mv replacement "$f"
     # sed "s/%LC_MODEL%/$lc_model/g" "$f" >replacement && mv replacement "$f"
 done
+
+# mv extension.cabal "${lc_package}-${lc_model}.cabal"
+# mv PACKAGE/MODEL.hs "PACKAGE/${model}.hs"
+# mv PACKAGE/MODEL/Handler/MODEL.hs "PACKAGE/MODEL/Handler/${model}.hs"
+# mv PACKAGE/MODEL "PACKAGE/${model}"
+# mv PACKAGE "${package}"
 
 unset package
 unset model
