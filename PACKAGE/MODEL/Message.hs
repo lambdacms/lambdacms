@@ -20,6 +20,11 @@ data %MODEL%Message =
   | DeleteSuccess
   | Title
   | Save
+  | Back
+  | Delete
+  | CreatedAt
+  | Change%MODEL%Settings
+  | No%MODEL%sFound
 
 defaultMessage :: %MODEL%Message -> Text
 defaultMessage = englishMessage
@@ -33,3 +38,8 @@ englishMessage UpdateSuccess         = "Successfully updated"
 englishMessage DeleteSuccess         = "Successfully deleted"
 englishMessage Title                 = "Title"
 englishMessage Save                  = "Save"
+englishMessage Back                  = "Back"
+englishMessage Delete                = "Delete"
+englishMessage CreatedAt             = "Created at"
+englishMessage Change%MODEL%Settings = "Change %LC_MODEL% settings"
+englishMessage No%MODEL%sFound       = "No %LC_MODEL%s found"
