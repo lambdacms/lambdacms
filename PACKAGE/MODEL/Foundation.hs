@@ -12,7 +12,6 @@ module %PACKAGE%.%MODEL%.Foundation where
 import           Data.Monoid             ((<>))
 import           Data.Text               (Text, unpack)
 import qualified Data.Text               as T
-import           System.FilePath         ((</>))
 import           Yesod
 
 import           LambdaCms.Core
