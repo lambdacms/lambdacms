@@ -3,7 +3,7 @@
 package=$1
 model=$2
 lc_model=$(echo "$model" | tr '[:upper:]' '[:lower:]')
-files=$(find ./PACKAGE -type f)
+files=$(find PACKAGE -type f)
 files+=('README.md' 'LICENCE')
 
 for f in ${files[@]}; do
