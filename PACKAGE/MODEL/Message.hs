@@ -7,7 +7,7 @@ module %PACKAGE%.%MODEL%.Message
        , englishMessage
        ) where
 
-import           Data.Monoid (mappend)
+import           Data.Monoid ((<>))
 import           Data.Text   (Text)
 
 data %MODEL%Message =
