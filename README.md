@@ -44,10 +44,24 @@ In the base app we may optionally also:
 
 # Getting started
 
-We are about to start a project named `YourApp`. For a real project you
-want to substitute that for a more descriptive name, but trying out
-LambdaCms it is recommended to keep this name for the convenience of
+Using this guide you will create a CMS website named `YourApp`.
+For a real project you want to substitute this name, but for trying
+out LambdaCms it is recommended to keep it for the convenience of
 copy-pasting the instructions that follow.
+
+
+### Prerequisites
+
+You need to be reasonably acquinted with Haskell in order to follow
+along with this guide. To learn basic Haskell skill we recommend
+Brent Yorgey's excellent
+[Introduction to Haskell](http://www.seas.upenn.edu/~cis194/spring13)
+course.
+
+Besides Haskell you need to be somewhat familliar with:
+* the web technologies (HTTP, HTML, CSS, JS, REST),
+* SQL (as LambdaCms makes use of a relational database), and
+* the Yesod web application framework ([book](http://yesodweb.com/book)).
 
 
 ### The tool chain
