@@ -67,8 +67,8 @@ Besides Haskell you need to be somewhat familliar with:
 ### The tool chain
 
 Make sure to have **GHC** 7.8.3+, **cabal-install** 1.20+, **happy**, **alex**
-, **yesod-bin** 1.4.3.3+ and **CoffeeScript** 1.8.0+ installed, and their binaries
-available from your shell's `$PATH`.
+, **yesod-bin** 1.4.3.3+ installed, and their binaries available from your
+shell's `$PATH`.
 
 To check that you are good to go, you can use these commands.
 
@@ -77,16 +77,31 @@ To check that you are good to go, you can use these commands.
     happy -V
     alex -V
     yesod version
-    coffee -v
 
 In case you are **not** good to go, you may want to follow the
 [installation guide on the Stackage website](http://www.stackage.org/install)
-which provides instructions for all dependencies except `yesod-bin` and `coffee`,
-for a variety of platforms. For `coffee` you may want to consult [CoffeeScript.org](http://coffeescript.org)
+which provides instructions for all dependencies except `yesod-bin`.
 
 Once you meet all the requirements except `yesod-bin`, install it.
 
     cabal install "yesod-bin >= 1.4.3.3"
+
+
+### Required non-Haskell dependencies
+
+For the connection with the database, Haskell libraries typically compile
+against non-Haskell libraries. One of the following libraries needs to be
+available:
+
+* `libpq-dev` (Ubuntu) or `postgress` (Homebrew on OSX) for Postgres
+* `libmysqlclient-dev` (Ubuntu) or `mysql` (Homebrew on OSX) for MySQL
+* `libsqlite3-dev` (Ubuntu) or `sqlite` (Homebrew on OSX) for Sqlite
+
+On other platforms these packages might have different names, but are
+most likely available.
+
+If you are going to use a database other then Sqlite, you also need
+to install that.
 
 
 ### Create the base application
@@ -107,7 +122,7 @@ database and a sufficiently priviledged user, and supply the
 credentials to the `config/setting.yml` file.
 
 
-### Specify a Stackage snapshot
+### Using LTS Haskell
 
 To avoid spending too much time on build issues we use and recommend
 [LTS Haskell](https://github.com/fpco/lts-haskell#readme).
@@ -458,21 +473,16 @@ isAdmin :: S.Set RoleName -> Bool
 isAdmin = S.member Admin
 ```
 
----
 
-# Links of interest
+### Give it a try
 
-Obviously the [Yesod book](http://www.yesodweb.com/book) is a must read,
-beyond that docs may sometimes be scarse.
-Therefore this collection of links that may shed some light on corners of Yesod
-that are of particular interest when hacking on LambdaCms.
+LambdaCms should now be installed into `YourApp`. You can give it a try.
 
-http://stackoverflow.com/questions/13055611/what-should-the-type-be-for-a-subsite-widget-that-can-be-used-in-a-master-site
+    yesod devel
 
-http://www.yesodweb.com/book/wiki-chat-example
-
-https://github.com/yesodweb/yesod/tree/master/yesod-auth (probably the most complex subsite example)
-
-https://groups.google.com/forum/#!searchin/yesodweb/persistent$20subsite/yesodweb/r3hf3xKYAmg/dJDPirX-q2MJ
-
-https://github.com/piyush-kurur/yesod-admin (he stopped working on it before the subsite rewrite)
+Now point your browser to `http://localhost:3000/admin` and you will be
+prompted to login.  The setup as described above has selected Mozilla's
+Persona as the only means of authentication.  In `config/settings.yml`
+you have provided an email address for the admin user that is created
+if no users exist. If this email address is known to Mozilla Persona
+then you can procede to log in.

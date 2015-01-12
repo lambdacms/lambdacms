@@ -11,7 +11,6 @@ import           Data.UUID
 import           Data.UUID.V4
 import           Language.Haskell.TH.Syntax
 import           Prelude
-import           Text.Coffee
 import           Text.Hamlet
 import           Yesod.Default.Util
 
@@ -20,9 +19,6 @@ widgetFileSettings = def
     { wfsHamletSettings = defaultHamletSettings
             { hamletNewlines = AlwaysNewlines
             }
-    , wfsLanguages = \hset -> defaultTemplateLanguages hset ++
-                              [ TemplateLanguage True "coffee" coffeeFile coffeeFileReload
-                              ]
     }
 
 widgetFile :: String -> Q Exp

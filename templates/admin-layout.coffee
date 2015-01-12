@@ -1,3 +1,6 @@
+# This file is converted to JS and put in a `.julius` file of the same name.
+# Thereby avoiding a dependency on CoffeeScript.
+
 do ($ = jQuery, scope = window) ->
   $(document).ready ->
     formToggles = $('.form-toggle')
