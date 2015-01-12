@@ -334,7 +334,6 @@ lambdaCmsHumanTimeLocale = do
         , weeksAgo      = rm . Msg.TimeWeeksAgo . pack
         , onYear        = rm . Msg.TimeOnYear . pack
         , locale        = lambdaCmsTimeLocale langs
-        , timeZone      = utc
         , dayOfWeekFmt  = rm Msg.DayOfWeekFmt
         , thisYearFmt   = "%b %e"
         , prevYearFmt   = "%b %e, %Y"
