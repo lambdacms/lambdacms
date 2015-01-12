@@ -2,12 +2,12 @@ name:               lambdacms-core
 version:            0.0.7.1
 license:            MIT
 license-file:       LICENSE
-author:             Cies Breijs, Mats RietDijk, Rutger van Aalst
+author:             Cies Breijs, Mats Rietdijk, Rutger van Aalst
 maintainer:         cies@AT-hoppinger.com
 copyright:          (c) 2014 Hoppinger
 bug-reports:        https://github.com/lambdacms/lambdacms-core
 homepage:           http://lambdacms.org
-synopsis:           Core package of a Content Management System (CMS) for Yesod.
+synopsis:           Core CMS extension for Yesod apps
 description:        LambdaCms is a Content Management System (CMS) in Haskell
                     using Yesod.
 stability:          alpha
@@ -16,10 +16,19 @@ build-type:         Simple
 tested-with:        GHC >= 7.6
 cabal-version:      >= 1.18
 extra-source-files: README.md
-                    CHANGES.md
-                  , templates/*
-                  , messages/*
-                  , static/*
+                  , CHANGES.md
+                  , templates/*.hamlet
+                  , templates/*.julius
+                  , templates/*.cassius
+                  , templates/mail/*.hamlet
+                  , templates/user/*.hamlet
+                  , static/css/*.css
+                  , static/fonts/*.eot
+                  , static/fonts/*.svg
+                  , static/fonts/*.ttf
+                  , static/fonts/*.woff
+                  , static/img/*.png
+                  , static/js/*.min.js
 
 source-repository head
   type:             git
