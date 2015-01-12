@@ -67,8 +67,8 @@ Besides Haskell you need to be somewhat familliar with:
 ### The tool chain
 
 Make sure to have **GHC** 7.8.3+, **cabal-install** 1.20+, **happy**, **alex**
-and **yesod-bin** 1.4.1+ installed, and their binaries available from your
-shell's `$PATH`.
+, **yesod-bin** 1.4.3.3+ and **CoffeeScript** 1.8.0+ installed, and their binaries
+available from your shell's `$PATH`.
 
 To check that you are good to go, you can use these commands.
 
@@ -77,15 +77,16 @@ To check that you are good to go, you can use these commands.
     happy -V
     alex -V
     yesod version
+    coffee -v
 
 In case you are **not** good to go, you may want to follow the
 [installation guide on the Stackage website](http://www.stackage.org/install)
-which provides instructions for all dependencies except `yesod-bin`,
-for a variety of platforms.
+which provides instructions for all dependencies except `yesod-bin` and `coffee`,
+for a variety of platforms. For `coffee` you may want to consult [CoffeeScript.org](http://coffeescript.org)
 
 Once you meet all the requirements except `yesod-bin`, install it.
 
-    cabal install "yesod-bin >= 1.4.1"
+    cabal install "yesod-bin >= 1.4.3.3"
 
 
 ### Create the base application
@@ -189,13 +190,15 @@ Add the following routes to the `config/routes` file of your application:
 /admin         AdminHomeRedirectR    GET
 ```
 
+And remove `/auth   AuthR   Auth   getAuth`.
+
 #### Modify the `config/settings.yml` file
 
 Add the following line, which sets the email address for an admin user account
-that is created (and activated) in case no admin user exists:
+that is created (and activated) in case no user exists:
 
 ```
-admin: <your email address>
+admin: "_env:LAMBDACMS_ADMIN:<your email address>"
 ```
 
 #### Modify the `Settings.hs` file
@@ -226,7 +229,7 @@ UserRole
     deriving Typeable Show
 ```
 
-#### Modify the `Models.hs` file
+#### Modify the `Model.hs` file
 
 Add the following imports:
 
@@ -254,7 +257,8 @@ getAdminHomeRedirectR = do
 ```
 
 Replace the `makeFoundation` function with the following code, so it will
-create the `admin` user as provided in `settings.yml` and run all needed migrations:
+create the `admin` user as provided in `settings.yml` and run all needed migrations.
+This example assumes Postgres is used:
 
 ```haskell
 makeFoundation :: AppSettings -> IO App
@@ -298,18 +302,23 @@ makeFoundation appSettings' = do
         Nothing -> do
             timeNow <- getCurrentTime
             uuid <- generateUUID
-            flip runSqlPool pool $
-                insert_ User { userIdent     = uuid
-                             , userPassword  = Nothing
-                             , userName      = takeWhile (/= '@') admin
-                             , userEmail     = admin
-                             , userToken     = Nothing
-                             , userCreatedAt = timeNow
-                             , userLastLogin = Nothing
-                             }
+            flip runSqlPool pool $ do
+                uid <- insert User { userIdent     = uuid
+                                   , userPassword  = Nothing
+                                   , userName      = takeWhile (/= '@') admin
+                                   , userEmail     = admin
+                                   , userActive    = True
+                                   , userToken     = Nothing
+                                   , userCreatedAt = timeNow
+                                   , userLastLogin = Nothing
+                                   , userDeletedAt = Nothing
+                                   }
+                -- assign all roles to the first user
+                mapM_ (insert_ . UserRole uid) [minBound .. maxBound]
         _ -> return ()
 
     return theFoundation
+
 ```
 
 In the function `makeApplication` replace this line:
@@ -318,7 +327,7 @@ In the function `makeApplication` replace this line:
     return $ logWare $ defaultMiddlewaresNoLogging appPlain
 ```
 
-With this line (adding a WAI middleware needed to make RESTful
+With this line (adding a WAI middleware is needed to make RESTful
 forms work on older browsers):
 
 ```haskell
@@ -336,10 +345,8 @@ module Roles where
 import ClassyPrelude.Yesod
 
 data RoleName = Admin
-              | SuperUser
               | Blogger
-              | MediaManager
-              deriving (Eq, Ord, Show, Read, Enum, Bounded)
+              deriving (Eq, Ord, Show, Read, Enum, Bounded, Typeable)
 
 derivePersistField "RoleName"
 ```
@@ -365,26 +372,23 @@ Change the implementation of `isAuthorized` (in `instance Yesod App`) to the
 following, which allows fine-grained authorization based on `UserRoles`:
 
 ```haskell
-isAuthorized theRoute _ = do
-    mauthId <- maybeAuthId
-    wai <- waiRequest
-    y <- getYesod
-    murs <- mapM getUserRoles mauthId
-    return $ isAuthorizedTo y murs $ actionAllowedFor theRoute (W.requestMethod wai)
+    isAuthorized theRoute _ =
+        case theRoute of
+            (StaticR _)                   -> return Authorized
+            (CoreAdminR (AdminStaticR _)) -> return Authorized
+            _                             -> do
+                mauthId <- maybeAuthId
+                wai     <- waiRequest
+                y       <- getYesod
+                murs    <- mapM getUserRoles mauthId
+                return $ isAuthorizedTo y murs $ actionAllowedFor theRoute (W.requestMethod wai)
+
 ```
 
 Change the implementation of `getAuthId` (in `instance YesodAuth App`) to:
 
 ```haskell
-    getAuthId creds = do
-        timeNow <- lift getCurrentTime
-        runDB $ do
-            x <- getBy $ UniqueEmail $ credsIdent creds
-            case x of
-                Just (Entity uid _) -> do
-                    _ <- update uid [UserLastLogin =. Just timeNow] -- update last login time during the login process
-                    return $ Just uid
-                Nothing -> return Nothing
+    getAuthId = getLambdaCmsAuthId
 ```
 
 In `instance YesodAuth App` replace:
@@ -401,9 +405,16 @@ With:
     logoutDest _ = AuthR LoginR
 ```
 
+And add:
+
+```haskell
+    authLayout = adminAuthLayout
+```
+
+
 Add the following instance to allow `Unauthenticated` `GET` requests for the
 `HomeR` route (likely to be `/`) and other common routes such as `/robots.txt`.
-The last pattern forbids access to any unspecified routes.
+The last pattern allows access to any unspecified routes for just Admins -- which is a role defined in Roles.hs.
 It is in `actionAllowedFor` that you will setup permissions for the roles.
 
 ```haskell
@@ -414,15 +425,17 @@ instance LambdaCmsAdmin App where
     actionAllowedFor (RobotsR)  "GET" = Unauthenticated
     actionAllowedFor (HomeR)    "GET" = Unauthenticated
     actionAllowedFor (AuthR _)  _     = Unauthenticated
-    actionAllowedFor _          _     = Nobody -- allow no one by default.
+    actionAllowedFor _          _     = Roles $ S.fromList [Admin]
 
     coreR = CoreAdminR
     authR = AuthR
     masterHomeR = HomeR
 
-    getUserRoles userId = do
-        v <- runDB $ selectList [UserRoleUserId ==. userId] []
-        return . S.fromList $ map (userRoleRoleName . entityVal) v
+    -- cache user roles to reduce the amount of DB calls
+    getUserRoles userId = cachedBy cacheKey . fmap toRoleSet . runDB $ selectList [UserRoleUserId ==. userId] []
+        where
+            cacheKey = encodeUtf8 $ toPathPiece userId
+            toRoleSet = S.fromList . map (userRoleRoleName . entityVal)
 
     setUserRoles userId rs = runDB $ do
         deleteWhere [UserRoleUserId ==. userId]
@@ -430,22 +443,22 @@ instance LambdaCmsAdmin App where
 
     adminMenu =  (defaultCoreAdminMenu CoreAdminR)
     renderLanguages _ = ["en", "nl"]
+
+    mayAssignRoles = do
+        authId <- requireAuthId
+        roles <- getUserRoles authId
+        return $ isAdmin roles
+```
+
+#### Add an `isAdmin` function to the bottom of `Foundation.hs`
+
+Remember that the `Admin` role is defined in Roles.hs
+```haskell
+isAdmin :: S.Set RoleName -> Bool
+isAdmin = S.member Admin
 ```
 
 ---
-
----
-
-## Other Packages
-
-Not every package is included in the stackage. These packages will be listed here.
-
-Clone the repo, cd into it and simply run `cabal install`.
-
-Listing of other packages:
-
-* [friendly-time](https://github.com/pbrisbin/friendly-time)
-
 
 # Links of interest
 
