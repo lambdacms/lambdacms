@@ -44,3 +44,11 @@ class LambdaCmsAdmin master => %PACKAGE%%MODEL% master where
 
 default%MODEL%AdminMenu :: %PACKAGE%%MODEL% master => (Route %MODEL%Admin -> Route master) -> [AdminMenuItem master]
 default%MODEL%AdminMenu tp = [ MenuItem (SomeMessage Msg.Menu%MODEL%) (tp %MODEL%AdminIndexR) "pushpin" ]
+
+instance LambdaCmsLoggable %MODEL% where
+    logMessage _ "POST"   = js%MODEL%Message Msg.LogCreated%MODEL%
+    logMessage _ "PATCH"  = js%MODEL%Message Msg.LogUpdated%MODEL%
+    logMessage _ "DELETE" = js%MODEL%Message Msg.LogDeleted%MODEL%
+    logMessage _ _        = const Nothing
+
+js%MODEL%Message msg = Just . SomeMessage . msg . %LC_MODEL%Title
