@@ -12,7 +12,7 @@ Pick a package and extension name to use. In the following example we will creat
 
 *note that the arguments are given case sensative. Because packages and datatypes in Haskell always start with an uppercased character both arguments should always start uppercased.*
 
-After running the create script your new extension is ready to be isntalled, to install run:
+After running the create script your new extension is ready to be installed, to install run:
 
 ```bash
 cabal install
