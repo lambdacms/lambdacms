@@ -15,7 +15,7 @@ lc_model=$(echo "$model" | tr '[:upper:]' '[:lower:]')
 files=($(find PACKAGE -type f))
 files+=($(find config -type f))
 files+=($(find templates -type f))
-files+=('README.md' 'extension.cabal')
+files+=('EXTENSION_README.md' 'extension.cabal')
 
 # Insert package and model into files
 for f in ${files[@]}; do
@@ -29,6 +29,7 @@ done
 
 # Move files to final dir structure
 mv extension.cabal "${lc_package}-${lc_model}.cabal"
+mv EXTENSION_README.md "README.md"
 mv PACKAGE/MODEL.hs "PACKAGE/${model}.hs"
 mv PACKAGE/MODEL/Handler/MODEL.hs "PACKAGE/MODEL/Handler/${model}.hs"
 mv PACKAGE/MODEL "PACKAGE/${model}"
