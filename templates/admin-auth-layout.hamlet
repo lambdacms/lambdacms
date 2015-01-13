@@ -15,5 +15,5 @@
             <div .row>
                 <div>
                     <a href=@{masterHomeR}>
-                        <span .glyphicon .glyphicon-arrow-left>
+                        <span>&#8592;
                         _{Msg.BackHome}
