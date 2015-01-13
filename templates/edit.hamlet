@@ -26,7 +26,8 @@
 <div .row>
     <div .col-sm-12 .col-md-9 .col-lg-6>
         $maybe r <- can (%LC_MODEL%R $ %MODEL%AdminEditR %LC_MODEL%Id) "PATCH"
-            <h2>_{Msg.Change%MODEL%Settings}
-            <form role=form method=POST action=@{r} enctype=#{enctype}>
-                <input name="_method" type="hidden" value="PATCH" />
-                ^{fWidget}
+            <div .form-toggle-wrapper>
+                <h2 .form-toggle data-expanded=false>_{Msg.Change%MODEL%Settings}
+                <form role=form method=POST action=@{r} enctype=#{enctype}>
+                    <input name="_method" type="hidden" value="PATCH" />
+                    ^{fWidget}
