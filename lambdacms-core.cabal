@@ -1,5 +1,5 @@
 name:               lambdacms-core
-version:            0.0.7.1
+version:            0.0.7.3
 license:            MIT
 license-file:       LICENSE
 author:             Cies Breijs, Mats Rietdijk, Rutger van Aalst
@@ -23,12 +23,15 @@ extra-source-files: README.md
                   , templates/mail/*.hamlet
                   , templates/user/*.hamlet
                   , static/css/*.css
+                  , static/css/*.min.css
                   , static/fonts/*.eot
                   , static/fonts/*.svg
                   , static/fonts/*.ttf
                   , static/fonts/*.woff
                   , static/img/*.png
                   , static/js/*.min.js
+                  , config/models
+                  , config/routes
 
 source-repository head
   type:             git
