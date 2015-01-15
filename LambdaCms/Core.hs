@@ -3,12 +3,13 @@
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE ViewPatterns          #-}
+{-# OPTIONS_GHC -fno-warn-orphans  #-}
 
 module LambdaCms.Core
     ( module Export
     ) where
 
-import           Database.Persist.Sql             (SqlBackend)
+import           Database.Persist.Sql             ()
 
 import           LambdaCms.Core.Classes           as Export
 import           LambdaCms.Core.Foundation        as Export

@@ -2,6 +2,6 @@
     <div .col-xs-12>
         <div .jumbotron>
             <h2>_{Msg.WelcomeTitle $ userName user}
-            <p>_{Msg.WelcomeIntro $ renderMessage adminTitle}
+            <p>_{Msg.WelcomeIntro $ messageRenderer adminTitle}
             <p>_{Msg.WelcomeMenu}
-            <p>#{preEscapedToMarkup $ renderMessage $ SomeMessage Msg.WelcomeInfo}
+            <p>#{preEscapedToMarkup $ messageRenderer $ SomeMessage Msg.WelcomeInfo}

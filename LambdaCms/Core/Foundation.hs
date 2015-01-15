@@ -6,26 +6,25 @@
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE ViewPatterns          #-}
+{-# OPTIONS_GHC -fno-warn-orphans  #-}
 
 module LambdaCms.Core.Foundation where
 
 import           Control.Applicative        ((<$>))
 import           Control.Arrow              ((&&&))
-import           Control.Monad              (filterM)
 import           Data.ByteString            (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as LB (concat, toStrict)
-import           Data.Int
 import           Data.List                  (find, sortBy)
 import           Data.Maybe                 (catMaybes, isJust)
 import           Data.Monoid                ((<>))
 import           Data.Ord                   (comparing)
-import           Data.Set                   (Set, empty, fromList, intersection)
-import qualified Data.Set                   as S (null)
+import           Data.Set                   (Set)
+import qualified Data.Set                   as S (empty, intersection, null)
 import           Data.Text                  (Text, concat, intercalate, pack,
                                              unpack)
 import qualified Data.Text                  as T
 import           Data.Text.Encoding         (decodeUtf8)
-import           Data.Time                  (getCurrentTime, utc)
+import           Data.Time                  (getCurrentTime)
 import           Data.Time.Format.Human
 import           Data.Traversable           (forM)
 import           Database.Persist.Sql       (SqlBackend)
@@ -40,8 +39,6 @@ import           Network.Gravatar           (GravatarOptions (..), Size (..),
 import           Network.Mail.Mime
 import           Network.Wai                (requestMethod)
 import           Text.Hamlet                (hamletFile)
-import           Text.Julius                (juliusFile)
-import           Text.Lucius                (luciusFile)
 import           Yesod
 import           Yesod.Auth
 
@@ -112,7 +109,7 @@ class ( YesodAuth master
 
     -- | Gives the default roles a user should have on create
     defaultRoles :: HandlerT master IO (Set (Roles master))
-    defaultRoles = return empty
+    defaultRoles = return S.empty
 
     -- | See if a user is authorized to perform an action.
     isAuthorizedTo :: master                     -- Needed to make function injective.
@@ -124,7 +121,7 @@ class ( YesodAuth master
     isAuthorizedTo _ (Just _)    Authenticated   = Authorized
     isAuthorizedTo _ Nothing     _               = AuthenticationRequired
     isAuthorizedTo _ (Just urs) (Roles rrs)    = do
-      case (not . S.null $ urs `intersection` rrs) of
+      case (not . S.null $ urs `S.intersection` rrs) of
         True -> Authorized -- non-empty intersection means authorized
         False -> Unauthorized "Access denied."
 
@@ -152,7 +149,7 @@ class ( YesodAuth master
     welcomeWidget :: Maybe (WidgetT master IO ())
     welcomeWidget = Just $ do
         Entity _ user <- handlerToWidget requireAuth
-        renderMessage <- getMessageRender
+        messageRenderer <- getMessageRender
         $(widgetFile "admin-welcome")
 
     -- | Applies some form of layout to the contents of an admin section page.
@@ -348,7 +345,7 @@ routeBestMatch (Just cr) rs = fmap snd $ find cmp orrs
         (cparts, _) = renderRoute cr
         rrs = map ((fst . renderRoute) &&& id) rs
         orrs = reverse $ sortBy (comparing (length . fst)) rrs
-        cmp (route, _) = route == (take (length route) cparts)
+        cmp (route', _) = route' == (take (length route') cparts)
 routeBestMatch _ _ = Nothing
 
 class LambdaCmsLoggable entity where
@@ -367,10 +364,11 @@ instance LambdaCmsLoggable User where
 
     logRoute _ userId = Just . coreR . UserAdminR $ UserAdminEditR userId
 
+jsm :: forall b master. RenderMessage master b => (Text -> b) -> User -> Maybe (SomeMessage master)
 jsm msg = Just . SomeMessage . msg . userName
 
 logAction :: (LambdaCmsAdmin master, LambdaCmsLoggable entity) => Entity entity -> HandlerT master IO ()
-logAction (Entity objectId object) = do
+logAction (Entity objectId object') = do
     wai <- waiRequest
     y <- getYesod
     authId <- requireAuthId
@@ -382,7 +380,7 @@ logAction (Entity objectId object) = do
         mRoute = logRoute y objectId
         mPath = T.intercalate "/" . fst . renderRoute <$> mRoute
 
-    mapM_ (saveLog y ident method timeNow object mPath authId) langs
+    mapM_ (saveLog y ident method timeNow object' mPath authId) langs
     where
         saveLog y ident method time entity mPath userId lang = case logMessage y method entity of
             Just message' -> do

@@ -58,7 +58,7 @@
                                 -
                     <tr>
                         <td>_{Msg.AccountStatus}
-                        $maybe ut <- userToken user
+                        $maybe _ <- userToken user
                             <td .text-right .text-warning>_{Msg.AccountPending}
                         $nothing
                             $if userActive user

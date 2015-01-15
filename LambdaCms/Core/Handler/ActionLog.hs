@@ -1,3 +1,4 @@
+{-# LANGUAGE KindSignatures      #-}
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE QuasiQuotes         #-}
 {-# LANGUAGE RankNTypes          #-}
@@ -9,13 +10,11 @@ module LambdaCms.Core.Handler.ActionLog
        , getActionLogAdminUserR
        ) where
 
-import           Control.Applicative    ((<$>))
 import           Data.Int               (Int64)
 import           Data.List              (intersect)
 import           Data.Lists             (firstOr)
-import           Data.Maybe             (fromJust, maybe)
+import           Data.String
 import           Data.Text
-import           Data.Time.Clock
 import           Data.Time.Clock
 import           Data.Time.Format.Human
 import           Database.Esqueleto     ((^.))
@@ -24,7 +23,6 @@ import           LambdaCms.Core.Import
 import qualified LambdaCms.Core.Message as Msg
 import           Network.Wai
 import           Text.Read              (readEither)
-import           Yesod.Auth             (requireAuthId)
 import           Yesod.Core
 import           Yesod.Core.Types
 
@@ -36,10 +34,10 @@ data JsonLog = JsonLog
                }
 
 instance ToJSON JsonLog where
-    toJSON (JsonLog message username userUrl timeAgo) = object [ "message" .= message
-                                                               , "username" .= username
-                                                               , "userUrl" .= userUrl
-                                                               , "timeAgo" .= timeAgo
+    toJSON (JsonLog msg username' userUrl' timeAgo') = object [ "message" .= msg
+                                                               , "username" .= username'
+                                                               , "userUrl" .= userUrl'
+                                                               , "timeAgo" .= timeAgo'
                                                                ]
 
 resolveApproot :: Yesod master => master -> Request -> ResolvedApproot
@@ -50,13 +48,19 @@ resolveApproot master req =
         ApprootMaster f -> f master
         ApprootRequest f -> f master req
 
-logToJsonLog can renderUrl toAgo (Entity _ log, Entity userId user) = do
+logToJsonLog :: (LambdaCmsAdmin master, IsString method, Monad m) =>
+                (Route master -> method -> Maybe r)
+                -> (r -> Text)
+                -> (UTCTime -> String)
+                -> (Entity ActionLog, Entity User)
+                -> m JsonLog
+logToJsonLog can renderUrl toAgo (Entity _ log', Entity userId user) = do
     let mUserUrl = renderUrl <$> (can (coreR $ UserAdminR $ UserAdminEditR userId) "GET")
     return $ JsonLog
-             { message = actionLogMessage log
+             { message = actionLogMessage log'
              , username = userName user
              , userUrl = mUserUrl
-             , timeAgo = toAgo $ actionLogCreatedAt log
+             , timeAgo = toAgo $ actionLogCreatedAt log'
              }
 
 getCurrentLang :: CoreHandler Text
@@ -69,15 +73,15 @@ getActionLogs :: Maybe UserId -> Int64 -> Int64 -> Text -> CoreHandler [(Entity 
 getActionLogs mUserId limit offset lang = do
     logs <- lift $ runDB
             $ E.select
-            $ E.from $ \(log `E.InnerJoin` user) -> do
-                E.on $ log ^. ActionLogUserId E.==. user ^. UserId
-                E.where_ $ log ^. ActionLogLang E.==. E.val lang
+            $ E.from $ \(log' `E.InnerJoin` user) -> do
+                E.on $ log' ^. ActionLogUserId E.==. user ^. UserId
+                E.where_ $ log' ^. ActionLogLang E.==. E.val lang
                 maybe (return ()) (E.where_ . (E.==.) (user ^. UserId) . E.val) mUserId
                 E.limit limit
                 E.offset offset
-                E.orderBy [E.desc (log ^. ActionLogCreatedAt)]
+                E.orderBy [E.desc (log' ^. ActionLogCreatedAt)]
 
-                return (log, user)
+                return (log', user)
     return logs
 
 getActionLogAdminJson :: Maybe UserId -> CoreHandler TypedContent

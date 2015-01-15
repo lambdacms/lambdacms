@@ -4,9 +4,13 @@
     var formToggles;
     formToggles = $('.form-toggle');
     formToggles.each(function(index) {
-      var glyph;
+      var btn, glyph;
       glyph = $('<span />').addClass('glyphicon');
-      $(this).prepend(glyph);
+      btn = $(this);
+      if (btn.parent('.form-toggle-wrapper').find('.has-error').length) {
+        btn.data('expanded', true);
+      }
+      btn.prepend(glyph);
       toggleForm(this);
     });
     formToggles.on('click', function() {

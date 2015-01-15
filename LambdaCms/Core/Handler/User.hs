@@ -22,27 +22,23 @@ module LambdaCms.Core.Handler.User
 import           LambdaCms.Core.Import
 import           LambdaCms.Core.Message        (CoreMessage)
 import qualified LambdaCms.Core.Message        as Msg
-import           LambdaCms.I18n
 import           Yesod                         (Route)
-import           Yesod.Auth                    (Creds (..), requireAuthId, setCreds)
-
-import qualified Data.Text                     as T (breakOn, concat, length,
-                                                     pack, takeWhile)
-import qualified Data.Text.Lazy                as LT (Text)
-import           Data.Time.Format
+import           Yesod.Auth                    (Creds (..), requireAuthId,
+                                                setCreds)
 
 import           Control.Arrow                 ((&&&))
-import           Data.Maybe                    (fromJust, fromMaybe, isJust)
+import           Data.Maybe                    (fromJust, isJust, fromMaybe)
 import qualified Data.Set                      as S
+import qualified Data.Text                     as T (breakOn, length, pack,
+                                                     takeWhile)
 import           Data.Time.Clock
 import           Data.Time.Format.Human
 import           Network.Mail.Mime
-import           System.Locale
 import           Text.Blaze.Html.Renderer.Text (renderHtml)
 
 -- data type for a form to change a user's password
 data ComparePassword = ComparePassword { originalPassword :: Text
-                                       , confirmPassword  :: Text
+                                       , _confirmPassword  :: Text
                                        } deriving (Show, Eq)
 
 accountSettingsForm :: LambdaCmsAdmin master
