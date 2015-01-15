@@ -1,6 +1,5 @@
 
 
-
 ```
                            ,                     _
                           /   _, _   /  _/ _,   / ) _  _,
@@ -44,7 +43,7 @@ In the base app we may optionally also:
 
 # Getting started
 
-Using this guide you will create a CMS website named `YourApp`.
+Using this guide you will create a CMS website named `mysite`.
 For a real project you want to substitute this name, but for trying
 out LambdaCms it is recommended to keep it for the convenience of
 copy-pasting the instructions that follow.
@@ -93,31 +92,33 @@ For the connection with the database, Haskell libraries typically compile
 against non-Haskell libraries. One of the following libraries needs to be
 available:
 
-* `libpq-dev` (Ubuntu) or `postgress` (Homebrew on OSX) for Postgres
-* `libmysqlclient-dev` (Ubuntu) or `mysql` (Homebrew on OSX) for MySQL
-* `libsqlite3-dev` (Ubuntu) or `sqlite` (Homebrew on OSX) for Sqlite
+* For Postgres:
+ * Ubuntu: `libpq-dev`
+ * Homebrew on OSX: `postgres`
+* For Mysql:
+  * Ubuntu: `libmysqlclient-dev`
+  * Homebrew on OSX: `mysql`
+* For Sqlite
+  * Ubuntu: `libsqlite3-dev`
+  * Homebrew on OSX: `sqlite`
 
 On other platforms these packages might have different names, but are
 most likely available.
 
-If you are going to use a database other then Sqlite, you also need
+If you are going to use a database other than Sqlite, you also need
 to install that.
-
 
 ### Create the base application
 
 With the following command you create a "scaffolded" Yesod application.
 The command is interactive; you need to supply some configuration values.
-Pick the database of your choice, and name it `YourApp` (if you want follow this
-guide closely).
+Pick the database of your choice, and choose a project name
 
     yesod init
 
-After scaffolding move into the project folder.
+After scaffolding `cd` into the project folder.
 
-    cd YourApp
-
-If you have chosen a database other then Sqlite, you need to create a
+If you have chosen a database other than Sqlite, you need to create a
 database and a sufficiently priviledged user, and supply the
 credentials to the `config/setting.yml` file.
 
@@ -133,7 +134,7 @@ contain breaking changes we only provide the major release number,
 thereby automatically using the most recent minor release in that
 series.
 
-Run the following commands from within `YourApp`'s project folder,
+Run the following commands from within your project's root folder,
 to install the most recent LTS Haskell package set in the `1.x` series.
 
     wget http://www.stackage.org/lts/1/cabal.config
@@ -163,23 +164,16 @@ If all went well you are ready to add LambdaCms to your app.
 
 ### Add LambdaCms
 
-At some point the `lambdacms-core` package will be distributed from Hackage,
-until then we install it from Github.
-
-    cd ..
-    git clone git@github.com:lambdacms/lambdacms-core.git
-    cd lambdacms-core
-    cabal install
-    cd ../YourApp
+LambdaCms is on Hackage! Install with: `cabal install lambdacms-core`
 
 In the following sub-sections we explain how to install `lambdacms-core` into
 the base application.  Much of what we show here can be accomplished in
 many different ways, in this guide we merely provide a way to get you started.
 
 
-#### Modify the `YourApp.cabal` file
+#### Modify the `.cabal` file
 
-First add `lambdacms-core` to the dependencies list of the `YourApp.cabal`
+First add `lambdacms-core` to the dependencies list of the `.cabal`
 file (name of the file depends on the name of your project).
 
 Add the follwing to the end of the `build-depends` section:
@@ -197,35 +191,40 @@ Roles
 
 #### Modify the `config/routes` file
 
-Add the following routes to the `config/routes` file of your application:
+Replace **all** of the file's content with:
 
 ```
-/admin/auth    AuthR                 Auth        getAuth
-/admin/core    CoreAdminR            CoreAdmin   getLambdaCms
-/admin         AdminHomeRedirectR    GET
+/static StaticR Static appStatic
+
+/favicon.ico FaviconR GET
+/robots.txt RobotsR GET
+
+/ HomeR GET
+
+/admin/tutorials   TutorialAdminR        TutorialAdmin   getTutorialAdmin
+/admin/auth        AuthR                 Auth            getAuth
+/admin/core        CoreAdminR            CoreAdmin       getLambdaCms
+/admin             AdminHomeRedirectR    GET
 ```
 
-And remove `/auth   AuthR   Auth   getAuth`.
+#### Modify Settings
 
-#### Modify the `config/settings.yml` file
+There are two files to modify here. One is `config/settings.yml` and the the other is `Settings.hs`.
 
-Add the following line, which sets the email address for an admin user account
-that is created (and activated) in case no user exists:
-
+In `config/settings.yml`, add the following line to the bottom of the file
 ```
 admin: "_env:LAMBDACMS_ADMIN:<your email address>"
 ```
 
-#### Modify the `Settings.hs` file
-
-Append the following record to the `AppSettings` data type:
+Then, in `Settings.hs`, append the following record to the `AppSettings` data type:
 
 ```haskell
     , appAdmin                  :: Text
 ```
 
-Add this line to `instance FromJSON AppSettings` (ensure following
-the same order as the properties appear in `settings.yml`):
+In `instance FromJSON AppSettings`, find this line:
+
+Add the following line just before the line containing `return AppSettings {..}`:
 
 ```haskell
         appAdmin                  <- o .: "admin"
@@ -233,8 +232,7 @@ the same order as the properties appear in `settings.yml`):
 
 #### Modify the `config/models` file
 
-Replace **all** of the file's content with the following `UserRole`
-definition:
+Replace **all** of the file's content with the following `UserRole` definition:
 
 ```
 UserRole
@@ -260,10 +258,10 @@ Add the following imports:
 ```haskell
 import LambdaCms.Core
 import LambdaCms.Core.Settings (generateUUID)
-import qualified Network.Wai.Middleware.MethodOverridePost as MiddlewareMOP
+import Network.Wai.Middleware.MethodOverridePost
 ```
 
-And add the following function:
+Add the following function:
 
 ```haskell
 getAdminHomeRedirectR :: Handler Html
@@ -271,47 +269,33 @@ getAdminHomeRedirectR = do
     redirect $ CoreAdminR AdminHomeR
 ```
 
-Replace the `makeFoundation` function with the following code, so it will
-create the `admin` user as provided in `settings.yml` and run all needed migrations.
-This example assumes Postgres is used:
+In the `makeFoundation` function, add this line to beginning:
 
 ```haskell
-makeFoundation :: AppSettings -> IO App
-makeFoundation appSettings' = do
-    -- Some basic initializations: HTTP connection manager, logger, and static
-    -- subsite.
-    appHttpManager' <- newManager
-    appLogger' <- newStdoutLoggerSet defaultBufSize >>= makeYesodLogger
-    appStatic' <-
-        (if appMutableStatic appSettings' then staticDevel else static)
-        (appStaticDir appSettings')
+let getLambdaCms = CoreAdmin
+```
 
-    -- We need a log function to create a connection pool. We need a connection
-    -- pool to create our foundation. And we need our foundation to get a
-    -- logging function. To get out of this loop, we initially create a
-    -- temporary foundation without a real connection pool, get a log function
-    -- from there, and then create the real foundation.
-    let mkFoundation appConnPool' = App { appSettings    = appSettings'
-                                        , appStatic      = appStatic'
-                                        , appHttpManager = appHttpManager'
-                                        , appLogger      = appLogger'
-                                        , appConnPool    = appConnPool'
-                                        , getLambdaCms   = CoreAdmin
-                                        }
-        tempFoundation = mkFoundation $ error "connPool forced in tempFoundation"
-        logFunc = messageLoggerSource tempFoundation appLogger'
+Then, find this code:
 
-    -- Create the database connection pool
-    pool <- flip runLoggingT logFunc $ createPostgresqlPool
-        (pgConnStr  $ appDatabaseConf appSettings')
-        (pgPoolSize $ appDatabaseConf appSettings')
+```haskell
+    -- Perform database migration using our application's logging settings.
+    runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
 
+    -- Return the foundation
+    return $ mkFoundation pool
+```
+
+And replace it with:
+
+```haskell
+    -- Perform database migration using our application's logging settings.
     let theFoundation = mkFoundation pool
     runLoggingT
         (runSqlPool (mapM_ runMigration [migrateAll, migrateLambdaCmsCore]) pool)
-        (messageLoggerSource theFoundation appLogger')
+        (messageLoggerSource theFoundation appLogger)
 
-    let admin = appAdmin appSettings'
+    -- Create a user if no user exists yet
+    let admin = appAdmin appSetutings
     madmin <- runSqlPool (getBy (UniqueEmail admin)) pool
     case madmin of
         Nothing -> do
@@ -332,9 +316,10 @@ makeFoundation appSettings' = do
                 mapM_ (insert_ . UserRole uid) [minBound .. maxBound]
         _ -> return ()
 
+    -- Return the foundation
     return theFoundation
-
 ```
+
 
 In the function `makeApplication` replace this line:
 
@@ -346,7 +331,7 @@ With this line (adding a WAI middleware is needed to make RESTful
 forms work on older browsers):
 
 ```haskell
-    return $ logWare $ MiddlewareMOP.methodOverridePost appPlain
+    return $ logWare $ methodOverridePost appPlain
 ```
 
 ## Create the `Roles.hs` file
@@ -476,7 +461,7 @@ isAdmin = S.member Admin
 
 ### Give it a try
 
-LambdaCms should now be installed into `YourApp`. You can give it a try.
+LambdaCms should now be installed. You can give it a try.
 
     yesod devel
 
