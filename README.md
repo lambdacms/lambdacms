@@ -201,7 +201,6 @@ Replace **all** of the file's content with:
 
 / HomeR GET
 
-/admin/tutorials   TutorialAdminR        TutorialAdmin   getTutorialAdmin
 /admin/auth        AuthR                 Auth            getAuth
 /admin/core        CoreAdminR            CoreAdmin       getLambdaCms
 /admin             AdminHomeRedirectR    GET
@@ -295,7 +294,7 @@ And replace it with:
         (messageLoggerSource theFoundation appLogger)
 
     -- Create a user if no user exists yet
-    let admin = appAdmin appSetutings
+    let admin = appAdmin appSettings
     madmin <- runSqlPool (getBy (UniqueEmail admin)) pool
     case madmin of
         Nothing -> do
