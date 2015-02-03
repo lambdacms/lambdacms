@@ -3,9 +3,7 @@
 To make the inital setup for a [LambdaCms](http://www.lambdacms.org) website a lot easier, the patches within this repository can be used.
 Either clone this repository or copy the required patch file to your machine.
 
-The current patch files are tested with the following Yesod version:
-
-* 1.4.3.3
+The current patch files are tested with Yesod v1.4.3.3.
 
 ## Patching all in one
 
