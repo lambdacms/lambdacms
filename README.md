@@ -17,6 +17,12 @@ patch -p1 < /path/to/lambdacms.patch
 
 Because the name of the `.cabal` file is different for every project the patch command will notice a patched file is missing (we named our `.cabal` `patch.cabal`). When the patch command tries to patch this file you will be prompted for the name of your projects `.cabal` file and you should provide this to successfully finish the patching.
 
+After patching your Yesod project there is one thing left to do. To successfully run the application with `yesod devel` you should edit `config/settings.yml` by uncommenting the last line and inserting a valid email address:
+
+```yaml
+#admin: "_env:LAMBDACMS_ADMIN:<your email address>"
+```
+
 ## Patch a single file
 
 It's also possible to patch just a single file (or a couple). All patch files except `lambdacms.patch` just patch a single file. To patch `Foundation.hs` for instance, use the following command:
