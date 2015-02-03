@@ -19,7 +19,7 @@ Because the name of the `.cabal` file is different for every project the patch c
 
 ## Patch a single file
 
-It's also possible to patch just a single file (or a couple). All patch files except `lambdacms.patch` just patch a single file. To patch Foundation.hs for instance, use the following command:
+It's also possible to patch just a single file (or a couple). All patch files except `lambdacms.patch` just patch a single file. To patch `Foundation.hs` for instance, use the following command:
 
 ```bash
 patch -p1 < foundation.patch
