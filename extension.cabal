@@ -14,9 +14,12 @@ category:           web
 build-type:         Simple
 cabal-version:      >= 1.18
 tested-with:        GHC >= 7.6
-extra-source-files: README.md
-                  , templates/*
-                  , config/*
+extra-doc-files:    README.md
+extra-source-files: templates/edit.hamlet
+                  , templates/index.hamlet
+                  , templates/new.hamlet
+                  , config/models
+                  , config/routes
 
 source-repository head
   type:             git
