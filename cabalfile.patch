@@ -1,0 +1,19 @@
+--- a/patch.cabal	2015-02-03 10:43:23.000000000 +0100
++++ b/patch.cabal	2015-02-03 10:46:26.000000000 +0100
+@@ -21,6 +21,7 @@
+                      Settings.StaticFiles
+                      Handler.Common
+                      Handler.Home
++                     Roles
+ 
+     if flag(dev) || flag(library-only)
+         cpp-options:   -DDEVELOPMENT
+@@ -80,6 +81,8 @@
+                  , containers
+                  , vector
+                  , time
++                 , lambdacms-core                >= 0.0.7      && < 0.1
++                 , wai                           >= 3.0.2      && < 3.1
+ 
+ executable         patch
+     if flag(library-only)

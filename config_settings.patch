@@ -1,0 +1,8 @@
+--- a/config/settings.yml	2015-02-03 10:43:23.000000000 +0100
++++ b/config/settings.yml	2015-02-03 11:13:22.000000000 +0100
+@@ -27,3 +27,5 @@
+ 
+ copyright: Insert copyright statement here
+ #analytics: UA-YOURCODE
++
++#admin: "_env:LAMBDACMS_ADMIN:<your email address>"
