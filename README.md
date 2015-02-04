@@ -170,6 +170,22 @@ In the following sub-sections we explain how to install `lambdacms-core` into
 the base application.  Much of what we show here can be accomplished in
 many different ways, in this guide we merely provide a way to get you started.
 
+#### Patching a new Yesod application
+
+To setup a new LambdaCms website the easy way we created patch files to convert
+a new Yesod application to a LambdaCms website. Those patches can be found in
+[lambdamcs-patches](https://github.com/lambdacms/lambdacms-patches). Either clone
+the repository or copy only the required patches to your local environment and
+run the following command (replace `/path/to` with the actual path to the patch
+file):
+
+    patch -p1 < /path/to/lambdacms.patch
+
+This patches all files at the same time. Documentation about how to patch files
+individually can be found in the `lambdacms-patches`
+[README](https://github.com/lambdacms/lambdacms-patches/blob/master/README.md).
+
+To manually add LambdaCms to a Yesod application follow the steps below.
 
 #### Modify the `.cabal` file
 
