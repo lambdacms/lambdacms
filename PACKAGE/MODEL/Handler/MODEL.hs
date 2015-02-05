@@ -72,7 +72,7 @@ patch%MODEL%AdminEditR %LC_MODEL%Id = do
     case results of
         FormSuccess new%MODEL% -> do
             lift $ runDB $ replace %LC_MODEL%Id new%MODEL%
-            lift $ logAction =<< log%MODEL% %LC_MODEL%
+            lift $ logAction =<< log%MODEL% new%MODEL%
             lift $ setMessageI Msg.UpdateSuccess
             redirect $ %MODEL%AdminEditR %LC_MODEL%Id
         _ -> lift $ do
