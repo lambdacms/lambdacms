@@ -60,7 +60,7 @@ translate%MODEL%Logs :: forall b master.
 translate%MODEL%Logs y msg e = map (id &&& messageFor) $ renderLanguages y
     where messageFor lang = renderMessage y [lang] . msg $ %LC_MODEL%Title e
 
-log%MODEL% :: LambdaCmsAdmin master => %MODEL% -> HandlerT master IO [(Text, Text)]
+log%MODEL% :: %PACKAGE%%MODEL% master => %MODEL% -> HandlerT master IO [(Text, Text)]
 log%MODEL% %LC_MODEL% = do
     y <- getYesod
     method <- waiRequest >>= return . requestMethod
