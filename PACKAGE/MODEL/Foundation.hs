@@ -12,6 +12,7 @@ module %PACKAGE%.%MODEL%.Foundation where
 import           Yesod
 import           Data.Text                 (Text)
 import           Network.Wai               (requestMethod)
+import           Control.Arrow             ((&&&))
 
 import           LambdaCms.Core
 
@@ -47,10 +48,10 @@ default%MODEL%AdminMenu :: %PACKAGE%%MODEL% master => (Route %MODEL%Admin -> Rou
 default%MODEL%AdminMenu tp = [ MenuItem (SomeMessage Msg.Menu%MODEL%) (tp %MODEL%AdminIndexR) "pushpin" ]
 
 instance %PACKAGE%%MODEL% master => LambdaCmsLoggable master %MODEL% where
-    logMessage _ "POST"   = js%MODEL%Message Msg.LogCreated%MODEL%
-    logMessage _ "PATCH"  = js%MODEL%Message Msg.LogUpdated%MODEL%
-    logMessage _ "DELETE" = js%MODEL%Message Msg.LogDeleted%MODEL%
-    logMessage _ _        = const Nothing
+    logMessage y "POST"   = translate%MODEL%Logs y Msg.LogCreated%MODEL%
+    logMessage y "PATCH"  = translate%MODEL%Logs y Msg.LogUpdated%MODEL%
+    logMessage y "DELETE" = translate%MODEL%Logs y Msg.LogDeleted%MODEL%
+    logMessage _ _        = const []
 
 translate%MODEL%Logs :: forall b master.
                      ( %PACKAGE%%MODEL% master
