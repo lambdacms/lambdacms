@@ -1,5 +1,5 @@
 name:               lambdacms-core
-version:            0.0.7.3
+version:            0.0.8.0
 license:            MIT
 license-file:       LICENSE
 author:             Cies Breijs, Mats Rietdijk, Rutger van Aalst
@@ -15,9 +15,9 @@ category:           Web
 build-type:         Simple
 tested-with:        GHC >= 7.6
 cabal-version:      >= 1.18
-extra-source-files: README.md
+extra-doc-files:    README.md
                   , CHANGES.md
-                  , templates/*.hamlet
+extra-source-files: templates/*.hamlet
                   , templates/*.julius
                   , templates/*.cassius
                   , templates/mail/*.hamlet
