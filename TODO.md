@@ -15,3 +15,4 @@ TODOs
 * coveralls.io, travis-ci.com and hackage.org emblems
 * Pick a (almost) Haskell to-JS compiler and integrate it
 * Possibly pick a client-side FW (like React.js) to integrate
+* Implement routing without TH for more flexibility

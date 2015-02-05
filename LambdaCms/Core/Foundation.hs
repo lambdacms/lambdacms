@@ -6,6 +6,7 @@
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE ViewPatterns          #-}
+{-# LANGUAGE RecordWildCards       #-}
 {-# OPTIONS_GHC -fno-warn-orphans  #-}
 
 module LambdaCms.Core.Foundation where
@@ -348,49 +349,36 @@ routeBestMatch (Just cr) rs = fmap snd $ find cmp orrs
         cmp (route', _) = route' == (take (length route') cparts)
 routeBestMatch _ _ = Nothing
 
-class LambdaCmsLoggable entity where
-    logMessage :: LambdaCmsAdmin master => master -> ByteString -> entity -> Maybe (SomeMessage master)
-    logRoute :: LambdaCmsAdmin master => master -> Key entity -> Maybe (Route master)
+class LambdaCmsLoggable master entity where
+    logMessage :: master -> ByteString -> entity -> [(Text, Text)]
 
-instance LambdaCmsLoggable User where
-    logMessage _ "POST"       = jsm Msg.LogCreatedUser
-    logMessage _ "PATCH"      = jsm Msg.LogUpdatedUser
-    logMessage _ "DELETE"     = jsm Msg.LogDeletedUser
-    logMessage _ "CHPASS"     = jsm Msg.LogChangedPasswordUser
-    logMessage _ "RQPASS"     = jsm Msg.LogRequestedPasswordUser
-    logMessage _ "DEACTIVATE" = jsm Msg.LogDeactivatedUser
-    logMessage _ "ACTIVATE"   = jsm Msg.LogActivatedUser
-    logMessage _ _            = const Nothing
+instance LambdaCmsAdmin master => LambdaCmsLoggable master User where
+    logMessage y "POST"       = translateUserLogs y Msg.LogCreatedUser
+    logMessage y "PATCH"      = translateUserLogs y Msg.LogUpdatedUser
+    logMessage y "DELETE"     = translateUserLogs y Msg.LogDeletedUser
+    logMessage y "CHPASS"     = translateUserLogs y Msg.LogChangedPasswordUser
+    logMessage y "RQPASS"     = translateUserLogs y Msg.LogRequestedPasswordUser
+    logMessage y "DEACTIVATE" = translateUserLogs y Msg.LogDeactivatedUser
+    logMessage y "ACTIVATE"   = translateUserLogs y Msg.LogActivatedUser
+    logMessage _ _            = const []
 
-    logRoute _ userId = Just . coreR . UserAdminR $ UserAdminEditR userId
+translateUserLogs :: forall b master.
+                     ( LambdaCmsAdmin master
+                     , RenderMessage master b
+                     ) => master -> (Text -> b) -> User -> [(Text, Text)]
+translateUserLogs y msg u = map (id &&& messageFor) $ renderLanguages y
+    where messageFor lang = renderMessage y [lang] . msg $ userName u
 
-jsm :: forall b master. RenderMessage master b => (Text -> b) -> User -> Maybe (SomeMessage master)
-jsm msg = Just . SomeMessage . msg . userName
-
-logAction :: (LambdaCmsAdmin master, LambdaCmsLoggable entity) => Entity entity -> HandlerT master IO ()
-logAction (Entity objectId object') = do
-    wai <- waiRequest
+logUser :: LambdaCmsAdmin master => User -> HandlerT master IO [(Text, Text)]
+logUser user = do
     y <- getYesod
-    authId <- requireAuthId
-    timeNow <- liftIO getCurrentTime
-    ident <- liftIO generateUUID
+    method <- waiRequest >>= return . requestMethod
+    return $ logMessage y method user
 
-    let method = requestMethod wai
-        langs = renderLanguages y
-        mRoute = logRoute y objectId
-        mPath = T.intercalate "/" . fst . renderRoute <$> mRoute
+logAction :: LambdaCmsAdmin master => [(Text, Text)] -> HandlerT master IO ()
+logAction messages = do
+    actionLogUserId    <- requireAuthId
+    actionLogCreatedAt <- liftIO getCurrentTime
+    actionLogIdent     <- liftIO generateUUID
 
-    mapM_ (saveLog y ident method timeNow object' mPath authId) langs
-    where
-        saveLog y ident method time entity mPath userId lang = case logMessage y method entity of
-            Just message' -> do
-                let message = renderMessage y [lang] message'
-                runDB . insert_ $ ActionLog
-                                  { actionLogIdent = ident
-                                  , actionLogUserId = userId
-                                  , actionLogMessage = message
-                                  , actionLogLang = lang
-                                  , actionLogPath = mPath
-                                  , actionLogCreatedAt = time
-                                  }
-            Nothing -> return ()
+    mapM_ (\(actionLogLang, actionLogMessage) -> runDB . insert_ $ ActionLog {..}) messages

@@ -24,7 +24,6 @@ ActionLog json
     userId UserId
     message Text
     lang Text
-    path Text Maybe
     createdAt UTCTime
     UniqueLog ident lang
     deriving Typeable Show

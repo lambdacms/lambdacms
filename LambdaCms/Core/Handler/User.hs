@@ -194,8 +194,8 @@ postUserAdminNewR = do
         FormSuccess (user, roles) -> do
             userId <- lift $ runDB $ insert user
             lift $ setUserRoles userId (S.fromList roles)
-            _ <- sendAccountActivationToken (Entity userId user)
-            _ <- lift . logAction $ Entity userId user
+            sendAccountActivationToken (Entity userId user)
+            lift $ logUser user >>= logAction
             lift $ setMessageI Msg.SuccessCreate
             redirectUltDest $ UserAdminR UserAdminIndexR
         _ -> lift $ do
@@ -233,7 +233,7 @@ patchUserAdminEditR userId = do
         FormSuccess (updatedUser, updatedRoles) -> do
             _ <- lift $ runDB $ update userId [UserName =. userName updatedUser, UserEmail =. userEmail updatedUser]
             lift $ setUserRoles userId (S.fromList updatedRoles)
-            _ <- lift . logAction $ Entity userId updatedUser
+            lift $ logUser user >>= logAction
             lift $ setMessageI Msg.SuccessReplace
             redirect $ UserAdminR $ UserAdminEditR userId
         _ -> lift $ do
@@ -259,7 +259,7 @@ chpassUserAdminEditR userId = do
             case formResult of
                 FormSuccess f -> do
                     _ <- lift . runDB $ update userId [UserPassword =. Just (originalPassword f)]
-                    _ <- lift . logAction $ Entity userId user
+                    lift $ logUser user >>= logAction
                     lift $ setMessageI Msg.SuccessChgPwd
                     redirect $ UserAdminR $ UserAdminEditR userId
                 _ -> lift $ do
@@ -280,7 +280,7 @@ rqpassUserAdminEditR userId = do
                }
     _ <- lift . runDB $ replace userId user
     _ <- sendAccountResetToken (Entity userId user)
-    _ <- lift . logAction $ Entity userId user
+    lift $ logUser user >>= logAction
     lift $ setMessageI Msg.PasswordResetTokenSend
     redirectUltDest . UserAdminR $ UserAdminEditR userId
 
@@ -292,7 +292,7 @@ deactivateUserAdminEditR userId = do
             let user = user' { userActive = False }
 
             _ <- lift . runDB $ replace userId user
-            _ <- lift . logAction $ Entity userId user
+            lift $ logUser user >>= logAction
             lift $ setMessageI Msg.UserDeactivated
         _ -> lift $ setMessageI Msg.UserStillPending
     redirectUltDest . UserAdminR $ UserAdminEditR userId
@@ -305,7 +305,7 @@ activateUserAdminEditR userId = do
             let user = user' { userActive = True }
 
             _ <- lift . runDB $ replace userId user
-            _ <- lift . logAction $ Entity userId user
+            lift $ logUser user >>= logAction
             lift $ setMessageI Msg.UserActivated
         _ -> lift $ setMessageI Msg.UserStillPending
     redirectUltDest . UserAdminR $ UserAdminEditR userId
@@ -327,7 +327,7 @@ deleteUserAdminEditR userId = do
                  }
 
         _ <- runDB $ replace userId user
-        _ <- logAction $ Entity userId user
+        logAction =<< logUser user
         setMessageI Msg.SuccessDelete
     redirectUltDest $ UserAdminR UserAdminIndexR
 
