@@ -44,5 +44,6 @@ library
                   , text
                   , time
                   , shakespeare
+                  , wai
 
   ghc-options:      -Wall -O2

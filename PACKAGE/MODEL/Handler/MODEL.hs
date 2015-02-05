@@ -47,7 +47,7 @@ post%MODEL%AdminNewR = do
     case results of
         FormSuccess %LC_MODEL% -> do
             %LC_MODEL%Id <- lift . runDB $ insert %LC_MODEL%
-            lift . logAction $ Entity %LC_MODEL%Id %LC_MODEL%
+            lift $ logAction =<< log%MODEL% %LC_MODEL%
             lift $ setMessageI Msg.SaveSuccess
             redirect %MODEL%AdminIndexR
         _ -> lift $ do
@@ -72,7 +72,7 @@ patch%MODEL%AdminEditR %LC_MODEL%Id = do
     case results of
         FormSuccess new%MODEL% -> do
             lift $ runDB $ replace %LC_MODEL%Id new%MODEL%
-            lift . logAction $ Entity %LC_MODEL%Id new%MODEL%
+            lift $ logAction =<< log%MODEL% %LC_MODEL%
             lift $ setMessageI Msg.UpdateSuccess
             redirect $ %MODEL%AdminEditR %LC_MODEL%Id
         _ -> lift $ do
@@ -83,7 +83,7 @@ patch%MODEL%AdminEditR %LC_MODEL%Id = do
 
 delete%MODEL%AdminEditR %LC_MODEL%Id = do
     %LC_MODEL% <- lift . runDB $ get404 %LC_MODEL%Id
-    lift . logAction $ Entity %LC_MODEL%Id %LC_MODEL%
+    lift $ logAction =<< log%MODEL% %LC_MODEL%
     lift . runDB $ delete %LC_MODEL%Id
     lift $ setMessageI Msg.DeleteSuccess
     redirect %MODEL%AdminIndexR
