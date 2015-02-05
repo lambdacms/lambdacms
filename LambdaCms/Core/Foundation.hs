@@ -3,15 +3,14 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE RankNTypes            #-}
+{-# LANGUAGE RecordWildCards       #-}
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE ViewPatterns          #-}
-{-# LANGUAGE RecordWildCards       #-}
 {-# OPTIONS_GHC -fno-warn-orphans  #-}
 
 module LambdaCms.Core.Foundation where
 
-import           Control.Applicative        ((<$>))
 import           Control.Arrow              ((&&&))
 import           Data.ByteString            (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as LB (concat, toStrict)
@@ -23,7 +22,6 @@ import           Data.Set                   (Set)
 import qualified Data.Set                   as S (empty, intersection, null)
 import           Data.Text                  (Text, concat, intercalate, pack,
                                              unpack)
-import qualified Data.Text                  as T
 import           Data.Text.Encoding         (decodeUtf8)
 import           Data.Time                  (getCurrentTime)
 import           Data.Time.Format.Human
