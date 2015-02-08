@@ -19,6 +19,7 @@ TODOs
 * Add content versioning capabilities
 * Add preview functionality
 * Allow the admin bar to remain visible when logged in and visiting the website
+* Add proper favicon (same like lambdacms.org)
 
 To consider:
 * Scaffold generator (or incorporate in `yesod-bin`'s) -- maybe the current patch workflow is sufficient
