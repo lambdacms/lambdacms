@@ -4,10 +4,10 @@ license:            MIT
 license-file:       LICENSE
 author:             Mats Rietdijk, Cies Breijs
 maintainer:         mats@AT-hoppinger.com
-copyright:          (c) 2014 Hoppinger
-bug-reports:        https://github.com/lambdacms/lambdacms-media
-homepage:           http://lambdacms.org/media
-synopsis:           Media CMS extension for Yesod apps
+copyright:          (c) 2014-2015 Hoppinger BV
+bug-reports:        https://github.com/lambdacms/lambdacms-media/issues
+homepage:           http://lambdacms.org
+synopsis:           LambdaCms "media" extension
 description:        LambdaCms is a Content Management System (CMS) in Haskell
                     using Yesod. This package contains the "media" extension.
 stability:          alpha
