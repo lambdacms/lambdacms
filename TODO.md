@@ -8,6 +8,7 @@ TODOs
 * Search (probably integrate with Elastic Search)
 * Provide a means for "repeating" (and thus also ordering) one-or-more content-types
 * A "contact form" or "inquiries" extension
+* A set of functions for SEO optimizing content (a la Yoast's WP-SEO plugin)
 * Facilitate delayed/timed publishing
 * Authorisation depending on a specific resource instance's properties
 * Slugging function (JS) and widget
@@ -16,5 +17,5 @@ TODOs
 * Possibly pick a client-side FW (like React.js) to integrate
 * Implement routing without TH for more flexibility
 
-To concider:
+To consider:
 * Scaffold generator (or incorporate in `yesod-bin`'s) -- maybe the current patch workflow is sufficient

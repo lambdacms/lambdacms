@@ -11,20 +11,20 @@
 
 # Rationale
 
-LambdaCms is a bunch of packaged libraries, containing sub-sites for the
-[Yesod application framework](http://www.yesodweb.com), which allow rapid
+LambdaCms is a set of packaged libraries —containing subsites for the
+[Yesod application framework](http://www.yesodweb.com)— which allow rapid
 development of robust and highly performant websites with content management
 functionality.
 
 The `lambdacms-*` packages each provide some functionality and can depend
 on eachother as they depend on other packages.
 The only mandatory package is `lambdacms-core` (this package), it provides
-functionality that all other `lambdacms-*` packages can rely on.
+functionality that all other `lambdacms-*` packages depend on.
 
-As mentioned, each `lambdacms-*` package contains a sub-site which is
+As mentioned, each `lambdacms-*` package contains a subsite which is
 "mounted" in a standard Yesod application, which we will refer to as
 "the base application" or simply "base".
-Before a packaged sub-site can be mounted, the package needs to be
+Before a packaged subsite can be mounted, the package needs to be
 included as a dependency to the base app's `.cabal` file.  After that
 some glue code needs to be added to the base app, as explained below.
 
@@ -34,7 +34,7 @@ In the base app we have to:
 * specify the authentication strategies, and
 * define admin user roles and their permissions.
 
-In the base app we may optionally also:
+In the base app we optionally may also:
 * override default behavior,
 * override UI texts,
 * provide a means to send email notifications, and last but not least,
@@ -43,7 +43,7 @@ In the base app we may optionally also:
 
 # Setting up a site with LambdaCms
 
-This guides you through the steps of setting up a site with LambdaCms.
+This section guides you through the steps of setting up a site with LambdaCms.
 
 
 ### Prerequisites
@@ -83,7 +83,7 @@ Once you meet all the requirements except `yesod-bin`, install it.
     cabal install "yesod-bin >= 1.4.3.3"
 
 
-### Required non-Haskell dependencies
+### Non-Haskell dependencies
 
 For the connection with the database, Haskell libraries typically compile
 against non-Haskell libraries. One of the following libraries needs to be
@@ -106,7 +106,7 @@ On other platforms these packages might have different names, but are
 most likely available.
 
 If you are going to use a database other than Sqlite, you also need
-to install that.
+to install that as well.
 
 
 ### Initializing the base application
@@ -163,7 +163,7 @@ Now test it by pointing the browser to `localhost:3000`.
 If all went well you are ready to add LambdaCms to your app.
 
 
-### Patching a fresly init'ed Yesod application to include `lambdacms-core`
+### Patching a fresly init'ed Yesod app to include `lambdacms-core`
 
 To add `lambdacms-core` to a freshly initialized Yesod application a number
 of files need to be edited. We have prepared a patch-set to simplify this
@@ -174,15 +174,30 @@ First we need to download the patches by cloning the repository, we do so in
 
 Run the following from the root of your newly created Yesod project:
 
-    (cd /tmp; git clone https://github.com/lambdacms/lambdacms-patches.git)
-    patch -p1 < /tmp/lambdacms-patches/lambdacms.patch
+```bash
+(cd /tmp; git clone https://github.com/lambdacms/lambdacms-patches.git)
+patch -p1 < /tmp/lambdacms-patches/lambdacms.patch
+```
 
 Because the cabl file has a different name for each project
 (i.e. `<project_name>.cabal`) the patch command will notice a patched file
-is missing (the original is named `orig_project.cabal`).
+is missing (we named it `project_name.cabal`).
 When the patch command tries to patch this file you will be prompted for
 the name of your projects cabal file, after providing the name it will
 successfully complete patching.
+
+
+### Alternatives to the patch set
+
+There are two alternatives to using the patch set:
+
+1. Patch files individually, how to do so is explained in the `lambdacms-patches`
+   [README](https://github.com/lambdacms/lambdacms-patches/blob/master/README.md).
+2. Follow the [Getting Started Manually](https://github.com/lambdacms/lambdacms-core/wiki/Getting-Started-Manually)
+   guide on the wiki.
+
+
+### Configure the initial administrator
 
 After patching your Yesod project there is one thing left to do.
 Edit `config/settings.yml` to uncomment the last line (shown below) and
@@ -198,17 +213,7 @@ By default the application uses Mozilla's [Persona](https://persona.org)
 to log in: the email address used to log in need to be registered with Persona.
 
 
-### Alternatives to the patch set
-
-There are two alternatives to usign the patch-set:
-
-1. Patch files individually, how to do so is explained in the `lambdacms-patches`
-   [README](https://github.com/lambdacms/lambdacms-patches/blob/master/README.md).
-2. Follow the [Getting Started Manually](https://github.com/lambdacms/lambdacms-core/wiki/Getting-Started-Manually)
-   guide on the wiki.
-
-
-### Enjoy the result
+### Enjoy!
 
 After applying the patches `lambdacms-core` is installed in your Yesod application.
 Run `cabal install` (possibly with `-j1`) to fetch and build the dependencies.
