@@ -1,23 +1,42 @@
-# LambdaCms extension boilerplate
+lambdacms-extension-scaffold
+============================
 
-## Create an extension from boilerplate
+This repository contains a scaffold for creating new
+[LambdaCms](http://lambdacms.org) extensions.
+The scaffold contains variables, surrounded by `%`-symbols.
 
-To create a new extension download this repo (or clone and remove the .git folder).
+This repository also contains a script, `create`, that will replace
+the scaffold variables, and rename files based on its arguments.
 
-Pick a package and extension name to use. In the following example we will create a **Page** extension for the package **LambdaCms**. To generate the extension a create script is present within the directory, to use this run to following command:
+
+## Creating an extension
+
+To create a new extension download this repo (or clone and remove the
+`.git` folder).
+
+Pick a module and an extension name to use when creating the extension.
+In the following example we will create a **`Testimonial`** extension
+for the **`MySite`** module. Now run the `create` command.
 
 ```bash
-./create LambdaCms Page
+./create MySite Testimonial
 ```
 
-*note that the arguments are given case sensative. Because packages and datatypes in Haskell always start with an uppercased character both arguments should always start uppercased.*
+**NOTE:** The arguments are case sensative, and since module names and
+datatypes in start with a capital in Haskell, you should always provide
+two arguments that start with capitals.
 
-After running the create script your new extension is ready to be installed, to install run:
+After running the create script your new extension is ready to be installed.
 
 ```bash
 cabal install
 ```
 
-## Use extension with a LambdaCms website
+You can now procede by creating a repository for your newly created extension.
+You might also want to remove the `create` script, as you no longer need it.
 
-*TODO*
+
+# License
+
+All code in this repository is released under the MIT license, as specified in the
+[LICENSE file](https://github.com/lambdacms/lambdacms-extension-scaffold/blob/master/LICENSE).
