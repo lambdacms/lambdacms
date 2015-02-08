@@ -13,9 +13,12 @@ TODOs
 * Authorisation depending on a specific resource instance's properties
 * Slugging function (JS) and widget
 * Integrate with coveralls.io, travis-ci.com and hackage.org; add emblems to README
-* Pick aa (almost) Haskell to-JS compiler and integrate it
+* Pick an (almost) Haskell to-JS compiler and integrate it
 * Possibly pick a client-side FW (like React.js) to integrate
 * Implement routing without TH for more flexibility
+* Add content versioning capabilities
+* Add preview functionality
+* Allow the admin bar to remain visible when logged in and visiting the website
 
 To consider:
 * Scaffold generator (or incorporate in `yesod-bin`'s) -- maybe the current patch workflow is sufficient
