@@ -29,12 +29,14 @@ included as a dependency to the base app's `.cabal` file.  After that
 some glue code needs to be added to the base app, as explained below.
 
 In the base app we have to:
+
 * organize the main menu of the admin backend,
 * configure a the database connection,
 * specify the authentication strategies, and
 * define admin user roles and their permissions.
 
 In the base app we optionally may also:
+
 * override default behavior,
 * override UI texts,
 * provide a means to send email notifications, and last but not least,
@@ -55,6 +57,7 @@ Brent Yorgey's excellent
 course.
 
 Besides Haskell you need to be somewhat familliar with:
+
 * the web technologies (HTTP, HTML, CSS, JS, REST),
 * SQL (as LambdaCms makes use of a relational database), and
 * the Yesod web application framework ([book](http://yesodweb.com/book)).
@@ -68,11 +71,13 @@ shell's `$PATH`.
 
 To check that you are good to go, you can use these commands.
 
-    ghc -V
-    cabal -V
-    happy -V
-    alex -V
-    yesod version
+```bash
+ghc -V
+cabal -V
+happy -V
+alex -V
+yesod version
+```
 
 In case you are **not** good to go, you may want to follow the
 [installation guide on the Stackage website](http://www.stackage.org/install)
@@ -80,8 +85,9 @@ which provides instructions for all dependencies except `yesod-bin`.
 
 Once you meet all the requirements except `yesod-bin`, install it.
 
-    cabal install "yesod-bin >= 1.4.3.3"
-
+```bash
+cabal install "yesod-bin >= 1.4.3.3"
+```
 
 ### Non-Haskell dependencies
 
@@ -90,14 +96,19 @@ against non-Haskell libraries. One of the following libraries needs to be
 available:
 
 * For Postgres:
+
   * Debian/Ubuntu: `libpq-dev`
   * CentOS/Fedora/RHEL: `postgresql-devel`
   * Homebrew (OSX): `postgres`
+
 * For Mysql:
+
   * Debian/Ubuntu: `libmysqlclient-dev`
   * CentOS/Fedora/RHEL: `mysql-devel`
   * Homebrew (OSX): `mysql`
+
 * For Sqlite
+
   * Debian/Ubuntu: `libsqlite3-dev`
   * CentOS/Fedora/RHEL: `sqlite-devel`
   * Homebrew (OSX): `sqlite`
@@ -115,7 +126,9 @@ With the following command you create a "scaffolded" Yesod application.
 The command is interactive; you need to supply some configuration values.
 Pick the database of your choice, and choose a project name
 
-    yesod init
+```bash
+yesod init
+```
 
 After scaffolding `cd` into the project folder.
 
@@ -138,13 +151,17 @@ series.
 Run the following commands from within your project's root folder,
 to install the most recent LTS Haskell package set in the `1.x` series.
 
-    wget http://www.stackage.org/lts/1/cabal.config
-    cabal update
+```bash
+wget http://www.stackage.org/lts/1/cabal.config
+cabal update
+```
 
 The install all dependencies and build your application with (this
 may take a while the first time you run it).
 
-    cabal install --enable-tests . --max-backjumps=-1 --reorder-goals
+```bash
+cabal install --enable-tests . --max-backjumps=-1 --reorder-goals
+```
 
 In case you experience problems with `cabal install` try adding
 `-j1` as a flag (prevents concurrent building).
@@ -153,17 +170,23 @@ When you experience problems during builds, while using LTS `1.x`,
 we consider this a bug. Please
 [raise an issue](https://github.com/lambdacms/lambdacms-core/issues).
 
+
+### Testing your Yesod app
+
 The following commands will run your scaffolded Yesdo application
 in development mode.
 
-    yesod devel
+```bash
+yesod devel
+```
 
-Now test it by pointing the browser to `localhost:3000`.
+Now test it by pointing the browser to:
+[`http://localhost:3000`](http://localhost:3000)
 
 If all went well you are ready to add LambdaCms to your app.
 
 
-### Patching a fresly init'ed Yesod app to include `lambdacms-core`
+### Patching a freshly init'ed Yesod app to use `lambdacms-core`
 
 To add `lambdacms-core` to a freshly initialized Yesod application a number
 of files need to be edited. We have prepared a patch-set to simplify this
@@ -221,7 +244,8 @@ Then run the development server.
 
     yesod devel
 
-Now point your browser to `http://localhost:3000/admin` and you will be
+Now point your browser to
+[`http://localhost:3000/admin`](http://localhost:3000/admin) and you will be
 prompted to login.  The setup as described above has selected Mozilla's
 Persona as the only means of authentication.  In `config/settings.yml`
 you have provided an email address for the admin user that is created
