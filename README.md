@@ -41,12 +41,9 @@ In the base app we may optionally also:
 * write the themes so the website can actually be visited (recommended).
 
 
-# Getting started
+# Setting up a site with LambdaCms
 
-Using this guide you will create a CMS website named `mysite`.
-For a real project you want to substitute this name, but for trying
-out LambdaCms it is recommended to keep it for the convenience of
-copy-pasting the instructions that follow.
+This guides you through the steps of setting up a site with LambdaCms.
 
 
 ### Prerequisites
@@ -93,14 +90,17 @@ against non-Haskell libraries. One of the following libraries needs to be
 available:
 
 * For Postgres:
- * Ubuntu: `libpq-dev`
- * Homebrew on OSX: `postgres`
+  * Debian/Ubuntu: `libpq-dev`
+  * CentOS/Fedora/RHEL: `postgresql-devel`
+  * Homebrew (OSX): `postgres`
 * For Mysql:
-  * Ubuntu: `libmysqlclient-dev`
-  * Homebrew on OSX: `mysql`
+  * Debian/Ubuntu: `libmysqlclient-dev`
+  * CentOS/Fedora/RHEL: `mysql-devel`
+  * Homebrew (OSX): `mysql`
 * For Sqlite
-  * Ubuntu: `libsqlite3-dev`
-  * Homebrew on OSX: `sqlite`
+  * Debian/Ubuntu: `libsqlite3-dev`
+  * CentOS/Fedora/RHEL: `sqlite-devel`
+  * Homebrew (OSX): `sqlite`
 
 On other platforms these packages might have different names, but are
 most likely available.
@@ -108,7 +108,8 @@ most likely available.
 If you are going to use a database other than Sqlite, you also need
 to install that.
 
-### Create the base application
+
+### Initializing the base application
 
 With the following command you create a "scaffolded" Yesod application.
 The command is interactive; you need to supply some configuration values.
@@ -162,321 +163,56 @@ Now test it by pointing the browser to `localhost:3000`.
 If all went well you are ready to add LambdaCms to your app.
 
 
-### Add LambdaCms
+### Patching a fresly init'ed Yesod application to include `lambdacms-core`
 
-LambdaCms is on Hackage! Install with: `cabal install lambdacms-core`
+To add `lambdacms-core` to a freshly initialized Yesod application a number
+of files need to be edited. We have prepared a patch-set to simplify this
+process into a couple of commands.
 
-In the following sub-sections we explain how to install `lambdacms-core` into
-the base application.  Much of what we show here can be accomplished in
-many different ways, in this guide we merely provide a way to get you started.
+First we need to download the patches by cloning the repository, we do so in
+`/tmp`. Then we apply the patches with the good old `patch` command.
 
-#### Patching a new Yesod application
+Run the following from the root of your newly created Yesod project:
 
-To setup a new LambdaCms website the easy way we created patch files to convert
-a new Yesod application to a LambdaCms website. Those patches can be found in
-[lambdamcs-patches](https://github.com/lambdacms/lambdacms-patches). Either clone
-the repository or copy only the required patches to your local environment and
-run the following command (replace `/path/to` with the actual path to the patch
-file):
+    (cd /tmp; git clone https://github.com/lambdacms/lambdacms-patches.git)
+    patch -p1 < /tmp/lambdacms-patches/lambdacms.patch
 
-    patch -p1 < /path/to/lambdacms.patch
+Because the cabl file has a different name for each project
+(i.e. `<project_name>.cabal`) the patch command will notice a patched file
+is missing (the original is named `orig_project.cabal`).
+When the patch command tries to patch this file you will be prompted for
+the name of your projects cabal file, after providing the name it will
+successfully complete patching.
 
-This patches all files at the same time. Documentation about how to patch files
-individually can be found in the `lambdacms-patches`
-[README](https://github.com/lambdacms/lambdacms-patches/blob/master/README.md).
+After patching your Yesod project there is one thing left to do.
+Edit `config/settings.yml` to uncomment the last line (shown below) and
+insert a valid email address.
 
-To manually add LambdaCms to a Yesod application follow the steps below.
-
-#### Modify the `.cabal` file
-
-First add `lambdacms-core` to the dependencies list of the `.cabal`
-file (name of the file depends on the name of your project).
-
-Add the follwing to the end of the `build-depends` section:
-
-```
-, lambdacms-core                >= 0.0.7      && < 0.1
-, wai                           >= 3.0.2      && < 3.1
+```yaml
+#admin: "_env:LAMBDACMS_ADMIN:<your email address>"
 ```
 
-And add the following line to the `library/exposed-modules` section:
+By this you specify the email address of an initial administrator,
+so you can log in to the admin inteface.
+By default the application uses Mozilla's [Persona](https://persona.org)
+to log in: the email address used to log in need to be registered with Persona.
 
-```
-Roles
-```
 
-#### Modify the `config/routes` file
+### Alternatives to the patch set
 
-Replace **all** of the file's content with:
+There are two alternatives to usign the patch-set:
 
-```
-/static StaticR Static appStatic
+1. Patch files individually, how to do so is explained in the `lambdacms-patches`
+   [README](https://github.com/lambdacms/lambdacms-patches/blob/master/README.md).
+2. Follow the [Getting Started Manually](https://github.com/lambdacms/lambdacms-core/wiki/Getting-Started-Manually)
+   guide on the wiki.
 
-/favicon.ico FaviconR GET
-/robots.txt RobotsR GET
 
-/ HomeR GET
+### Enjoy the result
 
-/admin/auth        AuthR                 Auth            getAuth
-/admin/core        CoreAdminR            CoreAdmin       getLambdaCms
-/admin             AdminHomeRedirectR    GET
-```
-
-#### Modify Settings
-
-There are two files to modify here. One is `config/settings.yml` and the the other is `Settings.hs`.
-
-In `config/settings.yml`, add the following line to the bottom of the file
-```
-admin: "_env:LAMBDACMS_ADMIN:<your email address>"
-```
-
-Then, in `Settings.hs`, append the following record to the `AppSettings` data type:
-
-```haskell
-    , appAdmin                  :: Text
-```
-
-In `instance FromJSON AppSettings`, find this line:
-
-Add the following line just before the line containing `return AppSettings {..}`:
-
-```haskell
-        appAdmin                  <- o .: "admin"
-```
-
-#### Modify the `config/models` file
-
-Replace **all** of the file's content with the following `UserRole` definition:
-
-```
-UserRole
-    userId UserId
-    roleName RoleName
-    UniqueUserRole userId roleName
-    deriving Typeable Show
-```
-
-#### Modify the `Model.hs` file
-
-Add the following imports:
-
-```haskell
-import Roles
-import LambdaCms.Core
-```
-
-#### Modify the `Application.hs` file
-
-Add the following imports:
-
-```haskell
-import LambdaCms.Core
-import LambdaCms.Core.Settings (generateUUID)
-import Network.Wai.Middleware.MethodOverridePost
-```
-
-Add the following function:
-
-```haskell
-getAdminHomeRedirectR :: Handler Html
-getAdminHomeRedirectR = do
-    redirect $ CoreAdminR AdminHomeR
-```
-
-In the `makeFoundation` function, add this line to beginning:
-
-```haskell
-let getLambdaCms = CoreAdmin
-```
-
-Then, find this code:
-
-```haskell
-    -- Perform database migration using our application's logging settings.
-    runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
-
-    -- Return the foundation
-    return $ mkFoundation pool
-```
-
-And replace it with:
-
-```haskell
-    -- Perform database migration using our application's logging settings.
-    let theFoundation = mkFoundation pool
-    runLoggingT
-        (runSqlPool (mapM_ runMigration [migrateAll, migrateLambdaCmsCore]) pool)
-        (messageLoggerSource theFoundation appLogger)
-
-    -- Create a user if no user exists yet
-    let admin = appAdmin appSettings
-    madmin <- runSqlPool (getBy (UniqueEmail admin)) pool
-    case madmin of
-        Nothing -> do
-            timeNow <- getCurrentTime
-            uuid <- generateUUID
-            flip runSqlPool pool $ do
-                uid <- insert User { userIdent     = uuid
-                                   , userPassword  = Nothing
-                                   , userName      = takeWhile (/= '@') admin
-                                   , userEmail     = admin
-                                   , userActive    = True
-                                   , userToken     = Nothing
-                                   , userCreatedAt = timeNow
-                                   , userLastLogin = Nothing
-                                   , userDeletedAt = Nothing
-                                   }
-                -- assign all roles to the first user
-                mapM_ (insert_ . UserRole uid) [minBound .. maxBound]
-        _ -> return ()
-
-    -- Return the foundation
-    return theFoundation
-```
-
-
-In the function `makeApplication` replace this line:
-
-```haskell
-    return $ logWare $ defaultMiddlewaresNoLogging appPlain
-```
-
-With this line (adding a WAI middleware is needed to make RESTful
-forms work on older browsers):
-
-```haskell
-    return $ logWare $ methodOverridePost appPlain
-```
-
-## Create the `Roles.hs` file
-
-Create the `Roles.hs` file (in the root directory of your
-application) and add the following content to it:
-
-```haskell
-module Roles where
-
-import ClassyPrelude.Yesod
-
-data RoleName = Admin
-              | Blogger
-              deriving (Eq, Ord, Show, Read, Enum, Bounded, Typeable)
-
-derivePersistField "RoleName"
-```
-
-## Modify the `Foundation.hs` file
-
-Add the following imports:
-
-```haskell
-import qualified Data.Set                    as S
-import qualified Network.Wai                 as W
-import LambdaCms.Core
-import Roles
-```
-
-Append the following record to the `App` data type:
-
-```haskell
-    , getLambdaCms   :: CoreAdmin
-```
-
-Change the implementation of `isAuthorized` (in `instance Yesod App`) to the
-following, which allows fine-grained authorization based on `UserRoles`:
-
-```haskell
-    isAuthorized theRoute _ =
-        case theRoute of
-            (StaticR _)                   -> return Authorized
-            (CoreAdminR (AdminStaticR _)) -> return Authorized
-            _                             -> do
-                mauthId <- maybeAuthId
-                wai     <- waiRequest
-                y       <- getYesod
-                murs    <- mapM getUserRoles mauthId
-                return $ isAuthorizedTo y murs $ actionAllowedFor theRoute (W.requestMethod wai)
-
-```
-
-Change the implementation of `getAuthId` (in `instance YesodAuth App`) to:
-
-```haskell
-    getAuthId = getLambdaCmsAuthId
-```
-
-In `instance YesodAuth App` replace:
-
-```haskell
-    loginDest _ = HomeR
-    logoutDest _ = HomeR
-```
-
-With:
-
-```haskell
-    loginDest _ = CoreAdminR AdminHomeR
-    logoutDest _ = AuthR LoginR
-```
-
-And add:
-
-```haskell
-    authLayout = adminAuthLayout
-```
-
-
-Add the following instance to allow `Unauthenticated` `GET` requests for the
-`HomeR` route (likely to be `/`) and other common routes such as `/robots.txt`.
-The last pattern allows access to any unspecified routes for just Admins -- which is a role defined in Roles.hs.
-It is in `actionAllowedFor` that you will setup permissions for the roles.
-
-```haskell
-instance LambdaCmsAdmin App where
-    type Roles App = RoleName
-
-    actionAllowedFor (FaviconR) "GET" = Unauthenticated
-    actionAllowedFor (RobotsR)  "GET" = Unauthenticated
-    actionAllowedFor (HomeR)    "GET" = Unauthenticated
-    actionAllowedFor (AuthR _)  _     = Unauthenticated
-    actionAllowedFor _          _     = Roles $ S.fromList [Admin]
-
-    coreR = CoreAdminR
-    authR = AuthR
-    masterHomeR = HomeR
-
-    -- cache user roles to reduce the amount of DB calls
-    getUserRoles userId = cachedBy cacheKey . fmap toRoleSet . runDB $ selectList [UserRoleUserId ==. userId] []
-        where
-            cacheKey = encodeUtf8 $ toPathPiece userId
-            toRoleSet = S.fromList . map (userRoleRoleName . entityVal)
-
-    setUserRoles userId rs = runDB $ do
-        deleteWhere [UserRoleUserId ==. userId]
-        mapM_ (insert_ . UserRole userId) $ S.toList rs
-
-    adminMenu =  (defaultCoreAdminMenu CoreAdminR)
-    renderLanguages _ = ["en", "nl"]
-
-    mayAssignRoles = do
-        authId <- requireAuthId
-        roles <- getUserRoles authId
-        return $ isAdmin roles
-```
-
-#### Add an `isAdmin` function to the bottom of `Foundation.hs`
-
-Remember that the `Admin` role is defined in Roles.hs
-```haskell
-isAdmin :: S.Set RoleName -> Bool
-isAdmin = S.member Admin
-```
-
-
-### Give it a try
-
-LambdaCms should now be installed. You can give it a try.
+After applying the patches `lambdacms-core` is installed in your Yesod application.
+Run `cabal install` (possibly with `-j1`) to fetch and build the dependencies.
+Then run the development server.
 
     yesod devel
 
@@ -486,3 +222,11 @@ Persona as the only means of authentication.  In `config/settings.yml`
 you have provided an email address for the admin user that is created
 if no users exist. If this email address is known to Mozilla Persona
 then you can procede to log in.
+
+
+# License
+
+All code in this repository is released under the MIT license, as specified
+in the [LICENSE file](https://github.com/lambdacms/lambdacms-core/blob/master/LICENSE).
+
+

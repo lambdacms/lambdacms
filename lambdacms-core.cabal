@@ -4,10 +4,10 @@ license:            MIT
 license-file:       LICENSE
 author:             Cies Breijs, Mats Rietdijk, Rutger van Aalst
 maintainer:         cies@AT-hoppinger.com
-copyright:          (c) 2014 Hoppinger
-bug-reports:        https://github.com/lambdacms/lambdacms-core
+copyright:          (c) 2014-2015 Hoppinger
+bug-reports:        https://github.com/lambdacms/lambdacms-core/issues
 homepage:           http://lambdacms.org
-synopsis:           Core CMS extension for Yesod apps
+synopsis:           LambdaCms Core subsite for Yesod apps
 description:        LambdaCms is a Content Management System (CMS) in Haskell
                     using Yesod.
 stability:          alpha
