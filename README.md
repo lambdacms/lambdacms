@@ -35,6 +35,9 @@ cabal install
 You can now procede by creating a repository for your newly created extension.
 You might also want to remove the `create` script, as you no longer need it.
 
+In case you want to publish your extension, you probebly want to edit your
+extension's cabal file.
+
 
 # License
 
