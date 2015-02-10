@@ -10,7 +10,7 @@ TODOs
 * A "contact form" or "inquiries" extension
 * A set of functions for SEO optimizing content (a la Yoast's WP-SEO plugin)
 * Facilitate delayed/timed publishing
-* Authorisation depending on a specific resource instance's properties
+* Authorisation depending on a specific resource instance's properties (Authorizable class?)
 * Slugging function (JS) and widget
 * Integrate with coveralls.io, travis-ci.com and hackage.org; add emblems to README
 * Pick an (almost) Haskell to-JS compiler and integrate it
@@ -20,6 +20,12 @@ TODOs
 * Add preview functionality
 * Allow the admin bar to remain visible when logged in and visiting the website
 * Add proper favicon (same like lambdacms.org)
+* Improve adding a first admin
+* Change favicon for backend
+* Provide UI element library
+  * WYSIWYG rich-text editor
+  * big text field
+  * slug
 
 To consider:
 * Scaffold generator (or incorporate in `yesod-bin`'s) -- maybe the current patch workflow is sufficient
