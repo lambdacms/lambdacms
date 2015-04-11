@@ -30,9 +30,9 @@ some glue code needs to be added to the base app, as explained below.
 
 In the base app we have to:
 
-* organize the main menu of the admin backend,
-* configure a the database connection,
-* specify the authentication strategies, and
+* configure a database connection,
+* organize the admin backend's menu,
+* specify the authentication strategies for admins, and
 * define admin user roles and their permissions.
 
 In the base app we optionally may also:
@@ -45,13 +45,13 @@ In the base app we optionally may also:
 
 # Setting up a site with LambdaCms
 
-This section guides you through the steps of setting up a site with LambdaCms.
+This section walk through the steps of setting up a site with LambdaCms.
 
 
 ### Prerequisites
 
 You need to be reasonably acquinted with Haskell in order to follow
-along with this guide. To learn basic Haskell skill we recommend
+along with this guide. To learn basic Haskell skills we recommend
 Brent Yorgey's excellent
 [Introduction to Haskell](http://www.seas.upenn.edu/~cis194/spring13)
 course.
@@ -59,35 +59,9 @@ course.
 Besides Haskell you need to be somewhat familliar with:
 
 * the web technologies (HTTP, HTML, CSS, JS, REST),
-* SQL (as LambdaCms makes use of a relational database), and
-* the Yesod web application framework ([book](http://yesodweb.com/book)).
+* RDBMS/SQL (LambdaCms makes use of a relational database), and
+* the Yesod web application framework (for which an [awesome book](http://yesodweb.com/book) exists).
 
-
-### The tool chain
-
-Make sure to have **GHC** 7.8.3+, **cabal-install** 1.20+, **happy**, **alex**
-, **yesod-bin** 1.4.3.3+ installed, and their binaries available from your
-shell's `$PATH`.
-
-To check that you are good to go, you can use these commands.
-
-```bash
-ghc -V
-cabal -V
-happy -V
-alex -V
-yesod version
-```
-
-In case you are **not** good to go, you may want to follow the
-[installation guide on the Stackage website](http://www.stackage.org/install)
-which provides instructions for all dependencies except `yesod-bin`.
-
-Once you meet all the requirements except `yesod-bin`, install it.
-
-```bash
-cabal install "yesod-bin >= 1.4.3.3"
-```
 
 ### Non-Haskell dependencies
 
@@ -116,25 +90,53 @@ available:
 On other platforms these packages might have different names, but are
 most likely available.
 
-If you are going to use a database other than Sqlite, you also need
-to install that as well.
+If you are going to use a database other than Sqlite (which directly writes
+to a file), you need to have a database accessible from where you run your
+site. This means you might have to install and setup a database server locally.
 
 
-### Initializing the base application
+### The tool chain
 
-With the following command you create a "scaffolded" Yesod application.
-The command is interactive; you need to supply some configuration values.
-Pick the database of your choice, and choose a project name
+Make sure to have **GHC** 7.8.3+, **cabal-install** 1.20+, **happy** and **alex**
+installed; and their binaries available from your shell's `$PATH`.
+
+Use the following command to check your system meets the requirements:
 
 ```bash
-yesod init
+ghc -V
+cabal -V
+happy -V
+alex -V
 ```
 
-After scaffolding `cd` into the project folder.
+In case you are **not** good to go, you may want to follow the
+[per operating system installation guides on the haskell.org website](https://www.haskell.org/downloads)
+which provide instructions for all dependencies except `yesod-bin`.
 
-If you have chosen a database other than Sqlite, you need to create a
-database and a sufficiently priviledged user, and supply the
-credentials to the `config/setting.yml` file.
+
+### Create a project folder
+
+Choose a name for your project. Make sure it is a valid unix file name
+to avoid any naming issues.  Now create a directory for you project and
+`cd` into it, by running the following commands:
+
+```bash
+export $PROJECT_NAME=mysite
+mkdir $PROJECT_NAME
+cd $PROJECT_NAME
+```
+
+
+### Initialize a cabal sandbox
+
+To avoid running into version conflicts with other Haskell projects
+you might be working on from the same system, we setup a cabal sandbox.
+
+From within your project's folder run the following commmand:
+
+```bash
+cabal sandbox init
+```
 
 
 ### Using LTS Haskell
@@ -142,13 +144,12 @@ credentials to the `config/setting.yml` file.
 To avoid spending too much time on build issues we use and recommend
 [LTS Haskell](https://github.com/fpco/lts-haskell#readme).
 
-Currently we develop and test LambdaCms only against the lastest
-LTS Haskell release. As minor releases of LTS Haskell should never
-contain breaking changes we only provide the major release number,
-thereby automatically using the most recent minor release in that
-series.
+Currently we develop and test LambdaCms only against the `1.x`
+LTS Haskell releases. As minor releases of LTS Haskell should never
+contain breaking changes, you can safely use the latest release of
+a major LTS version.
 
-Run the following commands from within your project's root folder,
+Run the following commands from within your project's folder,
 to install the most recent LTS Haskell package set in the `1.x` series.
 
 ```bash
@@ -156,15 +157,39 @@ wget http://www.stackage.org/lts/1/cabal.config
 cabal update
 ```
 
-The install all dependencies and build your application with (this
-may take a while the first time you run it).
+
+### Initializing the base application
+
+First we need to install the `yesod` command, this command requires a
+lot of dependent packages to be downloaded and build, and therefor may
+take some time. Run this from your project's folder:
+
+```bash
+cabal install yesod-bin
+```
+
+With the following commands you create a "scaffolded" Yesod application.
+The command is interactive; you need to supply some configuration values.
+Pick the database of your choice, and choose a project name:
+
+```bash
+yesod init --bare
+```
+
+If you have chosen a database other than Sqlite, you need to create a
+database and a sufficiently priviledged database user, and set these
+credentials in the `config/setting.yml` file.
+
+This installs all dependencies and builds the scaffoled application 
+(this may take a while):
 
 ```bash
 cabal install --enable-tests . --max-backjumps=-1 --reorder-goals
 ```
 
 In case you experience problems with `cabal install` try adding
-`-j1` as a flag (prevents concurrent building).
+`-j1` as a flag (prevents concurrent building), or simply retry
+the command until you consistently run into the same error.
 
 When you experience problems during builds, while using LTS `1.x`,
 we consider this a bug. Please
@@ -202,7 +227,7 @@ Run the following from the root of your newly created Yesod project:
 patch -p1 < /tmp/lambdacms-patches/lambdacms.patch
 ```
 
-Because the cabl file has a different name for each project
+Because the cabal file has a different name for each project
 (i.e. `<project_name>.cabal`) the patch command will notice a patched file
 is missing (we named it `project_name.cabal`).
 When the patch command tries to patch this file you will be prompted for
