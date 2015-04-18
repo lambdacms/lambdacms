@@ -39,7 +39,7 @@ import           Network.Mail.Mime
 import           Network.Wai                (requestMethod)
 import           Text.Hamlet                (hamletFile)
 import           Yesod
-import           Yesod.Auth
+import           Yesod.Auth                 hiding (Authenticated)
 
 -- | Foundation type.
 data CoreAdmin = CoreAdmin

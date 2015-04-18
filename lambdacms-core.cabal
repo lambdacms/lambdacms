@@ -1,5 +1,5 @@
 name:               lambdacms-core
-version:            0.0.8.0
+version:            0.1.0.0
 license:            MIT
 license-file:       LICENSE
 author:             Cies Breijs, Mats Rietdijk, Rutger van Aalst
@@ -53,6 +53,7 @@ library
                   , LambdaCms.Core.Handler.ActionLog
                   , LambdaCms.I18n
                   , LambdaCms.I18n.Dutch
+                  , LambdaCms.I18n.Italian
 
   build-depends:    base                               >= 4.3     && < 5
                   , yesod

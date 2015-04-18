@@ -1,6 +1,8 @@
 TODOs
 =====
 
+* Re-run the installation guide, and solve possible quirks around first login
+* Line up the coding style with the latest Yesod scaffold: go classy-prelude
 * Add tests
   * Unit tests
   * Integration tests for core + all official extensions
