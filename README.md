@@ -6,7 +6,7 @@ This is an extension for [LambdaCms](http://lambdacms.org) which allows admins t
 **NOTE:** At this point the functionality provided by this extension is very basic. Pull request adding features are most welcome.
 
 
-# Installing
+### Installing
 
 LambdaCms extensions come as plain Haskell packages and need to be added to the
 project's `.cabal` file like any other package dependency.
@@ -80,7 +80,7 @@ That's it! You can now `cabal install` the new dependency and run
 `yesod devel` to test drive the freshly installed extension.
 
 
-# Using media in another LambdaCms extension
+### Using media in another LambdaCms extension
 
 A common usecase would be to use the "media" that are managed using the
 `lambdacms-media` extension in other extensions. For example: to add an
@@ -111,7 +111,7 @@ After this the `attachedMaybeMedia` function may be used in the
 handler functions of the blog post extension.
 
 
-# License
+### License
 
 All code in this repository is released under the MIT license, as specified
 in the [LICENSE file](https://github.com/lambdacms/lambdacms-core/blob/master/LICENSE).
