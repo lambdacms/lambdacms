@@ -150,16 +150,16 @@ cabal sandbox init
 To avoid spending too much time on build issues we use and recommend
 [LTS Haskell](https://github.com/fpco/lts-haskell#readme).
 
-Currently we develop and test LambdaCms only against the `1.x`
+Currently we develop and test LambdaCms only against the `2.x`
 LTS Haskell releases. As minor releases of LTS Haskell should never
 contain breaking changes, you can safely use the latest release of
 a major LTS version.
 
 Run the following commands from within your project's folder,
-to install the most recent LTS Haskell package set in the `1.x` series.
+to install the most recent LTS Haskell package set in the `2.x` series.
 
 ```bash
-wget http://www.stackage.org/lts/1/cabal.config
+wget http://www.stackage.org/lts/2/cabal.config
 cabal update
 ```
 
@@ -167,14 +167,14 @@ cabal update
 ### Initializing the base application
 
 First we need to install the `yesod` command, this command requires a
-lot of dependent packages to be downloaded and build, and therefor may
-take some time. Run this from your project's folder:
+lot of dependent packages to be downloaded and build (may a while).
+Run this from your project's folder:
 
 ```bash
 cabal install yesod-bin
 ```
 
-With the following commands you create a "scaffolded" Yesod application.
+With the following command you create a "scaffolded" Yesod application.
 The command is interactive; you need to supply some configuration values.
 Pick the database of your choice, and choose a project name:
 
@@ -187,17 +187,17 @@ database and a sufficiently priviledged database user, and set these
 credentials in the `config/setting.yml` file.
 
 This installs all dependencies and builds the scaffoled application 
-(this may take a while):
+(may take a while):
 
 ```bash
-cabal install --enable-tests . --max-backjumps=-1 --reorder-goals
+cabal install -j --enable-tests --max-backjumps=-1 --reorder-goals
 ```
 
-In case you experience problems with `cabal install` try adding
-`-j1` as a flag (prevents concurrent building), or simply retry
+In case you experience problems with `cabal install` try changing
+`-j` into `-j1` to prevents concurrent building, and/or simply retry
 the command until you consistently run into the same error.
 
-When you experience problems during builds, while using LTS `1.x`,
+When you experience problems during builds, while using LTS `2.x`,
 we consider this a bug. Please
 [raise an issue](https://github.com/lambdacms/lambdacms-core/issues).
 
@@ -230,7 +230,7 @@ Run the following from the root of your newly created Yesod project:
 
 ```bash
 (cd /tmp; git clone https://github.com/lambdacms/lambdacms-patches.git)
-patch -p1 < /tmp/lambdacms-patches/lambdacms.patch
+patch -p1 < /tmp/lambdacms-patches/all_patches_combined.patch
 ```
 
 Because the cabal file has a different name for each project
@@ -241,7 +241,7 @@ the name of your projects cabal file, after providing the name it will
 successfully complete patching.
 
 
-### Alternatives to the patch set
+#### Alternatives to the patch set
 
 There are two alternatives to using the patch set:
 
@@ -253,18 +253,19 @@ There are two alternatives to using the patch set:
 
 ### Configure the initial administrator
 
-After patching your Yesod project there is one thing left to do.
-Edit `config/settings.yml` to uncomment the last line (shown below) and
-insert a valid email address.
-
-```yaml
-#admin: "_env:LAMBDACMS_ADMIN:<your email address>"
-```
-
-By this you specify the email address of an initial administrator,
-so you can log in to the admin inteface.
 By default the application uses Mozilla's [Persona](https://persona.org)
 to log in: the email address used to log in need to be registered with Persona.
+It is recommended to use an email address of a Persona account for
+development as it simplifies logging in during development.
+
+Edit `config/settings.yml` to insert a valid email address.
+
+```yaml
+admin: "_env:LAMBDACMS_ADMIN:<email address>"
+```
+
+Replace `<email address>` with the email address of an initial administrator
+or developer, so the admin inteface can be accessed.
 
 
 ### Enjoy!
