@@ -285,6 +285,21 @@ if no users exist. If this email address is known to Mozilla Persona
 then you can procede to log in.
 
 
+## Adding a LambdaCms extension to your base application
+
+LambdaCms' extension system is one of its core strengths:
+it allows a developer to extend the site in
+a with full type safety, ensuring a working and robust product.
+
+To illustrate installing an extension to your base application we
+look at `lambdacms-media`. Installing extensions boils down to
+mostly the same steps.
+
+See the `lambdacms-media`'s [README](https://github.com/lambdacms/lambdacms-media/blob/master/README.md)
+for installation instructions. It also explains how other LambdaCms extensions
+may incorporate media items managed by the `lambdacms-media` extension.
+
+
 # License
 
 All code in this repository is released under the MIT license, as specified
