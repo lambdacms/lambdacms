@@ -43,18 +43,18 @@ patch -p1 < Foundation.hs.patch
 Steps to update the patch set.
 
 1.  Follow the [LambdaCms' installation guide](https://github.com/lambdacms/lambdacms-core/blob/master/README.md),
-    up to the point where the patches need to be applied.
-2.  Run `(cd ..; cp -R $PROJECT_NAME unpatched-$PROJECT_NAME)` to save the unpatched version.
-3.  Apply all patches from thiis repo, except `lambdacms.patch`, one-by-one.
-4.  Take note of any patch chunks that got rejected.
-5.  Manually apply chunks that got rejected.
-6.  Get it to compile, and test if all works properly.
-7.  Create a new patch set with the `create_patches.sh` script.
-8.  Use a mult-file diff tool to see if the new patch set looks good.
-9.  Copy the new patch set's files over the files in this repository.
-10. Commit the changes.
-11. Make a new tag with the version number of `yesod-bin` (the scaffolder).
-12. Push it.
+    up to the point where the patches need to be applied
+2.  Run `(cd ..; cp -R $PROJECT_NAME unpatched-$PROJECT_NAME)` to save the unpatched version
+3.  Apply all patches from thiis repo, except `lambdacms.patch`, one-by-one
+4.  Take note of any patch chunks that got rejected
+5.  Manually apply chunks that got rejected
+6.  Get it to compile, and test if all works properly
+7.  Create a new patch set with the `create_patches.sh` script
+8.  Use a mult-file diff tool to see if the new patch set looks good
+9.  Copy the new patch set's files over the files in this repository
+10. Commit the changes
+11. Make a new tag with the version number of `yesod-bin` (the scaffolder), e.g. `git tag patches-for-yesod-bin-1.4.7`
+12. Push it with `git push origin --tags`
 
 
 # License
