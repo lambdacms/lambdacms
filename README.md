@@ -80,6 +80,36 @@ That's it! You can now `cabal install` the new dependency and run
 `yesod devel` to test drive the freshly installed extension.
 
 
+# Using media in another LambdaCms extension
+
+A common usecase would be to use the "media" that are managed using the
+`lambdacms-media` extension in other extensions. For example: to add an
+image to a blog post.
+
+First off all the `lambdacms-media` package needs to become a package
+dependency of that particular extension's package.
+
+Then we can add an `imageId` to the `Post` model.
+
+```
+Post
+  title Text
+  body Text
+  imageId MediaId Maybe
+```
+
+To make it all work we need to put a constraint on the type class
+defined in the `Foundation.hs`:
+
+```haskell
+...
+class LambdaCmsMedia master => MysitePostSub master where
+...
+```
+
+After this the `attachedMaybeMedia` function may be used in the
+handler functions of the blog post extension.
+
 
 # License
 
