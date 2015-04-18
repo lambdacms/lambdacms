@@ -12,8 +12,8 @@
                   , containers
                   , vector
                   , time
-+                 , lambdacms-core                >= 0.1.0      && < 0.2
 +                 , wai                           >= 3.0.2      && < 3.1
++                 , lambdacms-core                >= 0.1.0      && < 0.2
  
  executable         mysite
      if flag(library-only)
