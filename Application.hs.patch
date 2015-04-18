@@ -4,9 +4,9 @@
                                               mkRequestLogger, outputFormat)
  import System.Log.FastLogger                (defaultBufSize, newStdoutLoggerSet,
                                               toLogStr)
++import Network.Wai.Middleware.MethodOverridePost
 +import LambdaCms.Core
 +import LambdaCms.Core.Settings (generateUUID)
-+import Network.Wai.Middleware.MethodOverridePost
  
  -- Import all relevant handler modules here.
  -- Don't forget to add new modules to your cabal file!
