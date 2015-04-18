@@ -5,7 +5,7 @@
 {-# LANGUAGE TemplateHaskell     #-}
 
 module LambdaCms.Media.Handler.Media
-    ( getMediaAdminIndexR
+    ( getMediaAdminR
     , getMediaAdminNewR
     , postMediaAdminNewR
     , getMediaAdminEditR
@@ -25,7 +25,7 @@ import           System.Directory
 import           System.FilePath
 import           Text.Lucius             (luciusFile)
 
-getMediaAdminIndexR    :: MediaHandler Html
+getMediaAdminR         :: MediaHandler Html
 getMediaAdminNewR      :: MediaHandler Html
 postMediaAdminNewR     :: MediaHandler Html
 getMediaAdminEditR     :: MediaId -> MediaHandler Html
@@ -33,7 +33,7 @@ patchMediaAdminEditR   :: MediaId -> MediaHandler Html
 deleteMediaAdminEditR  :: MediaId -> MediaHandler Html
 patchMediaAdminRenameR :: MediaId -> MediaHandler Html
 
-getMediaAdminIndexR = lift $ do
+getMediaAdminR = lift $ do
     can <- getCan
     y <- getYesod
     let sr = unpack $ staticRoot y
@@ -57,7 +57,7 @@ postMediaAdminNewR = do
             (location, ctype) <- upload file (unpack name)
             _ <- lift . runDB . insert $ Media location ctype label description ct
             lift . setMessageI $ Msg.SaveSuccess label
-            redirect MediaAdminIndexR
+            redirect MediaAdminR
         _ -> lift $ do
             can <- getCan
             adminLayout $ do
@@ -98,7 +98,7 @@ deleteMediaAdminEditR fileId = do
     case isDeleted of
         True -> do
             lift . setMessageI $ Msg.DeleteSuccess (mediaLabel file)
-            redirect MediaAdminIndexR
+            redirect MediaAdminR
         False -> do
             lift . setMessageI $ Msg.DeleteFail (mediaLabel file)
             redirect $ MediaAdminEditR fileId

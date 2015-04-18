@@ -1,5 +1,5 @@
 name:               lambdacms-media
-version:            0.0.2
+version:            0.2.0
 license:            MIT
 license-file:       LICENSE
 author:             Mats Rietdijk, Cies Breijs
@@ -40,7 +40,7 @@ library
   build-depends:    base                    >= 4.3      && < 5
                   , yesod
                   , yesod-form
-                  , lambdacms-core          >= 0.0.7.3  && < 0.1
+                  , lambdacms-core          >= 0.0.7.3  && < 0.2
                   , persistent
                   , text
                   , time
