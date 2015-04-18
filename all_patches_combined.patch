@@ -1,99 +1,19 @@
-diff -urN a/Application.hs b/Application.hs
---- a/Application.hs	2015-02-03 10:43:23.000000000 +0100
-+++ b/Application.hs	2015-02-03 17:16:18.000000000 +0100
-@@ -21,12 +21,19 @@
-                                              mkRequestLogger, outputFormat)
- import System.Log.FastLogger                (defaultBufSize, newStdoutLoggerSet,
-                                              toLogStr)
-+import LambdaCms.Core
-+import LambdaCms.Core.Settings (generateUUID)
-+import Network.Wai.Middleware.MethodOverridePost
- 
- -- Import all relevant handler modules here.
- -- Don't forget to add new modules to your cabal file!
- import Handler.Common
- import Handler.Home
- 
-+getAdminHomeRedirectR :: Handler Html
-+getAdminHomeRedirectR = do
-+    redirect $ CoreAdminR AdminHomeR
-+
- -- This line actually creates our YesodDispatch instance. It is the second half
- -- of the call to mkYesodData which occurs in Foundation.hs. Please see the
- -- comments there for more details.
-@@ -51,7 +58,8 @@
-     -- logging function. To get out of this loop, we initially create a
-     -- temporary foundation without a real connection pool, get a log function
-     -- from there, and then create the real foundation.
--    let mkFoundation appConnPool = App {..}
-+    let getLambdaCms = CoreAdmin
-+        mkFoundation appConnPool = App {..}
-         tempFoundation = mkFoundation $ error "connPool forced in tempFoundation"
-         logFunc = messageLoggerSource tempFoundation appLogger
- 
-@@ -60,11 +68,36 @@
-         (pgConnStr  $ appDatabaseConf appSettings)
-         (pgPoolSize $ appDatabaseConf appSettings)
- 
-+    let theFoundation = mkFoundation pool
-     -- Perform database migration using our application's logging settings.
--    runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
-+    runLoggingT
-+        (runSqlPool (mapM_ runMigration [migrateAll, migrateLambdaCmsCore]) pool)
-+        (messageLoggerSource theFoundation appLogger)
-+
-+    -- Create a user if no user exists yet
-+    let admin = appAdmin appSettings
-+    madmin <- runSqlPool (getBy (UniqueEmail admin)) pool
-+    case madmin of
-+        Nothing -> do
-+            timeNow <- getCurrentTime
-+            uuid <- generateUUID
-+            flip runSqlPool pool $ do
-+                uid <- insert User { userIdent     = uuid
-+                                   , userPassword  = Nothing
-+                                   , userName      = takeWhile (/= '@') admin
-+                                   , userEmail     = admin
-+                                   , userActive    = True
-+                                   , userToken     = Nothing
-+                                   , userCreatedAt = timeNow
-+                                   , userLastLogin = Nothing
-+                                   , userDeletedAt = Nothing
-+                                   }
-+                -- assign all roles to the first user
-+                mapM_ (insert_ . UserRole uid) [minBound .. maxBound]
-+        _ -> return ()
- 
-     -- Return the foundation
--    return $ mkFoundation pool
-+    return theFoundation
- 
- -- | Convert our foundation to a WAI Application by calling @toWaiAppPlain@ and
- -- applyng some additional middlewares.
-@@ -83,7 +116,7 @@
- 
-     -- Create the WAI application and apply middlewares
-     appPlain <- toWaiAppPlain foundation
--    return $ logWare $ defaultMiddlewaresNoLogging appPlain
-+    return $ logWare $ methodOverridePost appPlain
- 
- -- | Warp settings for the given foundation value.
- warpSettings :: App -> Settings
+
 diff -urN a/Foundation.hs b/Foundation.hs
---- a/Foundation.hs	2015-02-03 10:43:23.000000000 +0100
-+++ b/Foundation.hs	2015-02-03 17:24:54.000000000 +0100
-@@ -7,6 +7,10 @@
- import Yesod.Auth.BrowserId (authBrowserId)
+--- a/Foundation.hs	2015-04-18 17:56:17.664145973 +0200
++++ b/Foundation.hs	2015-04-18 18:40:55.168028557 +0200
+@@ -8,6 +8,10 @@
  import Yesod.Default.Util   (addStaticContentExternal)
  import Yesod.Core.Types     (Logger)
-+import qualified Data.Set                    as S
-+import qualified Network.Wai                 as W
+ import qualified Yesod.Core.Unsafe as Unsafe
++import qualified Data.Set          as S
++import qualified Network.Wai       as W
 +import LambdaCms.Core
 +import Roles
  
  -- | The foundation datatype for your application. This can be a good place to
  -- keep settings and values requiring initialization before your application
-@@ -18,6 +22,7 @@
+@@ -19,6 +23,7 @@
      , appConnPool    :: ConnectionPool -- ^ Database connection pool.
      , appHttpManager :: Manager
      , appLogger      :: Logger
@@ -101,7 +21,7 @@ diff -urN a/Foundation.hs b/Foundation.hs
      }
  
  instance HasHttpManager App where
-@@ -67,11 +72,14 @@
+@@ -68,11 +73,14 @@
      authRoute _ = Just $ AuthR LoginR
  
      -- Routes not requiring authentication.
@@ -121,7 +41,7 @@ diff -urN a/Foundation.hs b/Foundation.hs
  
      -- This function creates static content files in the static folder
      -- and names them based on a hash of their content. This allows
-@@ -114,27 +122,21 @@
+@@ -115,26 +123,21 @@
      type AuthId App = UserId
  
      -- Where to send a user after successful login
@@ -137,11 +57,10 @@ diff -urN a/Foundation.hs b/Foundation.hs
 -        x <- getBy $ UniqueUser $ credsIdent creds
 -        case x of
 -            Just (Entity uid _) -> return $ Just uid
--            Nothing -> do
--                fmap Just $ insert User
--                    { userIdent = credsIdent creds
--                    , userPassword = Nothing
--                    }
+-            Nothing -> Just <$> insert User
+-                { userIdent = credsIdent creds
+-                , userPassword = Nothing
+-                }
 +    getAuthId = getLambdaCmsAuthId
  
      -- You can add other plugins like BrowserID, email or OAuth here
@@ -154,7 +73,7 @@ diff -urN a/Foundation.hs b/Foundation.hs
  instance YesodAuthPersist App
  
  -- This instance is required to use forms. You can modify renderMessage to
-@@ -149,3 +151,37 @@
+@@ -152,3 +155,37 @@
  -- https://github.com/yesodweb/yesod/wiki/Sending-email
  -- https://github.com/yesodweb/yesod/wiki/Serve-static-files-from-a-separate-domain
  -- https://github.com/yesodweb/yesod/wiki/i18n-messages-in-the-scaffolding
@@ -192,9 +111,90 @@ diff -urN a/Foundation.hs b/Foundation.hs
 +
 +isAdmin :: S.Set RoleName -> Bool
 +isAdmin = S.member Admin
+diff -urN a/Application.hs b/Application.hs
+--- a/Application.hs	2015-04-18 17:56:16.768145961 +0200
++++ b/Application.hs	2015-04-18 17:56:32.484146176 +0200
+@@ -27,12 +27,19 @@
+                                              mkRequestLogger, outputFormat)
+ import System.Log.FastLogger                (defaultBufSize, newStdoutLoggerSet,
+                                              toLogStr)
++import LambdaCms.Core
++import LambdaCms.Core.Settings (generateUUID)
++import Network.Wai.Middleware.MethodOverridePost
+ 
+ -- Import all relevant handler modules here.
+ -- Don't forget to add new modules to your cabal file!
+ import Handler.Common
+ import Handler.Home
+ 
++getAdminHomeRedirectR :: Handler Html
++getAdminHomeRedirectR = do
++    redirect $ CoreAdminR AdminHomeR
++
+ -- This line actually creates our YesodDispatch instance. It is the second half
+ -- of the call to mkYesodData which occurs in Foundation.hs. Please see the
+ -- comments there for more details.
+@@ -57,7 +64,8 @@
+     -- logging function. To get out of this loop, we initially create a
+     -- temporary foundation without a real connection pool, get a log function
+     -- from there, and then create the real foundation.
+-    let mkFoundation appConnPool = App {..}
++    let getLambdaCms = CoreAdmin
++        mkFoundation appConnPool = App {..}
+         tempFoundation = mkFoundation $ error "connPool forced in tempFoundation"
+         logFunc = messageLoggerSource tempFoundation appLogger
+ 
+@@ -66,11 +74,36 @@
+         (sqlDatabase $ appDatabaseConf appSettings)
+         (sqlPoolSize $ appDatabaseConf appSettings)
+ 
++    let theFoundation = mkFoundation pool
+     -- Perform database migration using our application's logging settings.
+-    runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
++    runLoggingT
++        (runSqlPool (mapM_ runMigration [migrateAll, migrateLambdaCmsCore]) pool)
++        (messageLoggerSource theFoundation appLogger)
++
++    -- Create a user if no user exists yet
++    let admin = appAdmin appSettings
++    madmin <- runSqlPool (getBy (UniqueEmail admin)) pool
++    case madmin of
++        Nothing -> do
++            timeNow <- getCurrentTime
++            uuid <- generateUUID
++            flip runSqlPool pool $ do
++                uid <- insert User { userIdent     = uuid
++                                   , userPassword  = Nothing
++                                   , userName      = takeWhile (/= '@') admin
++                                   , userEmail     = admin
++                                   , userActive    = True
++                                   , userToken     = Nothing
++                                   , userCreatedAt = timeNow
++                                   , userLastLogin = Nothing
++                                   , userDeletedAt = Nothing
++                                   }
++                -- assign all roles to the first user
++                mapM_ (insert_ . UserRole uid) [minBound .. maxBound]
++        _ -> return ()
+ 
+     -- Return the foundation
+-    return $ mkFoundation pool
++    return theFoundation
+ 
+ -- | Convert our foundation to a WAI Application by calling @toWaiAppPlain@ and
+ -- applyng some additional middlewares.
+@@ -89,7 +122,7 @@
+ 
+     -- Create the WAI application and apply middlewares
+     appPlain <- toWaiAppPlain foundation
+-    return $ logWare $ defaultMiddlewaresNoLogging appPlain
++    return $ logWare $ methodOverridePost appPlain
+ 
+ -- | Warp settings for the given foundation value.
+ warpSettings :: App -> Settings
 diff -urN a/Model.hs b/Model.hs
---- a/Model.hs	2015-02-03 10:43:23.000000000 +0100
-+++ b/Model.hs	2015-02-03 10:52:44.000000000 +0100
+--- a/Model.hs	2015-04-18 17:56:17.664145973 +0200
++++ b/Model.hs	2015-04-18 18:06:35.668000378 +0200
 @@ -3,6 +3,9 @@
  import ClassyPrelude.Yesod
  import Database.Persist.Quasi
@@ -207,7 +207,7 @@ diff -urN a/Model.hs b/Model.hs
  -- at:
 diff -urN a/Roles.hs b/Roles.hs
 --- a/Roles.hs	1970-01-01 01:00:00.000000000 +0100
-+++ b/Roles.hs	2015-02-03 10:57:56.000000000 +0100
++++ b/Roles.hs	2015-04-18 18:06:39.528000431 +0200
 @@ -0,0 +1,9 @@
 +module Roles where
 +
@@ -219,18 +219,19 @@ diff -urN a/Roles.hs b/Roles.hs
 +
 +derivePersistField "RoleName"
 diff -urN a/Settings.hs b/Settings.hs
---- a/Settings.hs	2015-02-03 10:43:23.000000000 +0100
-+++ b/Settings.hs	2015-02-03 11:07:59.000000000 +0100
-@@ -52,6 +52,8 @@
+--- a/Settings.hs	2015-04-18 17:56:17.664145973 +0200
++++ b/Settings.hs	2015-04-18 20:05:12.496097754 +0200
+@@ -52,6 +52,9 @@
      -- ^ Copyright text to appear in the footer of the page
      , appAnalytics              :: Maybe Text
      -- ^ Google Analytics code
++
 +    , appAdmin                  :: Text
 +    -- ^ LambdaCms default admin email address
      }
  
  instance FromJSON AppSettings where
-@@ -78,6 +80,8 @@
+@@ -78,6 +81,8 @@
          appCopyright              <- o .: "copyright"
          appAnalytics              <- o .:? "analytics"
  
@@ -239,9 +240,24 @@ diff -urN a/Settings.hs b/Settings.hs
          return AppSettings {..}
  
  -- | Settings for 'widgetFile', such as which template languages to support and
+diff -urN a/config/routes b/config/routes
+--- a/config/routes	2015-04-18 17:56:17.664145973 +0200
++++ b/config/routes	2015-04-18 17:57:42.732147137 +0200
+@@ -1,7 +1,10 @@
+ /static StaticR Static appStatic
+-/auth   AuthR   Auth   getAuth
+ 
+ /favicon.ico FaviconR GET
+ /robots.txt RobotsR GET
+ 
+ / HomeR GET POST
++
++/admin/auth   AuthR                Auth         getAuth
++/admin/core   CoreAdminR           CoreAdmin    getLambdaCms
++/admin        AdminHomeRedirectR   GET
 diff -urN a/config/models b/config/models
---- a/config/models	2015-02-03 10:43:23.000000000 +0100
-+++ b/config/models	2015-02-03 10:52:04.000000000 +0100
+--- a/config/models	2015-04-18 17:56:17.664145973 +0200
++++ b/config/models	2015-04-18 17:57:36.284147049 +0200
 @@ -1,12 +1,5 @@
 -User
 -    ident Text
@@ -260,34 +276,22 @@ diff -urN a/config/models b/config/models
 +    roleName RoleName
 +    UniqueUserRole userId roleName
 +    deriving Typeable Show
-diff -urN a/config/routes b/config/routes
---- a/config/routes	2015-02-03 10:43:23.000000000 +0100
-+++ b/config/routes	2015-02-03 10:48:12.000000000 +0100
-@@ -1,7 +1,10 @@
- /static StaticR Static appStatic
--/auth   AuthR   Auth   getAuth
- 
- /favicon.ico FaviconR GET
- /robots.txt RobotsR GET
- 
- / HomeR GET POST
-+
-+/admin/auth   AuthR                Auth         getAuth
-+/admin/core   CoreAdminR           CoreAdmin    getLambdaCms
-+/admin        AdminHomeRedirectR   GET
 diff -urN a/config/settings.yml b/config/settings.yml
---- a/config/settings.yml	2015-02-03 10:43:23.000000000 +0100
-+++ b/config/settings.yml	2015-02-03 11:13:22.000000000 +0100
-@@ -27,3 +27,5 @@
+--- a/config/settings.yml	2015-04-18 17:56:17.664145973 +0200
++++ b/config/settings.yml	2015-04-18 20:09:13.236101048 +0200
+@@ -23,3 +23,8 @@
  
  copyright: Insert copyright statement here
  #analytics: UA-YOURCODE
 +
-+#admin: "_env:LAMBDACMS_ADMIN:<your email address>"
-diff -urN a/patch.cabal b/patch.cabal
---- a/patch.cabal	2015-02-03 10:43:23.000000000 +0100
-+++ b/patch.cabal	2015-02-03 10:46:26.000000000 +0100
-@@ -21,6 +21,7 @@
++# Fill in the initial admin's email address below.
++# To use Mozilla Persona for login, the email address
++# needs to be registered with that service. (Recommended)
++admin:          "_env:LAMBDACMS_ADMIN:<email address>"
+diff -urN a/project_name.cabal b/project_name.cabal
+--- a/project_name.cabal	2015-04-18 17:56:16.688145960 +0200
++++ b/project_name.cabal	2015-04-18 18:30:32.280020035 +0200
+@@ -22,6 +22,7 @@
                       Settings.StaticFiles
                       Handler.Common
                       Handler.Home
@@ -295,29 +299,12 @@ diff -urN a/patch.cabal b/patch.cabal
  
      if flag(dev) || flag(library-only)
          cpp-options:   -DDEVELOPMENT
-@@ -80,6 +81,8 @@
+@@ -81,6 +82,8 @@
                   , containers
                   , vector
                   , time
-+                 , lambdacms-core                >= 0.0.7      && < 0.1
++                 , lambdacms-core                >= 0.1.0      && < 0.2
 +                 , wai                           >= 3.0.2      && < 3.1
  
- executable         patch
+ executable         mysite
      if flag(library-only)
-diff -urN a/test/Handler/HomeSpec.hs b/test/Handler/HomeSpec.hs
---- a/test/Handler/HomeSpec.hs	2015-02-03 10:43:23.000000000 +0100
-+++ b/test/Handler/HomeSpec.hs	2015-02-03 11:10:13.000000000 +0100
-@@ -25,8 +25,8 @@
-     -- This is a simple example of using a database access in a test.  The
-     -- test will succeed for a fresh scaffolded site with an empty database,
-     -- but will fail on an existing database with a non-empty user table.
--    it "leaves the user table empty" $ do
--        get HomeR
--        statusIs 200
--        users <- runDB $ selectList ([] :: [Filter User]) []
--        assertEqual "user table empty" 0 $ length users
-+    -- it "leaves the user table empty" $ do
-+    --     get HomeR
-+    --     statusIs 200
-+    --     users <- runDB $ selectList ([] :: [Filter User]) []
-+    --     assertEqual "user table empty" 0 $ length users

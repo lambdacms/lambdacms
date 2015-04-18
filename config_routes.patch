@@ -1,5 +1,5 @@
---- a/config/routes	2015-02-03 10:43:23.000000000 +0100
-+++ b/config/routes	2015-02-03 10:48:12.000000000 +0100
+--- a/config/routes	2015-04-18 17:56:17.664145973 +0200
++++ b/config/routes	2015-04-18 17:57:42.732147137 +0200
 @@ -1,7 +1,10 @@
  /static StaticR Static appStatic
 -/auth   AuthR   Auth   getAuth

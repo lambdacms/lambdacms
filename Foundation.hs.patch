@@ -1,17 +1,17 @@
---- a/Foundation.hs	2015-02-03 10:43:23.000000000 +0100
-+++ b/Foundation.hs	2015-02-03 17:24:54.000000000 +0100
-@@ -7,6 +7,10 @@
- import Yesod.Auth.BrowserId (authBrowserId)
+--- a/Foundation.hs	2015-04-18 17:56:17.664145973 +0200
++++ b/Foundation.hs	2015-04-18 18:40:55.168028557 +0200
+@@ -8,6 +8,10 @@
  import Yesod.Default.Util   (addStaticContentExternal)
  import Yesod.Core.Types     (Logger)
-+import qualified Data.Set                    as S
-+import qualified Network.Wai                 as W
+ import qualified Yesod.Core.Unsafe as Unsafe
++import qualified Data.Set          as S
++import qualified Network.Wai       as W
 +import LambdaCms.Core
 +import Roles
  
  -- | The foundation datatype for your application. This can be a good place to
  -- keep settings and values requiring initialization before your application
-@@ -18,6 +22,7 @@
+@@ -19,6 +23,7 @@
      , appConnPool    :: ConnectionPool -- ^ Database connection pool.
      , appHttpManager :: Manager
      , appLogger      :: Logger
@@ -19,7 +19,7 @@
      }
  
  instance HasHttpManager App where
-@@ -67,11 +72,14 @@
+@@ -68,11 +73,14 @@
      authRoute _ = Just $ AuthR LoginR
  
      -- Routes not requiring authentication.
@@ -39,7 +39,7 @@
  
      -- This function creates static content files in the static folder
      -- and names them based on a hash of their content. This allows
-@@ -114,27 +122,21 @@
+@@ -115,26 +123,21 @@
      type AuthId App = UserId
  
      -- Where to send a user after successful login
@@ -55,11 +55,10 @@
 -        x <- getBy $ UniqueUser $ credsIdent creds
 -        case x of
 -            Just (Entity uid _) -> return $ Just uid
--            Nothing -> do
--                fmap Just $ insert User
--                    { userIdent = credsIdent creds
--                    , userPassword = Nothing
--                    }
+-            Nothing -> Just <$> insert User
+-                { userIdent = credsIdent creds
+-                , userPassword = Nothing
+-                }
 +    getAuthId = getLambdaCmsAuthId
  
      -- You can add other plugins like BrowserID, email or OAuth here
@@ -72,7 +71,7 @@
  instance YesodAuthPersist App
  
  -- This instance is required to use forms. You can modify renderMessage to
-@@ -149,3 +151,37 @@
+@@ -152,3 +155,37 @@
  -- https://github.com/yesodweb/yesod/wiki/Sending-email
  -- https://github.com/yesodweb/yesod/wiki/Serve-static-files-from-a-separate-domain
  -- https://github.com/yesodweb/yesod/wiki/i18n-messages-in-the-scaffolding

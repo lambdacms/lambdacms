@@ -1,6 +1,6 @@
---- a/Application.hs	2015-02-03 10:43:23.000000000 +0100
-+++ b/Application.hs	2015-02-03 17:16:18.000000000 +0100
-@@ -21,12 +21,19 @@
+--- a/Application.hs	2015-04-18 17:56:16.768145961 +0200
++++ b/Application.hs	2015-04-18 17:56:32.484146176 +0200
+@@ -27,12 +27,19 @@
                                               mkRequestLogger, outputFormat)
  import System.Log.FastLogger                (defaultBufSize, newStdoutLoggerSet,
                                               toLogStr)
@@ -20,7 +20,7 @@
  -- This line actually creates our YesodDispatch instance. It is the second half
  -- of the call to mkYesodData which occurs in Foundation.hs. Please see the
  -- comments there for more details.
-@@ -51,7 +58,8 @@
+@@ -57,7 +64,8 @@
      -- logging function. To get out of this loop, we initially create a
      -- temporary foundation without a real connection pool, get a log function
      -- from there, and then create the real foundation.
@@ -30,9 +30,9 @@
          tempFoundation = mkFoundation $ error "connPool forced in tempFoundation"
          logFunc = messageLoggerSource tempFoundation appLogger
  
-@@ -60,11 +68,36 @@
-         (pgConnStr  $ appDatabaseConf appSettings)
-         (pgPoolSize $ appDatabaseConf appSettings)
+@@ -66,11 +74,36 @@
+         (sqlDatabase $ appDatabaseConf appSettings)
+         (sqlPoolSize $ appDatabaseConf appSettings)
  
 +    let theFoundation = mkFoundation pool
      -- Perform database migration using our application's logging settings.
@@ -69,7 +69,7 @@
  
  -- | Convert our foundation to a WAI Application by calling @toWaiAppPlain@ and
  -- applyng some additional middlewares.
-@@ -83,7 +116,7 @@
+@@ -89,7 +122,7 @@
  
      -- Create the WAI application and apply middlewares
      appPlain <- toWaiAppPlain foundation
