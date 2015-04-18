@@ -18,7 +18,7 @@ In the `library` section of your base application's `.cabal` file append the fol
 line to `build-depends`:
 
 ```
-                , lambdacms-media
+                , lambdacms-media               >= 0.2.0      && < 0.3
 ```
 
 The media extension's admin section needs to be mounted in the base app's
@@ -31,37 +31,37 @@ router, therefor add the following line to your `config/routes` file:
 To `Application.hs` add `import LambdaCms.Media` and the following line:
 
 ```haskell
-[...]
+...
     let getLambdaCms = CoreAdmin
         getLambdaCmsMedia = MediaAdmin  -- add this line
         mkFoundation appConnPool = App {..}
-[...]
+...
 ```
 
 The procede by including the `migrateLambdaCmsMedia` function to `Application.hs`
 as shown in this snippet:
 
 ```haskell
-[...]
+...
     runLoggingT
         (runSqlPool (mapM_ runMigration [migrateAll, migrateLambdaCmsCore, migrateLambdaCmsMedia]) pool)
         (messageLoggerSource theFoundation appLogger)
-[...]
+...
 ```
 
 
 To `Foundation.hs` also add `import LambdaCms.Media` and the following two lines:
 
 ```haskell
-[...]
+...
     , getLambdaCms   :: CoreAdmin
     , getLambdaCmsMedia :: MediaAdmin  -- add this line
     }
-[...]
+...
     adminMenu = (defaultCoreAdminMenu CoreAdminR)
                 ++ (defaultMediaAdminMenu MediaAdminR)  -- add this line
     renderLanguages _ = ["en", "nl"]
-[...]
+...
 ```
 
 The last line hooks the media admin section into the admin menu.
