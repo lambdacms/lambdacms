@@ -4,7 +4,7 @@ lambdacms-patches
 Patch set to install [lambdacms-core](https://github.com/lambdacms/lambdacms-core)
 into a freshly init'ed [Yesod](http://yesodweb.com) application.
 
-The patch set in this repository is tested with: **`yesod-bin v1.4.3.3`**
+The patch set in this repository is tested with: **`yesod-bin v1.4.7`**
 
 
 ## Applying the patch set
