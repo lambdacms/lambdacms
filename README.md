@@ -103,27 +103,33 @@ installed; and their binaries available from your shell's `$PATH`.
 Use the following command to check your system meets the requirements:
 
 ```bash
-ghc -V
-cabal -V
-happy -V
-alex -V
+for c in ghc cabal happy alex; do $c -V | head -n1; done
+```
+
+When good to go the output should be similar to:
+
+```
+The Glorious Glasgow Haskell Compilation System, version 7.8.4
+cabal-install version 1.20.0.3
+Happy Version 1.19.5 Copyright (c) 1993-1996 Andy Gill, Simon Marlow (c) 1997-2005 Simon Marlow
+Alex version 3.1.4, (c) 2003 Chris Dornan and Simon Marlow
 ```
 
 In case you are **not** good to go, you may want to follow the
 [per operating system installation guides on the haskell.org website](https://www.haskell.org/downloads)
-which provide instructions for all dependencies except `yesod-bin`.
+which provides instructions for installing the tool chain and setting
+up your `$PATH`.
 
 
 ### Create a project folder
 
-Choose a name for your project. Make sure it is a valid unix file name
-to avoid any naming issues.  Now create a directory for you project and
+Choose a name for your project.  In below we chose `mysite`, which you
+probably want to change. Make sure to choose a valid unix file name
+to avoid naming issues.  Now create a directory for your project and
 `cd` into it, by running the following commands:
 
 ```bash
-export $PROJECT_NAME=mysite
-mkdir $PROJECT_NAME
-cd $PROJECT_NAME
+export PROJECT_NAME=mysite; mkdir $PROJECT_NAME; cd $PROJECT_NAME
 ```
 
 
