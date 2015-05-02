@@ -29,10 +29,17 @@ In this example we name the extension module **`Testimonial`** for the
 ./create MySite Testimonial
 ```
 
-
 **NOTE:** The arguments are case sensative. Since module names and
 datatypes are capitalized in Haskell, you should always provide
 capitalized arguments.
+
+The `create` script is no longer of use; just delete it with `rm create`.
+In case you want to publish your extension, you probably want to edit your
+extension's `.cabal` file setting things like author and license, and
+procede by creating a repository for your newly created extension.
+
+
+#### Installing the new extension in a base app and "wire it up"
 
 After running the create script your new extension is ready to be installed.
 If your base app is running in a cabal sandbox (recommended) you can
