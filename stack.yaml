@@ -1,0 +1,9 @@
+flags: {}
+packages:
+- '.'
+extra-deps:
+- lambdacms-core-0.1.0.0
+- friendly-time-0.3
+- lists-0.4.2
+- list-extras-0.4.1.4
+resolver: lts-2.17
