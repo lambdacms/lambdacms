@@ -1,0 +1,13 @@
+<div .panel .panel-default>
+    <div .panel-body .gallery-panel-body>
+        $if isImageFile file
+            ^{mediaImg file ["img-responsive", "img-rounded"] []}
+        $elseif isApplicationFile file
+            _{Msg.CantDisplayFileType}
+        $else
+            _{Msg.UnknownFileType}
+    <div .panel-footer>
+        $maybe r <- mroute
+            <a href=@{r}>#{mediaLabel file}
+        $nothing
+            #{mediaLabel file}

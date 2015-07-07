@@ -14,7 +14,6 @@ module LambdaCms.Media.Handler.Media
     , patchMediaAdminRenameR
     ) where
 
-import           Data.Maybe              (fromJust, isJust)
 import           Data.Text               (pack, unpack)
 import qualified Data.Text               as T (concat, split)
 import           Data.Time               (getCurrentTime, utctDay)
@@ -23,7 +22,6 @@ import           LambdaCms.Media.Import
 import qualified LambdaCms.Media.Message as Msg
 import           System.Directory
 import           System.FilePath
-import           Text.Lucius             (luciusFile)
 
 getMediaAdminR         :: MediaHandler Html
 getMediaAdminNewR      :: MediaHandler Html
@@ -35,8 +33,7 @@ patchMediaAdminRenameR :: MediaId -> MediaHandler Html
 
 getMediaAdminR = lift $ do
     can <- getCan
-    y <- getYesod
-    let sr = unpack $ staticRoot y
+    let indexItem file mroute = $(widgetFile "index_item")
     (files :: [Entity Media]) <- runDB $ selectList [] []
     adminLayout $ do
         setTitleI Msg.MediaIndex
@@ -52,11 +49,11 @@ getMediaAdminNewR = lift $ do
 postMediaAdminNewR = do
     ((results, fWidget), enctype) <- lift $ runFormPost uploadForm
     case results of
-        FormSuccess (file, name, label, description) -> do
-            ct <- liftIO getCurrentTime
-            (location, ctype) <- upload file (unpack name)
-            _ <- lift . runDB . insert $ Media location ctype label description ct
-            lift . setMessageI $ Msg.SaveSuccess label
+        FormSuccess (fileF, nameF, labelF, descriptionF) -> do
+            now <- liftIO getCurrentTime
+            (location, ctype) <- upload fileF (unpack nameF)
+            _ <- lift . runDB . insert $ Media location ctype labelF descriptionF now
+            lift . setMessageI $ Msg.SaveSuccess labelF
             redirect MediaAdminR
         _ -> lift $ do
             can <- getCan

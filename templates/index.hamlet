@@ -7,7 +7,7 @@
 <div .page-header>
     <h1>_{Msg.MediaIndex}
     $maybe r <- can (mediaR MediaAdminNewR) "GET"
-        <a .btn .btn-primary href=@{r}>
+        <a .btn .btn-primary .btn-xs href=@{r}>
             <span .glyphicon .glyphicon-plus>
             _{Msg.AddMedia}
 <div .row>
@@ -19,16 +19,8 @@
                 $forall (Entity fileId file) <- files
                     <div .col-xs-6 .col-md-3 .col-lg-2>
                         $with mroute <- can (mediaR $ MediaAdminEditR fileId) "GET"
-                            <div .panel .panel-default :isJust mroute:onclick="document.location.href='@{fromJust mroute}'">
-                                <div .panel-body .gallery-panel-body>
-                                    $if isImageFile file
-                                        ^{mediaImg file ["img-responsive", "img-rounded"] []}
-                                    $elseif isApplicationFile file
-                                        _{Msg.CantDisplayFileType}
-                                    $else
-                                        _{Msg.UnknownFileType}
-                                <div .panel-footer>
-                                    $maybe r <- mroute
-                                        <a href=@{r}>#{mediaLabel file}
-                                    $nothing
-                                        #{mediaLabel file}
+                            $maybe r <- mroute
+                                <a href=@{r}>
+                                    ^{indexItem file mroute}
+                            $nothing
+                                ^{indexItem file mroute}

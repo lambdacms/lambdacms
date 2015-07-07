@@ -9,7 +9,7 @@
     $maybe r <- can (mediaR $ MediaAdminEditR fileId) "DELETE"
         <form .form-inline .display-inline method=POST action=@{r}>
             <input name="_method" type="hidden" value="DELETE" />
-            <button .btn .btn-danger type=submit>
+            <button .btn .btn-danger .btn-xs type=submit>
                 <span .glyphicon .glyphicon-remove>
                 _{Msg.Delete}
 <div .row>
@@ -47,15 +47,18 @@
                         _{Msg.CantDisplayFileType}
                     $else
                         _{Msg.UnknownFileType}
+
 <div .row>
     <div .col-sm-12 .col-md-9 .col-lg-6>
         $maybe r <- can (mediaR $ MediaAdminEditR fileId) "PATCH"
-            <h2>_{Msg.ChangeMediaSettings}
-            <form role=form method=POST action=@{r} enctype=#{enctype}>
-                <input name="_method" type="hidden" value="PATCH" />
-                ^{fWidget}
+            <div .form-toggle-wrapper>
+                <h2 .form-toggle data-expanded=false>_{Msg.ChangeMediaSettings}
+                <form role=form method=POST action=@{r} enctype=#{enctype}>
+                    <input name="_method" type="hidden" value="PATCH" />
+                    ^{fWidget}
         $maybe r <- can (mediaR $ MediaAdminRenameR fileId) "PATCH"
-            <h2>_{Msg.ChangeFilename}
-            <form role=form method=POST action=@{r} enctype=#{rEnctype}>
-                <input name="_method" type="hidden" value="PATCH" />
-                ^{rfWidget}
+            <div .form-toggle-wrapper>
+                <h2 .form-toggle data-expanded=false>_{Msg.ChangeFilename}
+                <form role=form method=POST action=@{r} enctype=#{rEnctype}>
+                    <input name="_method" type="hidden" value="PATCH" />
+                    ^{rfWidget}
