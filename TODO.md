@@ -1,6 +1,7 @@
 TODOs
 =====
 
+* "Are you sure?" dialogs on destructive operations
 * Re-run the installation guide, and solve possible quirks around first login
 * Line up the coding style with the latest Yesod scaffold: go classy-prelude
 * Add tests
