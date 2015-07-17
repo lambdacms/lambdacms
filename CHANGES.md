@@ -4,6 +4,10 @@ Change log
 #### dev
 * ...
 
+#### 0.2.0.0
+* Use GHC 7.10 with Stackage `nightly-2015-07-09`
+* Use Stack
+
 #### 0.1.0.0
 * Fixes compilation issues with LTS Haskell 2.x
 
