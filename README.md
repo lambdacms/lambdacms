@@ -47,6 +47,11 @@ In the base app we optionally may also:
 
 This section walk through the steps of setting up a site with LambdaCms.
 
+**NOTE:** We're currently in the process using
+[`stack`](https://github.com/commercialhaskell/stack), and upgrading to
+GHC 7.10. This means we will use Stackage's `nightly-2015-07-09` package
+set until LTS 3 is released.
+
 
 ### Prerequisites
 
@@ -60,7 +65,8 @@ Besides Haskell you need to be somewhat familliar with:
 
 * the web technologies (HTTP, HTML, CSS, JS, REST),
 * RDBMS/SQL (LambdaCms makes use of a relational database), and
-* the Yesod web application framework (for which an [awesome book](http://yesodweb.com/book) exists).
+* the Yesod web application framework (for which an
+* [awesome book](http://yesodweb.com/book) exists).
 
 
 ### Non-Haskell dependencies
@@ -95,35 +101,9 @@ to a file), you need to have a database accessible from where you run your
 site. This means you might have to install and setup a database server locally.
 
 
-### The tool chain
-
-Make sure to have **GHC** 7.8.3+, **cabal-install** 1.20+, **happy** and **alex**
-installed; and their binaries available from your shell's `$PATH`.
-
-Use the following command to check your system meets the requirements:
-
-```bash
-for c in ghc cabal happy alex; do $c -V | head -n1; done
-```
-
-When good to go the output should be similar to:
-
-```
-The Glorious Glasgow Haskell Compilation System, version 7.8.4
-cabal-install version 1.20.0.3
-Happy Version 1.19.5 Copyright (c) 1993-1996 Andy Gill, Simon Marlow (c) 1997-2005 Simon Marlow
-Alex version 3.1.4, (c) 2003 Chris Dornan and Simon Marlow
-```
-
-In case you are **not** good to go, you may want to follow the
-[per operating system installation guides on the haskell.org website](https://www.haskell.org/downloads)
-which provides instructions for installing the tool chain and setting
-up your `$PATH`.
-
-
 ### Create a project folder
 
-Choose a name for your project.  In below we chose `mysite`, which you
+Choose a name for your project.  In below we choose `mysite`, which you
 probably want to change. Make sure to choose a valid unix file name
 to avoid naming issues.  Now create a directory for your project and
 `cd` into it, by running the following commands:
@@ -133,45 +113,13 @@ export PROJECT_NAME=mysite; mkdir $PROJECT_NAME; cd $PROJECT_NAME
 ```
 
 
-### Initialize a cabal sandbox
-
-To avoid running into version conflicts with other Haskell projects
-you might be working on from the same system, we setup a cabal sandbox.
-
-From within your project's folder run the following commmand:
-
-```bash
-cabal sandbox init
-```
-
-
-### Using LTS Haskell
-
-To avoid spending too much time on build issues we use and recommend
-[LTS Haskell](https://github.com/fpco/lts-haskell#readme).
-
-Currently we develop and test LambdaCms only against the `2.x`
-LTS Haskell releases. As minor releases of LTS Haskell should never
-contain breaking changes, you can safely use the latest release of
-a major LTS version.
-
-Run the following commands from within your project's folder,
-to install the most recent LTS Haskell package set in the `2.x` series.
-
-```bash
-wget http://www.stackage.org/lts/2/cabal.config
-cabal update
-```
-
-
 ### Initializing the base application
 
 First we need to install the `yesod` command, this command requires a
 lot of dependent packages to be downloaded and build (may a while).
-Run this from your project's folder:
 
 ```bash
-cabal install yesod-bin
+stack install yesod-bin --resolver nightly-2015-07-09
 ```
 
 With the following command you create a "scaffolded" Yesod application.
@@ -179,25 +127,34 @@ The command is interactive; you need to supply some configuration values.
 Pick the database of your choice, and choose a project name:
 
 ```bash
-yesod init --bare
+yesod init -n $PROJECT_NAME --bare
 ```
 
 If you have chosen a database other than Sqlite, you need to create a
 database and a sufficiently priviledged database user, and set these
 credentials in the `config/setting.yml` file.
 
+Now we will create a `stack.yaml` file for this project which specifies
+the nightly snapshot we would like to use.
+
+```
+stack init --resolver nightly-2015-07-09
+```
+
+**NOTE:** This command complains that the some version constraints in
+the `$PROJECT_NAME.cabal` file are too strict. Please raise the
+upper bounds of these dependencies manually. **This step may be
+removed once LTS 3 is out.**
+
+
 This installs all dependencies and builds the scaffoled application 
 (may take a while):
 
 ```bash
-cabal install -j --enable-tests --max-backjumps=-1 --reorder-goals
+stack install
 ```
 
-In case you experience problems with `cabal install` try changing
-`-j` into `-j1` to prevents concurrent building, and/or simply retry
-the command until you consistently run into the same error.
-
-When you experience problems during builds, while using LTS `2.x`,
+When you experience problems during builds, while using LTS `3.x`,
 we consider this a bug. Please
 [raise an issue](https://github.com/lambdacms/lambdacms-core/issues).
 
@@ -234,7 +191,7 @@ patch -p1 < /tmp/lambdacms-patches/all_patches_combined.patch
 ```
 
 Because the cabal file has a different name for each project
-(i.e. `<project_name>.cabal`) the patch command will notice a patched file
+(i.e. `$PROJECT_NAME.cabal`) the patch command will notice a patched file
 is missing (we named it `project_name.cabal`).
 When the patch command tries to patch this file you will be prompted for
 the name of your projects cabal file, after providing the name it will
@@ -271,12 +228,14 @@ or developer, so the admin inteface can be accessed.
 ### Enjoy!
 
 After applying the patches `lambdacms-core` is installed in your Yesod application.
-Run `cabal install` (possibly with `-j1`) to fetch and build the dependencies.
-Then run the development server.
+Run `stack install` again to rebuild the project with the patches.
+
+Start the development server, which automatically recompiles when files
+have changed.
 
     yesod devel
 
-Now point your browser to
+Point your browser to
 [`http://localhost:3000/admin`](http://localhost:3000/admin) and you will be
 prompted to login.  The setup as described above has selected Mozilla's
 Persona as the only means of authentication.  In `config/settings.yml`
@@ -285,17 +244,13 @@ if no users exist. If this email address is known to Mozilla Persona
 then you can procede to log in.
 
 
-# Adding a LambdaCms extension to your base application
+# Add LambdaCms "extensions" to your base application
 
 LambdaCms' extension system is one of its core strengths:
-it allows a developer to extend the site in
-a with full type safety, ensuring a working and robust product.
+it allows a developer to extend the site with packages while ensuring
+full type safety.
 
-To illustrate installing an extension to your base application we
-look at `lambdacms-media`. Installing extensions boils down to
-mostly the same steps.
-
-See the `lambdacms-media`'s [README](https://github.com/lambdacms/lambdacms-media/blob/master/README.md)
+Please refer to `lambdacms-media`'s [README](https://github.com/lambdacms/lambdacms-media/blob/master/README.md)
 for installation instructions. It also explains how other LambdaCms extensions
 may incorporate media items managed by the `lambdacms-media` extension.
 
