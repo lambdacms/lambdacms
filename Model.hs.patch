@@ -1,5 +1,5 @@
---- a/Model.hs	2015-04-18 17:56:17.664145973 +0200
-+++ b/Model.hs	2015-04-18 18:06:35.668000378 +0200
+--- a/Model.hs	2015-07-17 20:53:55.305251323 +0200
++++ b/Model.hs	2015-07-17 21:35:03.288495495 +0200
 @@ -3,6 +3,9 @@
  import ClassyPrelude.Yesod
  import Database.Persist.Quasi

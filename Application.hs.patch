@@ -1,12 +1,12 @@
---- a/Application.hs	2015-04-18 17:56:16.768145961 +0200
-+++ b/Application.hs	2015-04-18 17:56:32.484146176 +0200
+--- a/Application.hs	2015-07-17 20:53:55.301251336 +0200
++++ b/Application.hs	2015-07-17 21:44:50.260030869 +0200
 @@ -27,12 +27,19 @@
                                               mkRequestLogger, outputFormat)
  import System.Log.FastLogger                (defaultBufSize, newStdoutLoggerSet,
                                               toLogStr)
-+import Network.Wai.Middleware.MethodOverridePost
 +import LambdaCms.Core
 +import LambdaCms.Core.Settings (generateUUID)
++import Network.Wai.Middleware.MethodOverridePost
  
  -- Import all relevant handler modules here.
  -- Don't forget to add new modules to your cabal file!
@@ -27,12 +27,12 @@
 -    let mkFoundation appConnPool = App {..}
 +    let getLambdaCms = CoreAdmin
 +        mkFoundation appConnPool = App {..}
-         tempFoundation = mkFoundation $ error "connPool forced in tempFoundation"
-         logFunc = messageLoggerSource tempFoundation appLogger
- 
-@@ -66,11 +74,36 @@
-         (sqlDatabase $ appDatabaseConf appSettings)
-         (sqlPoolSize $ appDatabaseConf appSettings)
+         -- The App {..} syntax is an example of record wild cards. For more
+         -- information, see:
+         -- https://ocharles.org.uk/blog/posts/2014-12-04-record-wildcards.html
+@@ -69,11 +77,36 @@
+         (pgConnStr  $ appDatabaseConf appSettings)
+         (pgPoolSize $ appDatabaseConf appSettings)
  
 +    let theFoundation = mkFoundation pool
      -- Perform database migration using our application's logging settings.
@@ -69,7 +69,7 @@
  
  -- | Convert our foundation to a WAI Application by calling @toWaiAppPlain@ and
  -- applyng some additional middlewares.
-@@ -89,7 +122,7 @@
+@@ -92,7 +125,7 @@
  
      -- Create the WAI application and apply middlewares
      appPlain <- toWaiAppPlain foundation

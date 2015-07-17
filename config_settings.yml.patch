@@ -1,6 +1,6 @@
---- a/config/settings.yml	2015-04-18 17:56:17.664145973 +0200
-+++ b/config/settings.yml	2015-04-18 20:09:13.236101048 +0200
-@@ -23,3 +23,8 @@
+--- a/config/settings.yml	2015-07-17 20:53:55.301251336 +0200
++++ b/config/settings.yml	2015-07-17 21:35:03.292495470 +0200
+@@ -27,3 +27,8 @@
  
  copyright: Insert copyright statement here
  #analytics: UA-YOURCODE

@@ -1,6 +1,6 @@
---- a/Foundation.hs	2015-04-18 17:56:17.664145973 +0200
-+++ b/Foundation.hs	2015-04-18 18:40:55.168028557 +0200
-@@ -8,6 +8,10 @@
+--- a/Foundation.hs	2015-07-17 20:53:55.301251336 +0200
++++ b/Foundation.hs	2015-07-18 00:05:48.495073226 +0200
+@@ -9,6 +9,10 @@
  import Yesod.Default.Util   (addStaticContentExternal)
  import Yesod.Core.Types     (Logger)
  import qualified Yesod.Core.Unsafe as Unsafe
@@ -11,7 +11,7 @@
  
  -- | The foundation datatype for your application. This can be a good place to
  -- keep settings and values requiring initialization before your application
-@@ -19,6 +23,7 @@
+@@ -20,6 +24,7 @@
      , appConnPool    :: ConnectionPool -- ^ Database connection pool.
      , appHttpManager :: Manager
      , appLogger      :: Logger
@@ -19,7 +19,7 @@
      }
  
  instance HasHttpManager App where
-@@ -68,11 +73,14 @@
+@@ -73,11 +78,14 @@
      authRoute _ = Just $ AuthR LoginR
  
      -- Routes not requiring authentication.
@@ -39,7 +39,7 @@
  
      -- This function creates static content files in the static folder
      -- and names them based on a hash of their content. This allows
-@@ -115,26 +123,21 @@
+@@ -120,23 +128,21 @@
      type AuthId App = UserId
  
      -- Where to send a user after successful login
@@ -51,15 +51,12 @@
      -- Override the above two destinations when a Referer: header is present
      redirectToReferer _ = True
  
--    getAuthId creds = runDB $ do
+-    authenticate creds = runDB $ do
 -        x <- getBy $ UniqueUser $ credsIdent creds
--        case x of
--            Just (Entity uid _) -> return $ Just uid
--            Nothing -> Just <$> insert User
--                { userIdent = credsIdent creds
--                , userPassword = Nothing
--                }
-+    getAuthId = getLambdaCmsAuthId
+-        return $ case x of
+-            Just (Entity uid _) -> Authenticated uid
+-            Nothing -> UserError InvalidLogin
++    authenticate = authenticateByLambdaCms
  
      -- You can add other plugins like BrowserID, email or OAuth here
      authPlugins _ = [authBrowserId def]
@@ -71,7 +68,7 @@
  instance YesodAuthPersist App
  
  -- This instance is required to use forms. You can modify renderMessage to
-@@ -152,3 +155,37 @@
+@@ -154,3 +160,37 @@
  -- https://github.com/yesodweb/yesod/wiki/Sending-email
  -- https://github.com/yesodweb/yesod/wiki/Serve-static-files-from-a-separate-domain
  -- https://github.com/yesodweb/yesod/wiki/i18n-messages-in-the-scaffolding
@@ -79,11 +76,11 @@
 +instance LambdaCmsAdmin App where
 +    type Roles App = RoleName
 +
-+    actionAllowedFor (FaviconR) "GET" = Unauthenticated
-+    actionAllowedFor (RobotsR)  "GET" = Unauthenticated
-+    actionAllowedFor (HomeR)    "GET" = Unauthenticated
-+    actionAllowedFor (AuthR _)  _     = Unauthenticated
-+    actionAllowedFor _          _     = Roles $ S.fromList [Admin]
++    actionAllowedFor (FaviconR) "GET" = AllowAll
++    actionAllowedFor (RobotsR)  "GET" = AllowAll
++    actionAllowedFor (HomeR)    "GET" = AllowAll
++    actionAllowedFor (AuthR _)  _     = AllowAll
++    actionAllowedFor _          _     = AllowRoles $ S.fromList [Admin]
 +
 +    coreR = CoreAdminR
 +    authR = AuthR
