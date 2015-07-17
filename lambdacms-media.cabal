@@ -1,5 +1,5 @@
 name:               lambdacms-media
-version:            0.2.0
+version:            0.3.0
 license:            MIT
 license-file:       LICENSE
 author:             Mats Rietdijk, Cies Breijs
@@ -14,7 +14,7 @@ stability:          alpha
 category:           Web
 build-type:         Simple
 cabal-version:      >= 1.18
-tested-with:        GHC >= 7.6
+tested-with:        GHC >= 7.10
 extra-source-files: README.md
                   , CHANGES.md
                   , templates/*.hamlet
@@ -40,7 +40,7 @@ library
   build-depends:    base                    >= 4.3      && < 5
                   , yesod
                   , yesod-form
-                  , lambdacms-core          >= 0.0.7.3  && < 0.2
+                  , lambdacms-core          >= 0.2      && < 0.3
                   , persistent
                   , text
                   , time

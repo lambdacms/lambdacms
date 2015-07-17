@@ -6,10 +6,10 @@
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE ViewPatterns          #-}
+{-# OPTIONS_GHC -fno-warn-orphans  #-}
 
 module LambdaCms.Media.Foundation where
 
-import           Data.Monoid             ((<>))
 import           Data.Text               (Text, unpack)
 import qualified Data.Text               as T
 import           System.FilePath         ((</>))
@@ -22,10 +22,13 @@ import           LambdaCms.Media.Message (MediaMessage, defaultMessage,
 import qualified LambdaCms.Media.Message as Msg
 import           LambdaCms.Media.Models
 
+
 data MediaAdmin = MediaAdmin
 
 mkYesodSubData "MediaAdmin" $(parseRoutesFile "config/routes")
 
+-- This instance requires OPTIONS_GHC -fno-warn-orphans
+-- TODO: Can we avoid surpressing orphan warnings?
 instance LambdaCmsMedia master => RenderMessage master MediaMessage where
     renderMessage = renderMediaMessage
 

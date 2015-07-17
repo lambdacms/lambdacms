@@ -3,6 +3,7 @@
 {-# LANGUAGE RankNTypes          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell     #-}
+{-# LANGUAGE FlexibleContexts    #-}
 
 module LambdaCms.Media.Handler.Media
     ( getMediaAdminR
@@ -23,6 +24,7 @@ import qualified LambdaCms.Media.Message as Msg
 import           System.Directory
 import           System.FilePath
 
+
 getMediaAdminR         :: MediaHandler Html
 getMediaAdminNewR      :: MediaHandler Html
 postMediaAdminNewR     :: MediaHandler Html
@@ -33,6 +35,7 @@ patchMediaAdminRenameR :: MediaId -> MediaHandler Html
 
 getMediaAdminR = lift $ do
     can <- getCan
+    -- Following line needs +XFlexibleContexts in GHC 7.10+
     let indexItem file mroute = $(widgetFile "index_item")
     (files :: [Entity Media]) <- runDB $ selectList [] []
     adminLayout $ do
