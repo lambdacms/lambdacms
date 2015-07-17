@@ -39,16 +39,17 @@ import           Network.Mail.Mime
 import           Network.Wai                (requestMethod)
 import           Text.Hamlet                (hamletFile)
 import           Yesod
-import           Yesod.Auth                 hiding (Authenticated)
+import           Yesod.Auth
+import           Yesod.Auth.Message         (AuthMessage (InvalidLogin))
 
 -- | Foundation type.
 data CoreAdmin = CoreAdmin
 
 -- | Denotes what kind of user is allowed to perform an action.
-data Allow a = Unauthenticated -- ^ Allow anyone (no authentication required).
-             | Authenticated   -- ^ Allow any authenticated user.
-             | Roles a         -- ^ Allow anyone who as at least one matching role.
-             | Nobody          -- ^ Allow nobody.
+data Allow a = AllowAll            -- ^ Allow anyone (no authentication required).
+             | AllowAuthenticated  -- ^ Allow any authenticated user.
+             | AllowRoles a        -- ^ Allow anyone who as at least one matching role.
+             | AllowNobody         -- ^ Allow nobody.
 
 -- | A menu item, also see 'adminMenu'.
 --
@@ -111,17 +112,17 @@ class ( YesodAuth master
     defaultRoles = return S.empty
 
     -- | See if a user is authorized to perform an action.
-    isAuthorizedTo :: master                     -- Needed to make function injective.
-                   -> Maybe (Set (Roles master)) -- ^ Set of roles the user has.
-                   -> Allow (Set (Roles master)) -- ^ Set of roles allowed to perform the action.
+    isAuthorizedTo :: master                      -- Needed to make function injective.
+                   -> Maybe (Set (Roles master))  -- ^ Set of roles the user has.
+                   -> Allow (Set (Roles master))  -- ^ Set of roles allowed to perform the action.
                    -> AuthResult
-    isAuthorizedTo _ _           Nobody          = Unauthorized "Access denied."
-    isAuthorizedTo _ _           Unauthenticated = Authorized
-    isAuthorizedTo _ (Just _)    Authenticated   = Authorized
-    isAuthorizedTo _ Nothing     _               = AuthenticationRequired
-    isAuthorizedTo _ (Just urs) (Roles rrs)    = do
+    isAuthorizedTo _ _           AllowNobody        = Unauthorized "Access denied."
+    isAuthorizedTo _ _           AllowAll           = Authorized
+    isAuthorizedTo _ (Just _)    AllowAuthenticated = Authorized
+    isAuthorizedTo _ Nothing     _                  = AuthenticationRequired
+    isAuthorizedTo _ (Just urs)  (AllowRoles rrs)   = do
       case (not . S.null $ urs `S.intersection` rrs) of
-        True -> Authorized -- non-empty intersection means authorized
+        True  -> Authorized  -- non-empty intersection means authorized
         False -> Unauthorized "Access denied."
 
     -- | Get the 'Allow' type needed for this action.
@@ -131,7 +132,7 @@ class ( YesodAuth master
                                    -- Knowing /which/ method is used allows for more fine grained
                                    -- permissions than only knowing whether it is /write/ request.
                      -> Allow (Set (Roles master))
-    actionAllowedFor _ _ = Nobody
+    actionAllowedFor _ _ = AllowNobody
 
     -- | Both coreR and authR are used to navigate to a different controller.
     -- It saves you from putting "getRouteToParent" everywhere.
@@ -236,22 +237,23 @@ class ( YesodAuth master
             plainBody = getFromParts "text/plain; charset=utf-8"
             getFromParts x = decodeUtf8 . LB.toStrict . LB.concat . map partContent $ concatMap (filter ((==) x . partType)) parts
             maddress = intercalate ", " . map (address)
-            address (Address n e) = case n of
-                                        Just n' -> n' <> " " <> e'
-                                        Nothing -> e'
-                where e' = "<" <> e <> ">"
+            address (Address n e) = let e' = "<" <> e <> ">" in case n of Just n' -> n' <> " " <> e'
+                                                                          Nothing -> e'
 
-getLambdaCmsAuthId :: LambdaCmsAdmin master => Creds master -> HandlerT master IO (Maybe (AuthId master))
-getLambdaCmsAuthId creds = runDB $ do
-    user <- getBy $ UniqueAuth (credsIdent creds) True
+authenticateByLambdaCms :: LambdaCmsAdmin master
+                        => Creds master
+                        -> HandlerT master IO (AuthenticationResult master)
+authenticateByLambdaCms creds = runDB $ do
+    user <- getBy $ UniqueUser $ credsIdent creds
     case user of
         Just (Entity uid _) -> do
             timeNow <- liftIO getCurrentTime
             _ <- update uid [UserLastLogin =. Just timeNow]
-            return $ Just uid
-        Nothing -> return Nothing
+            return $ Authenticated uid
+        Nothing -> return $ UserError InvalidLogin
 
-lambdaCmsMaybeAuthId :: LambdaCmsAdmin master => HandlerT master IO (Maybe (AuthId master))
+lambdaCmsMaybeAuthId :: LambdaCmsAdmin master
+                     => HandlerT master IO (Maybe (AuthId master))
 lambdaCmsMaybeAuthId = do
     mauthId <- defaultMaybeAuthId
     maybe (return Nothing) maybeActiveAuthId mauthId
