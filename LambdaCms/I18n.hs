@@ -3,9 +3,10 @@
 module LambdaCms.I18n where
 
 import           Data.Text
+import           Data.Time.Format (defaultTimeLocale, TimeLocale)
 import           LambdaCms.I18n.Dutch
 import           LambdaCms.I18n.Italian
-import           System.Locale
+
 
 -- | Helper function to get the right time locale.
 lambdaCmsTimeLocale :: [Text] -> TimeLocale

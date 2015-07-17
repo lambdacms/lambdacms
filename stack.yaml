@@ -2,7 +2,8 @@ flags: {}
 packages:
 - '.'
 extra-deps:
-- friendly-time-0.3
+- friendly-time-0.4
 - lists-0.4.2
 - list-extras-0.4.1.4
-resolver: lts-2.17
+resolver: nightly-2015-07-09
+

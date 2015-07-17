@@ -23,7 +23,7 @@ import qualified Data.Set                   as S (empty, intersection, null)
 import           Data.Text                  (Text, concat, intercalate, pack,
                                              unpack)
 import           Data.Text.Encoding         (decodeUtf8)
-import           Data.Time                  (getCurrentTime)
+import           Data.Time                  (getCurrentTime, utc)
 import           Data.Time.Format.Human
 import           Data.Traversable           (forM)
 import           Database.Persist.Sql       (SqlBackend)
@@ -33,7 +33,7 @@ import qualified LambdaCms.Core.Message     as Msg
 import           LambdaCms.Core.Models
 import           LambdaCms.Core.Settings
 import           LambdaCms.I18n
-import           Network.Gravatar           (GravatarOptions (..), Size (..),
+import           Network.Gravatar           (GravatarOptions(..), Size(..),
                                              def, gravatar)
 import           Network.Mail.Mime
 import           Network.Wai                (requestMethod)
@@ -319,20 +319,21 @@ lambdaCmsHumanTimeLocale = do
     let rm = unpack . renderMessage y langs
     return $ HumanTimeLocale
         { justNow       = rm Msg.TimeJustNow
-        , secondsAgo    = rm . Msg.TimeSecondsAgo . pack
-        , oneMinuteAgo  = rm Msg.TimeOneMinuteAgo
-        , minutesAgo    = rm . Msg.TimeMinutesAgo . pack
-        , oneHourAgo    = rm Msg.TimeOneHourAgo
-        , aboutHoursAgo = rm . Msg.TimeAboutHoursAgo . pack
+        , secondsAgo    = (\_ x -> rm . Msg.TimeSecondsAgo $ pack x)
+        , oneMinuteAgo  = (\_   -> rm Msg.TimeOneMinuteAgo)
+        , minutesAgo    = (\_ x -> rm . Msg.TimeMinutesAgo $ pack x)
+        , oneHourAgo    = (\_   -> rm Msg.TimeOneHourAgo)
+        , aboutHoursAgo = (\_ x -> rm . Msg.TimeAboutHoursAgo $ pack x)
         , at            = (\_ x -> rm $ Msg.TimeAt $ pack x)
-        , daysAgo       = rm . Msg.TimeDaysAgo . pack
-        , weekAgo       = rm . Msg.TimeWeekAgo . pack
-        , weeksAgo      = rm . Msg.TimeWeeksAgo . pack
+        , daysAgo       = (\_ x -> rm . Msg.TimeDaysAgo $ pack x)
+        , weekAgo       = (\_ x -> rm . Msg.TimeWeekAgo $ pack x)
+        , weeksAgo      = (\_ x -> rm . Msg.TimeWeeksAgo $ pack x)
         , onYear        = rm . Msg.TimeOnYear . pack
         , locale        = lambdaCmsTimeLocale langs
         , dayOfWeekFmt  = rm Msg.DayOfWeekFmt
         , thisYearFmt   = "%b %e"
         , prevYearFmt   = "%b %e, %Y"
+        , timeZone      = utc
         }
 
 routeBestMatch :: RenderRoute master

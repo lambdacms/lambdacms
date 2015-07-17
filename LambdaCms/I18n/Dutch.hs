@@ -1,6 +1,7 @@
 module LambdaCms.I18n.Dutch where
 
-import           System.Locale
+import           Data.Time.Format (TimeLocale(..))
+
 
 -- | Dutch time locale.
 dutchTimeLocale :: TimeLocale
@@ -18,18 +19,10 @@ dutchTimeLocale =  TimeLocale
                   ("September", "Sep"), ("Oktober",   "Okt"),
                   ("November",  "Nov"), ("December",  "Dec")],
 
-        intervals = [ ("jaar",  "jaren")
-                    , ("maand", "maanden")
-                    , ("dag",   "dagen")
-                    , ("uur",   "uren")
-                    , ("min",   "mins")
-                    , ("sec",   "secs")
-                    , ("usec",  "usecs")
-                    ],
-
         amPm = ("", ""),
         dateTimeFmt = "%a %b %e %H:%M:%S %Z %Y",
         dateFmt = "%d-%m-%y",
         timeFmt = "%H:%M:%S",
-        time12Fmt = "%H:%M:%S"
+        time12Fmt = "%H:%M:%S",
+        knownTimeZones = []
     }
