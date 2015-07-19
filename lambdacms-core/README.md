@@ -186,16 +186,16 @@ First we need to download the patches by cloning the repository, we do so in
 Run the following from the root of your newly created Yesod project:
 
 ```bash
-(cd /tmp; git clone https://github.com/lambdacms/lambdacms-patches.git)
-patch -p1 < /tmp/lambdacms-patches/all_patches_combined.patch
+export TMP_PATCHES=/tmp/lambdacms-patches-`date +%s`
+git clone https://github.com/lambdacms/lambdacms-patches.git $TMP_PATCHES
+mv $PROJECT_NAME.cabal project_name.cabal
+for f in $TMP_PATCHES/*.patch; do patch -p1 < $f; done
+mv project_name.cabal $PROJECT_NAME.cabal
 ```
 
-Because the cabal file has a different name for each project
-(i.e. `$PROJECT_NAME.cabal`) the patch command will notice a patched file
-is missing (we named it `project_name.cabal`).
-When the patch command tries to patch this file you will be prompted for
-the name of your projects cabal file, after providing the name it will
-successfully complete patching.
+If any patches (partly) fail: try to fix it manually editing the files in
+question. If this happens while closely following this README, then please
+[open an issue](https://github.com/lambdacms/lambdacms-core/issues).
 
 
 #### Alternatives to the patch set
