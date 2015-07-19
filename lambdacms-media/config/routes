@@ -1,0 +1,4 @@
+/                 MediaAdminR        GET
+/new              MediaAdminNewR     GET POST
+/#MediaId/rename  MediaAdminRenameR  PATCH
+!/#MediaId        MediaAdminEditR    GET PATCH DELETE

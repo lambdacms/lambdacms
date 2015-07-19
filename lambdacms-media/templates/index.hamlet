@@ -1,0 +1,26 @@
+<div .row>
+    <div .col-xs-12>
+        $maybe r <- can (coreR AdminHomeR) "GET"
+            <a href=@{r}>
+                <span .glyphicon .glyphicon-arrow-left>
+                _{Msg.Back}
+<div .page-header>
+    <h1>_{Msg.MediaIndex}
+    $maybe r <- can (mediaR MediaAdminNewR) "GET"
+        <a .btn .btn-primary .btn-xs href=@{r}>
+            <span .glyphicon .glyphicon-plus>
+            _{Msg.AddMedia}
+<div .row>
+    <div .col-xs-12>
+        $if null files
+            <p .alert .alert-info>_{Msg.NoMediaFound}
+        $else
+            <div .row>
+                $forall (Entity fileId file) <- files
+                    <div .col-xs-6 .col-md-3 .col-lg-2>
+                        $with mroute <- can (mediaR $ MediaAdminEditR fileId) "GET"
+                            $maybe r <- mroute
+                                <a href=@{r}>
+                                    ^{indexItem file mroute}
+                            $nothing
+                                ^{indexItem file mroute}

@@ -1,0 +1,8 @@
+Media
+  location FilePath
+  contentType Text
+  label Text
+  description Textarea Maybe
+  uploadedAt UTCTime
+  UniqueLocation location
+  deriving Typeable Show

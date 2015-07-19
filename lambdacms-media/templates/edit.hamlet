@@ -1,0 +1,64 @@
+<div .row>
+    <div .col-xs-12>
+        $maybe r <- can (mediaR MediaAdminR) "GET"
+            <a href=@{r}>
+                <span .glyphicon .glyphicon-arrow-left>
+                _{Msg.Back}
+<div .page-header>
+    <h1>#{mediaLabel file}
+    $maybe r <- can (mediaR $ MediaAdminEditR fileId) "DELETE"
+        <form .form-inline .display-inline method=POST action=@{r}>
+            <input name="_method" type="hidden" value="DELETE" />
+            <button .btn .btn-danger .btn-xs type=submit>
+                <span .glyphicon .glyphicon-remove>
+                _{Msg.Delete}
+<div .row>
+    <div .col-sm-12 .col-md-9 .col-lg-6>
+        <div .table-responsive>
+            <table .table .table-striped>
+                <tbody>
+                    <tr>
+                        <td>_{Msg.Label}
+                        <td .text-right>#{mediaLabel file}
+                    <tr>
+                        <td>_{Msg.Description}
+                        <td .text-right>
+                            $maybe description <- mediaDescription file
+                                #{description}
+                    <tr>
+                        <td>_{Msg.Filename}
+                        <td .text-right><a href=#{sr </> mediaLocation file}>#{takeFileName $ mediaLocation file}
+                    <tr>
+                        <td>_{Msg.FileContentType}
+                        <td .text-right>#{mediaContentType file}
+                    <tr>
+                        <td>_{Msg.FileLocation}
+                        <td .text-right>#{mediaFullLocation (staticDir y) file}
+                    <tr>
+                        <td>_{Msg.UploadedOn}
+                        <td .text-right>#{show $ utctDay $ mediaUploadedAt file}
+    <div .col-sm-12 .col-md-9 .col-lg-6>
+        <div .panel .panel-default>
+            <div .panel-body>
+                <a href=#{sr </> mediaLocation file}>
+                    $if isImageFile file
+                        ^{mediaImg file ["img-responsive", "img-rounded"] []}
+                    $elseif isApplicationFile file
+                        _{Msg.CantDisplayFileType}
+                    $else
+                        _{Msg.UnknownFileType}
+
+<div .row>
+    <div .col-sm-12 .col-md-9 .col-lg-6>
+        $maybe r <- can (mediaR $ MediaAdminEditR fileId) "PATCH"
+            <div .form-toggle-wrapper>
+                <h2 .form-toggle data-expanded=false>_{Msg.ChangeMediaSettings}
+                <form role=form method=POST action=@{r} enctype=#{enctype}>
+                    <input name="_method" type="hidden" value="PATCH" />
+                    ^{fWidget}
+        $maybe r <- can (mediaR $ MediaAdminRenameR fileId) "PATCH"
+            <div .form-toggle-wrapper>
+                <h2 .form-toggle data-expanded=false>_{Msg.ChangeFilename}
+                <form role=form method=POST action=@{r} enctype=#{rEnctype}>
+                    <input name="_method" type="hidden" value="PATCH" />
+                    ^{rfWidget}
