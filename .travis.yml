@@ -25,8 +25,8 @@ before_install:
   - ghc --version
 
 install:
-  - ./travis_long stack --no-terminal --skip-ghc-check setup
-  - ./travis_long stack --no-terminal --skip-ghc-check test --only-snapshot
+  - ./.travis_long.sh stack --no-terminal --skip-ghc-check setup
+  - ./.travis_long.sh stack --no-terminal --skip-ghc-check test --only-snapshot
 
 script:
   - stack --no-terminal --skip-ghc-check test
