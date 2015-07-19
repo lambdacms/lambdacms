@@ -42,4 +42,4 @@ patches.
 # License
 
 All code in this repository is released under the MIT license, as specified
-in the [LICENSE file](https://github.com/lambdacms/lambdacms-core/blob/master/LICENSE).
+in the [LICENSE file](https://github.com/lambdacms/lambdacms/blob/master/LICENSE).
