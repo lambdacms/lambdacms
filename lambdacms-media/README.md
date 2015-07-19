@@ -3,7 +3,8 @@ lambdacms-media
 
 This is an extension for [LambdaCms](http://lambdacms.org) which allows admins to manage media files.
 
-**NOTE:** At this point the functionality provided by this extension is very basic. Pull request adding features are most welcome.
+**NOTE:** At this point the functionality provided by this extension is very basic.
+Pull requests adding features are most welcome.
 
 
 ### Installing
@@ -18,7 +19,7 @@ In the `library` section of your base application's `.cabal` file append the fol
 line to `build-depends`:
 
 ```
-                , lambdacms-media               >= 0.2.0      && < 0.3
+                , lambdacms-media
 ```
 
 The media extension's admin section needs to be mounted in the base app's
@@ -114,6 +115,6 @@ handler functions of the blog post extension.
 ### License
 
 All code in this repository is released under the MIT license, as specified
-in the [LICENSE file](https://github.com/lambdacms/lambdacms-core/blob/master/LICENSE).
+in the [LICENSE file](https://github.com/lambdacms/lambdacms/blob/master/LICENSE).
 
 

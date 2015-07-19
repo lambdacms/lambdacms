@@ -1,6 +1,7 @@
 TODOs
 =====
 
+#### lambdacms-core
 * "Are you sure?" dialogs on destructive operations
 * Re-run the installation guide, and solve possible quirks around first login
 * Line up the coding style with the latest Yesod scaffold: go classy-prelude
@@ -30,7 +31,14 @@ TODOs
   * big text field
   * slug
 
-To consider:
+#### lambdacms-media
+* Provide resizing functionality of pictures without OS dependencies
+
+#### yesod-scaffold-patches
 * Scaffold generator (or incorporate in `yesod-bin`'s) -- maybe the current patch workflow is sufficient
 
-* Provide resizing functionality of pictures without OS dependencies
+#### scaffold-extension
+* ...
+
+#### generic
+* ...

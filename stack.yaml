@@ -1,6 +1,7 @@
 flags: {}
 packages:
-- '.'
+- lambdacms-core
+- lambdacms-media
 extra-deps:
 - friendly-time-0.4
 - lists-0.4.2
