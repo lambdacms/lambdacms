@@ -1,0 +1,91 @@
+<div .row>
+    <div .col-xs-12>
+        $maybe r <- can (coreR $ UserAdminR UserAdminIndexR) "GET"
+            <a href=@{r}>
+                <span .glyphicon .glyphicon-arrow-left>
+                _{Msg.Back}
+<div .page-header>
+    <h1>_{Msg.EditUser $ userName user}
+    $if authId == userId
+        <span .label .label-primary>_{Msg.You}
+    $else
+        $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "DELETE"
+            <form .form-inline .display-inline method=post action=@{r}>
+                <input name="_method" type="hidden" value="DELETE" />
+                <button .btn .btn-danger .btn-xs type=submit>
+                    <span .glyphicon .glyphicon-remove>
+                    _{Msg.Remove}
+        $if (userToken user) == Nothing
+            $if userActive user
+                $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "DEACTIVATE"
+                    <form .form-inline .display-inline method=post action=@{r}>
+                        <input name=_method type=hidden value=DEACTIVATE />
+                        <button .btn .btn-warning .btn-xs type=submit>
+                            <span .glyphicon .glyphicon-ban-circle>
+                            _{Msg.Deactivate}
+            $else
+                $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "ACTIVATE"
+                    <form .form-inline .display-inline method=post action=@{r}>
+                        <input name=_method type=hidden value=ACTIVATE />
+                        <button .btn .btn-success .btn-xs type=submit>
+                            <span .glyphicon .glyphicon-ok-circle>
+                            _{Msg.Activate}
+<div .row>
+    <div .col-sm-12 .col-md-9 .col-lg-6>
+        <div .table-responsive>
+            <table .table .table-striped>
+                <tbody>
+                    <tr>
+                        <td>_{Msg.Username}
+                        <td .text-right>#{userName user}
+                    <tr>
+                        <td>_{Msg.EmailAddress}
+                        <td .text-right>#{userEmail user}
+                    <tr>
+                        <td>_{Msg.Roles}
+                        <td .text-right>
+                            $forall role <- urs
+                                <span .label .label-primary>#{show role}
+                    <tr>
+                        <td>_{Msg.CreatedOn}
+                        <td .text-right>#{show $ utctDay $ userCreatedAt user}
+                    <tr>
+                        <td>_{Msg.LastLogin}
+                        <td .text-right>
+                            $maybe ll <- userLastLogin user
+                                #{humanReadableTimeI18N' hrtLocale timeNow $ ll}
+                            $nothing
+                                -
+                    <tr>
+                        <td>_{Msg.AccountStatus}
+                        $maybe _ <- userToken user
+                            <td .text-right .text-warning>_{Msg.AccountPending}
+                        $nothing
+                            $if userActive user
+                                <td .text-right .text-success>_{Msg.AccountActive}
+                            $else
+                                <td .text-right .text-danger>_{Msg.AccountInactive}
+<div .row>
+    <div .col-sm-12 .col-md-9 .col-lg-6>
+        $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "PATCH"
+            <div .form-toggle-wrapper>
+                <h2 .form-toggle data-expanded=false>_{Msg.ChangeAccountSettings}
+                <form role=form method=post action=@{r} enctype=#{enctype}>
+                    <input type=hidden name=_method value=PATCH>
+                    ^{formWidget}
+        $if (userActive user) || (isJust $ userToken user)
+            $if authId == userId
+                $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "CHPASS"
+                    <div .form-toggle-wrapper>
+                        <h2 .form-toggle data-expanded=false>_{Msg.ChangePassword}
+                        <form role=form method=post action=@{r} enctype=#{pwEnctype}>
+                            <input type=hidden name=_method value=CHPASS>
+                            ^{pwFormWidget}
+            $else
+                $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "RQPASS"
+                    <div .form-toggle-wrapper>
+                        <h2 .form-toggle data-expanded=false>_{Msg.ResetPassword}
+                        <form role=form method=post action=@{r}>
+                            <p>_{Msg.RequestResetToken_Text}.
+                            <input type=hidden name=_method value=RQPASS>
+                            <button .btn .btn-success type=submit>_{Msg.RequestResetToken_Button}

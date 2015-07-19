@@ -1,0 +1,3 @@
+<p>Hi #{userName user},
+<p>A new password has been requested for your account.
+<a href=@{coreR $ UserAdminActivateR userId token}>Pick a new password

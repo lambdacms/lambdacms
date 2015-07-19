@@ -1,0 +1,26 @@
+<title>#{title res}
+$maybe a <- author res
+  <meta name=author content=#{a}>
+$maybe e <- editor res
+  <meta name=editor content=#{e}>
+$maybe d <- description res
+  <meta name=description content=#{d}>
+$if not $ null $ keywords res
+  <meta name=keywords content=#{intercalate ", " $ keywords res}>
+$maybe rt <- robotsText
+  <meta name=robots content=#{rt}>
+$if not $ null $ otherMetas res
+  $forall attrs <- otherMetas res
+    <meta *{attrs}>
+$# Facebook
+$if not $ null $ facebook res
+  $forall (property, content) <- facebook res
+    <meta property=og:#{property} content=#{content}>
+$# Twitter
+$if not $ null $ twitter res
+  $forall (name, content) <- twitter res
+    <meta name=twitter:#{name} content=#{content}>
+$# Google+
+$if not $ null $ googlePlus res
+  $forall (itemprop, content) <- googlePlus res
+    <meta itemprop=#{itemprop} content=#{content}>

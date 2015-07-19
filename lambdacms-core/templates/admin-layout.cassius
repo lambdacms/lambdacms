@@ -1,0 +1,157 @@
+html, body
+    height: 100%
+
+body > header.navbar
+    border: none
+
+    .navbar-brand
+        padding-left: 37px
+
+    .gravatar
+        height: #{show gravatarSize}px
+        width: #{show gravatarSize}px
+        border-radius: #{show $ div gravatarSize 2}px
+        margin: -5px 0 -5px 5px
+
+body > div.container-fluid > div.row
+    margin-top: 32px
+
+.main-nav-back
+    position: fixed
+    top: 0
+    bottom: 0
+    background-color: #333
+
+.main-nav
+    padding: 0
+
+    > nav
+        padding: 15px 0
+        border: none
+        border-radius: 0
+        background-color: #333
+
+    .glyphicon
+        margin-right: 5px
+        font-size: 14px
+        height: 14px
+        width: 14px
+
+    .nav-pills > li
+        > a
+            border-radius: 0
+            color: #fff
+
+            &:hover, :active, :focus
+                color: #337ab7
+                background-color: #222
+
+        &.active > a
+            &:hover, :active, :focus
+                color: #fff
+                background-color: #337ab7
+
+.dropdown-toggle
+    cursor: pointer
+
+.display-inline
+    display: inline
+
+.table-hover tbody tr:hover
+    cursor: pointer
+
+.table-hover tbody tr:hover a
+    text-decoration: underline
+
+.main-content
+    padding: 20px 40px 0 40px
+
+    .page-header
+        border-bottom: none
+        border-top: 1px solid #eee
+        margin: 9px 0 0 0
+        padding-top: 15px
+
+        &.no-border-top
+            border-top: none;
+
+        h1
+            display: inline
+
+        a, button, span.label
+            display: inline-block
+            vertical-align: middle
+            margin-left: 10px
+            margin-bottom: 15px
+
+            .glyphicon
+                font-size: 12px
+                width: 12px
+                height: 12px
+
+.btn
+    &.btn-primary, .btn-success, .btn-info, .btn-warning, .btn-danger
+        color: #333
+        background-color: #e6e6e6
+        border-color: #adadad
+
+        &:hover, :active, :focus
+            color: #fff
+
+    &.btn-primary
+        &:hover, :active, :focus
+            background-color: #337ab7
+            border-color: #2e6da4
+
+    &.btn-success
+        &:hover, :active, :focus
+            background-color: #5cb85c
+            border-color: #4cae4c
+
+    &.btn-info
+        &:hover, :active, :focus
+            background-color: #5bc0de
+            border-color: #46b8da
+
+    &.btn-warning
+        &:hover, :active, :focus
+            background-color: #f0ad4e
+            border-color: #eea236
+
+    &.btn-danger
+        &:hover, :active, :focus
+            background-color: #d9534f
+            border-color: #d43f3a
+
+.table
+    border-bottom: 1px solid #ddd
+
+.form-toggle-wrapper
+    margin-bottom: 40px
+
+    .form-toggle
+        font-size: 20px
+        cursor: pointer
+
+        .glyphicon
+            float: left
+            font-size: 14px
+            width: 14px
+            height: 14px
+            margin: 3px 8px 0 0
+
+    form
+        padding-left: 40px
+
+.checkbox
+    margin-right: -50px
+
+    label
+        margin-right: 50px
+
+    input
+        margin-right: 10px
+
+.jumbotron
+    h2
+        margin-bottom: 15px

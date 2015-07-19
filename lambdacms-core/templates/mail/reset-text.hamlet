@@ -1,0 +1,5 @@
+Hi #{userName user},
+
+A new password has been requested for your account.
+
+Go to "@{coreR $ UserAdminActivateR userId token}" to pick a new password.

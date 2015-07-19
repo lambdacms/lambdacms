@@ -1,0 +1,53 @@
+<div .row>
+    <div .col-xs-12>
+        $maybe r <- can (coreR AdminHomeR) "GET"
+            <a href=@{r}>
+                <span .glyphicon .glyphicon-arrow-left>
+                _{Msg.Back}
+<div .page-header>
+    <h1>_{Msg.UserIndex}
+    $maybe r <- can (coreR $ UserAdminR UserAdminNewR) "GET"
+        <a .btn .btn-primary .btn-xs href=@{r}>
+            <span .glyphicon .glyphicon-plus>
+            _{Msg.NewUser}
+<div .row>
+    <div .col-xs-12>
+        $if null users
+            <p .alert .alert-info>_{Msg.NoUsersFound}
+        $else
+            <div .table-responsive>
+                <table .table .table-striped .table-hover>
+                    <thead>
+                        <tr>
+                            <th>_{Msg.Username}
+                            <th .text-right>Roles
+                            <th>_{Msg.EmailAddress}
+                            <th .text-right>_{Msg.AccountStatus}
+                            <th>_{Msg.CreatedOn}
+                            <th>_{Msg.LastLogin}
+                    <tbody>
+                        $forall ((Entity userId user), roles) <- users
+                            $with mroute <- can (coreR $ UserAdminR $ UserAdminEditR userId) "GET"
+                                <tr :isJust mroute:onclick="document.location.href='@{fromJust mroute}'">
+                                    <td>
+                                        $maybe r <- mroute
+                                            <a href=@{r}>#{userName user}
+                                        $nothing
+                                            #{userName user}
+                                    <td .text-right>
+                                        $forall role <- roles
+                                            <span .label .label-primary>#{show role}
+                                    <td>#{userEmail user}
+                                    $maybe _ <- userToken user
+                                        <td .text-right .text-warning>_{Msg.AccountPending}
+                                    $nothing
+                                        $if userActive user
+                                            <td .text-right .text-success>_{Msg.AccountActive}
+                                        $else
+                                            <td .text-right .text-danger>_{Msg.AccountInactive}
+                                    <td>#{show $ utctDay $ userCreatedAt user}
+                                    <td>
+                                        $maybe ll <- userLastLogin user
+                                            #{humanReadableTimeI18N' hrtLocale timeNow $ ll}
+                                        $nothing
+                                            -

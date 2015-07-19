@@ -1,0 +1,29 @@
+User json
+    ident Text
+    name Text
+    password Text Maybe
+    email Text
+    active Bool
+    token Text Maybe
+    createdAt UTCTime
+    lastLogin UTCTime Maybe
+    deletedAt UTCTime Maybe
+    UniqueUser ident
+    UniqueName name
+    UniqueEmail email
+    UniqueAuth email active
+    deriving Typeable Show
+-- Email
+--     email Text
+--     user UserId Maybe
+--     verkey Text Maybe
+--     UniqueEmail email
+
+ActionLog json
+    ident Text
+    userId UserId
+    message Text
+    lang Text
+    createdAt UTCTime
+    UniqueLog ident lang
+    deriving Typeable Show

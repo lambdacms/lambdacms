@@ -1,0 +1,36 @@
+(function($, scope) {
+  var toggleForm;
+  $(document).ready(function() {
+    var formToggles;
+    formToggles = $('.form-toggle');
+    formToggles.each(function(index) {
+      var btn, glyph;
+      glyph = $('<span />').addClass('glyphicon');
+      btn = $(this);
+      if (btn.parent('.form-toggle-wrapper').find('.has-error').length) {
+        btn.data('expanded', true);
+      }
+      btn.prepend(glyph);
+      toggleForm(this);
+    });
+    formToggles.on('click', function() {
+      var btn;
+      btn = $(this);
+      btn.data('expanded', !btn.data('expanded'));
+      toggleForm(this);
+    });
+  });
+  return toggleForm = function(button) {
+    var btn, form, glyph;
+    btn = $(button);
+    glyph = btn.find('span.glyphicon');
+    form = btn.parent('.form-toggle-wrapper').find('form');
+    if (btn.data('expanded')) {
+      form.show();
+      glyph.addClass('glyphicon-chevron-down').removeClass('glyphicon-chevron-right');
+    } else {
+      form.hide();
+      glyph.addClass('glyphicon-chevron-right').removeClass('glyphicon-chevron-down');
+    }
+  };
+})(jQuery, window);

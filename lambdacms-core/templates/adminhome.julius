@@ -1,0 +1,60 @@
+(function() {
+  (function($, scope) {
+    var load_activities;
+    $(document).ready(function() {
+      $(".get-action-logs").each(function(index) {
+        var feed_count, panel_body, panel_wrapper, url;
+        panel_wrapper = $(this);
+        panel_body = panel_wrapper.find(".panel .panel-body");
+        url = panel_wrapper.data("url");
+        feed_count = #{toJSON feedCount};
+        load_activities(url, feed_count - 1, panel_body, function() {
+          panel_wrapper.removeClass("hidden");
+        }, function() {
+          panel_wrapper.remove();
+        });
+      });
+    });
+    return load_activities = function(url, amount, panel_body, success_callback, fail_callback) {
+      $.getJSON(url + "&offset=" + panel_body.find("> p").length).done(function(json) {
+        if (json.length) {
+          $.each(json, function(i, log) {
+            var btn, p, username;
+            if (i === amount) {
+              btn = $("<button></button>", {
+                type: "button",
+                "class": "btn btn-primary btn-xs",
+                text: panel_body.data("more"),
+                click: function() {
+                  $(this).remove();
+                  load_activities(url, amount, panel_body);
+                }
+              });
+              return panel_body.append(btn);
+            } else {
+              username = log.username;
+              if (log.userUrl) {
+                username = $("<a></a>").attr("href", log.userUrl).text(username);
+              }
+              p = $("<p></p>");
+              p.append(log.message + " - ").append(username).append(", " + log.timeAgo);
+              return panel_body.append(p);
+            }
+          });
+          if (success_callback) {
+            success_callback();
+          }
+        } else {
+          if (fail_callback) {
+            fail_callback();
+          }
+        }
+      }).fail(function(jqxhr, textStatus, error) {
+        if (fail_callback) {
+          fail_callback();
+        }
+      });
+    };
+  })(jQuery, window);
+
+}).call(this);

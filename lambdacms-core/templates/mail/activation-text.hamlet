@@ -1,0 +1,6 @@
+LambdaCms Registration
+
+Hi #{userName user},
+Someone just created an account for you
+
+Go to "@{coreR $ UserAdminActivateR userId token}" to activate your account

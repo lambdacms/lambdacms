@@ -1,0 +1,28 @@
+<div .row>
+    <div .col-xs-12>
+        $maybe r <- can (coreR AdminHomeR) "GET"
+            <a href=@{r}>
+                <span .glyphicon .glyphicon-arrow-left>
+                _{Msg.Back}
+<div .page-header>
+    <h1>_{Msg.ActionLogIndex}
+<div .row>
+    $forall (currentLogs, title) <- [(logs, Msg.AllLogs), (personalLogs, Msg.PersonalLogs)]
+        <div .col-xs-12 .col-md-6>
+            <div .panel .panel-default>
+                <div .panel-heading>_{title}
+                $if null currentLogs
+                    <div .panel-body>
+                        <p .alert .alert-info>_{Msg.NoActionLogsFound}
+                $else
+                    <table .table>
+                        <tbody>
+                            $forall (Entity _ log, Entity userId user) <- currentLogs
+                                <tr>
+                                    <td>#{show $ utctDay $ actionLogCreatedAt log}
+                                    <td>
+                                        $maybe r <- can (coreR $ UserAdminR $ UserAdminEditR userId) "GET"
+                                            <a href=@{r}>#{userName user}
+                                        $nothing
+                                            #{userName user}
+                                    <td>#{actionLogMessage log}

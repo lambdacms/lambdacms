@@ -1,0 +1,13 @@
+<div .row>
+    <div .col-xs-12>
+        $maybe r <- can (coreR $ UserAdminR UserAdminIndexR) "GET"
+            <a href=@{r}>
+                <span .glyphicon .glyphicon-arrow-left>
+                _{Msg.Back}
+<div .page-header>
+    <h1>_{Msg.NewUser}
+<div .row>
+    <div .col-sm-12 .col-md-9 .col-lg-6>
+        $maybe r <- can (coreR $ UserAdminR UserAdminNewR) "POST"
+            <form method=post action=@{r} enctype=#{enctype}>
+                ^{formWidget}
