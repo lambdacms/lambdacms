@@ -42,14 +42,14 @@ library
   exposed-modules:  LambdaCms.Core
                   , LambdaCms.Core.Message
                   , LambdaCms.Core.Settings
-  other-modules:    LambdaCms.Core.Foundation
-                  , LambdaCms.Core.Models
+                    -- for the test suite
+                  , LambdaCms.Core.Foundation
+  other-modules:    LambdaCms.Core.Models
                   , LambdaCms.Core.Classes
                   , LambdaCms.Core.Import
-                  , LambdaCms.Core.Handler.Static
                   , LambdaCms.Core.Handler.Home
+                  , LambdaCms.Core.Handler.Static
                   , LambdaCms.Core.Handler.User
-                  , LambdaCms.Core.Handler.ActionLog
                   , LambdaCms.I18n
                   , LambdaCms.I18n.Dutch
                   , LambdaCms.I18n.Italian
@@ -68,7 +68,7 @@ library
                   , old-locale                         >= 1.0.0.5  && < 1.0.1.0
                   , mime-mail                          >= 0.4.5.2  && < 0.5
                   , blaze-html
-                  , bytestring                         >= 0.9        && < 0.11
+                  , bytestring                         >= 0.9      && < 0.11
                   , data-default
                   , containers                         >= 0.5.5.1  && < 0.6
                   , template-haskell
@@ -86,8 +86,13 @@ test-suite test
     main-is:           Spec.hs
     hs-source-dirs:    test
     ghc-options:       -Wall
+    -- TODO: remove other-modules after stack can properly detect when to rebuild
+    other-modules:     FoundationSpec
+                     , Spec
+                     , TestImport
 
-    extensions: TemplateHaskell
+    default-extensions:
+                TemplateHaskell
                 QuasiQuotes
                 OverloadedStrings
                 NoImplicitPrelude
@@ -104,14 +109,8 @@ test-suite test
                 TupleSections
 
     build-depends: base
-                 , yesod-test >= 1.4.2 && < 1.5
                  , yesod-core
                  , yesod
-                 , persistent
-                 , persistent-sqlite
-                 , resourcet
-                 , monad-logger
-                 , transformers
                  , hspec
                  , classy-prelude
                  , classy-prelude-yesod
