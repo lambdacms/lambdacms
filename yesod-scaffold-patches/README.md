@@ -30,7 +30,8 @@ patches.
 3.  Apply the patches from this repo.
 4.  Take note of any patch chunks that got rejected.
 5.  Manually apply chunks that got rejected, if any.
-6.  Get it to compile, and test if all works properly.
+6.  Get it to compile (`stack build`) and test if all works properly.
+7.  Make sure the test suite compiles and runs without errors (`stack test`).
 7.  Create new patches with the `create_patches.sh` script in this repo.
 8.  Use a multi-file diff tool to see if how the new patches are different from the patches in this repo.
 9.  Apply the new patches to the `unpatched-$PROJECT_NAME` directory and check that it compiles.
