@@ -7,8 +7,8 @@ maintainer:         cies@AT-hoppinger.com
 copyright:          (c) 2014-2015 Hoppinger
 bug-reports:        https://github.com/lambdacms/lambdacms/issues
 homepage:           http://lambdacms.org
-synopsis:           LambdaCms Core subsite for Yesod apps
-description:        LambdaCms is a Content Management System (CMS) in Haskell
+synopsis:           LambdaCms 'core' subsite for Yesod apps
+description:        LambdaCms is a Content Management System (CMS) in Haskell.
                     using Yesod.
 stability:          alpha
 category:           Web
@@ -42,7 +42,6 @@ library
   exposed-modules:  LambdaCms.Core
                   , LambdaCms.Core.Message
                   , LambdaCms.Core.Settings
-
   other-modules:    LambdaCms.Core.Foundation
                   , LambdaCms.Core.Models
                   , LambdaCms.Core.Classes
@@ -80,3 +79,40 @@ library
                   , esqueleto
 
   ghc-options:      -Wall
+
+test-suite test
+    default-language:  Haskell2010
+    type:              exitcode-stdio-1.0
+    main-is:           Spec.hs
+    hs-source-dirs:    test
+    ghc-options:       -Wall
+
+    extensions: TemplateHaskell
+                QuasiQuotes
+                OverloadedStrings
+                NoImplicitPrelude
+                CPP
+                MultiParamTypeClasses
+                TypeFamilies
+                GADTs
+                GeneralizedNewtypeDeriving
+                FlexibleContexts
+                EmptyDataDecls
+                NoMonomorphismRestriction
+                DeriveDataTypeable
+                ViewPatterns
+                TupleSections
+
+    build-depends: base
+                 , yesod-test >= 1.4.2 && < 1.5
+                 , yesod-core
+                 , yesod
+                 , persistent
+                 , persistent-sqlite
+                 , resourcet
+                 , monad-logger
+                 , transformers
+                 , hspec
+                 , classy-prelude
+                 , classy-prelude-yesod
+                 , lambdacms-core

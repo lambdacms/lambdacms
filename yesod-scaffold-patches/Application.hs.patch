@@ -1,80 +1,80 @@
---- a/Application.hs	2015-07-17 20:53:55.301251336 +0200
-+++ b/Application.hs	2015-07-17 21:44:50.260030869 +0200
-@@ -27,12 +27,19 @@
+--- a/Application.hs	2015-07-19 17:26:17.386712462 +0200
++++ b/Application.hs	2015-07-19 15:54:09.416756403 +0200
+@@ -27,19 +27,12 @@
                                               mkRequestLogger, outputFormat)
  import System.Log.FastLogger                (defaultBufSize, newStdoutLoggerSet,
                                               toLogStr)
-+import LambdaCms.Core
-+import LambdaCms.Core.Settings (generateUUID)
-+import Network.Wai.Middleware.MethodOverridePost
+-import LambdaCms.Core
+-import LambdaCms.Core.Settings (generateUUID)
+-import Network.Wai.Middleware.MethodOverridePost
  
  -- Import all relevant handler modules here.
  -- Don't forget to add new modules to your cabal file!
  import Handler.Common
  import Handler.Home
  
-+getAdminHomeRedirectR :: Handler Html
-+getAdminHomeRedirectR = do
-+    redirect $ CoreAdminR AdminHomeR
-+
+-getAdminHomeRedirectR :: Handler Html
+-getAdminHomeRedirectR = do
+-    redirect $ CoreAdminR AdminHomeR
+-
  -- This line actually creates our YesodDispatch instance. It is the second half
  -- of the call to mkYesodData which occurs in Foundation.hs. Please see the
  -- comments there for more details.
-@@ -57,7 +64,8 @@
+@@ -64,8 +57,7 @@
      -- logging function. To get out of this loop, we initially create a
      -- temporary foundation without a real connection pool, get a log function
      -- from there, and then create the real foundation.
--    let mkFoundation appConnPool = App {..}
-+    let getLambdaCms = CoreAdmin
-+        mkFoundation appConnPool = App {..}
+-    let getLambdaCms = CoreAdmin
+-        mkFoundation appConnPool = App {..}
++    let mkFoundation appConnPool = App {..}
          -- The App {..} syntax is an example of record wild cards. For more
          -- information, see:
          -- https://ocharles.org.uk/blog/posts/2014-12-04-record-wildcards.html
-@@ -69,11 +77,36 @@
-         (pgConnStr  $ appDatabaseConf appSettings)
-         (pgPoolSize $ appDatabaseConf appSettings)
+@@ -77,36 +69,11 @@
+         (sqlDatabase $ appDatabaseConf appSettings)
+         (sqlPoolSize $ appDatabaseConf appSettings)
  
-+    let theFoundation = mkFoundation pool
+-    let theFoundation = mkFoundation pool
      -- Perform database migration using our application's logging settings.
--    runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
-+    runLoggingT
-+        (runSqlPool (mapM_ runMigration [migrateAll, migrateLambdaCmsCore]) pool)
-+        (messageLoggerSource theFoundation appLogger)
-+
-+    -- Create a user if no user exists yet
-+    let admin = appAdmin appSettings
-+    madmin <- runSqlPool (getBy (UniqueEmail admin)) pool
-+    case madmin of
-+        Nothing -> do
-+            timeNow <- getCurrentTime
-+            uuid <- generateUUID
-+            flip runSqlPool pool $ do
-+                uid <- insert User { userIdent     = uuid
-+                                   , userPassword  = Nothing
-+                                   , userName      = takeWhile (/= '@') admin
-+                                   , userEmail     = admin
-+                                   , userActive    = True
-+                                   , userToken     = Nothing
-+                                   , userCreatedAt = timeNow
-+                                   , userLastLogin = Nothing
-+                                   , userDeletedAt = Nothing
-+                                   }
-+                -- assign all roles to the first user
-+                mapM_ (insert_ . UserRole uid) [minBound .. maxBound]
-+        _ -> return ()
+-    runLoggingT
+-        (runSqlPool (mapM_ runMigration [migrateAll, migrateLambdaCmsCore]) pool)
+-        (messageLoggerSource theFoundation appLogger)
+-
+-    -- Create a user if no user exists yet
+-    let admin = appAdmin appSettings
+-    madmin <- runSqlPool (getBy (UniqueEmail admin)) pool
+-    case madmin of
+-        Nothing -> do
+-            timeNow <- getCurrentTime
+-            uuid <- generateUUID
+-            flip runSqlPool pool $ do
+-                uid <- insert User { userIdent     = uuid
+-                                   , userPassword  = Nothing
+-                                   , userName      = takeWhile (/= '@') admin
+-                                   , userEmail     = admin
+-                                   , userActive    = True
+-                                   , userToken     = Nothing
+-                                   , userCreatedAt = timeNow
+-                                   , userLastLogin = Nothing
+-                                   , userDeletedAt = Nothing
+-                                   }
+-                -- assign all roles to the first user
+-                mapM_ (insert_ . UserRole uid) [minBound .. maxBound]
+-        _ -> return ()
++    runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
  
      -- Return the foundation
--    return $ mkFoundation pool
-+    return theFoundation
+-    return theFoundation
++    return $ mkFoundation pool
  
  -- | Convert our foundation to a WAI Application by calling @toWaiAppPlain@ and
  -- applyng some additional middlewares.
-@@ -92,7 +125,7 @@
+@@ -125,7 +92,7 @@
  
      -- Create the WAI application and apply middlewares
      appPlain <- toWaiAppPlain foundation
--    return $ logWare $ defaultMiddlewaresNoLogging appPlain
-+    return $ logWare $ methodOverridePost appPlain
+-    return $ logWare $ methodOverridePost appPlain
++    return $ logWare $ defaultMiddlewaresNoLogging appPlain
  
  -- | Warp settings for the given foundation value.
  warpSettings :: App -> Settings

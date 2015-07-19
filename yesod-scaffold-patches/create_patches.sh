@@ -9,7 +9,11 @@ UNPATCHED=$1
 PATCHED=$2
 KEEP=$3
 
-REGULAR_FILES="Foundation.hs Application.hs Model.hs Roles.hs Settings.hs config/routes config/models config/settings.yml stack.yaml"
+REGULAR_FILES="Foundation.hs Application.hs Model.hs Roles.hs Settings.hs \
+               config/routes config/models config/settings.yml \
+               stack.yaml \
+               templates/homepage.hamlet \
+               test/TestImport.hs test/Handler/HomeSpec.hs"
 CABAL_FILE=`basename $UNPATCHED/*.cabal`
 
 # regular files

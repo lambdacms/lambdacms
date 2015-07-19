@@ -5,6 +5,15 @@
 {-# LANGUAGE ViewPatterns          #-}
 {-# OPTIONS_GHC -fno-warn-orphans  #-}
 
+{-|
+Module      : Core
+Description : Exports all relevant modules for the lambdacms-core subsite.
+Copyright   : (c) Hoppinger BV, 2014-2015
+
+This is the module to import when adding LambdaCms "core" functionality
+to a Yesod application or subsite.
+-}
+
 module LambdaCms.Core
     ( module Export
     ) where
