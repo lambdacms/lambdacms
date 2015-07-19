@@ -1,7 +1,7 @@
 lambdacms-patches
 =================
 
-Set of patches that install [lambdacms-core](https://github.com/lambdacms/lambdacms-core)
+Set of patches that install [lambdacms-core](https://hackage.haskell.org/package/lambdacms-core)
 into a newly scaffolded [Yesod](http://yesodweb.com) application.
 
 The patches in this repository are tested with the Yesod scaffolding that is
