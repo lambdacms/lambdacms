@@ -42,7 +42,8 @@ import           Yesod
 import           Yesod.Auth
 import           Yesod.Auth.Message         (AuthMessage (InvalidLogin))
 
--- | Foundation type.
+
+-- | The foundation type of the subsite.
 data CoreAdmin = CoreAdmin
 
 -- | Specifies the criteria for authorizing a request.
@@ -223,8 +224,9 @@ class ( YesodAuth master
     renderLanguages :: master -> [Text]
     renderLanguages _ = ["en"]
 
-    -- | A default way of sending email. See <https://github.com/lambdacms/lambdacms-core/blob/master/sending-emails.md github> for details.
-    -- The default is to print it all to stdout.
+    -- | A default way of (not) sending email: just print it to the stdout.
+    -- See <https://github.com/lambdacms/lambdacms/blob/master/docs/implement-mail-deivery-method.md>
+    -- for instructions on implementing a real delivery method.
     lambdaCmsSendMail :: Mail -> HandlerT master IO ()
     lambdaCmsSendMail (Mail from tos ccs bccs headers parts) =
         liftIO . putStrLn . unpack $ "MAIL"

@@ -27,6 +27,14 @@ import           Yesod.Core
 import           Yesod.Core.Types
 
 
+-- | REST/JSON endpoint for fetching the recent logs.
+getActionLogAdminIndexR :: CoreHandler TypedContent
+getActionLogAdminIndexR = getActionLogAdminJson Nothing
+
+-- | REST/JSON endpoint for fetching the recent logs of a particular user.
+getActionLogAdminUserR :: UserId -> CoreHandler TypedContent
+getActionLogAdminUserR userId = getActionLogAdminJson (Just userId)
+
 data JsonLog = JsonLog
                { message  :: Text
                , username :: Text
@@ -42,15 +50,6 @@ instance ToJSON JsonLog where
                , "userUrl"  .= userUrl'
                , "timeAgo"  .= timeAgo'
                ]
-
--- | REST/JSON endpoint for fetching the recent logs.
-getActionLogAdminIndexR :: CoreHandler TypedContent
-getActionLogAdminIndexR = getActionLogAdminJson Nothing
-
--- | REST/JSON endpoint for fetching the recent logs of a particular user.
-getActionLogAdminUserR :: UserId -> CoreHandler TypedContent
-getActionLogAdminUserR userId = getActionLogAdminJson (Just userId)
-
 
 getActionLogAdminJson :: Maybe UserId -> CoreHandler TypedContent
 getActionLogAdminJson mUserId = selectRep . provideRep $ do
