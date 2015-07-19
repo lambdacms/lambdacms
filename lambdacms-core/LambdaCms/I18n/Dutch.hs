@@ -19,7 +19,7 @@ dutchTimeLocale =  TimeLocale
                   ("September", "Sep"), ("Oktober",   "Okt"),
                   ("November",  "Nov"), ("December",  "Dec")],
 
-        amPm = ("", ""),
+        amPm = ("am", "pm"),
         dateTimeFmt = "%a %b %e %H:%M:%S %Z %Y",
         dateFmt = "%d-%m-%y",
         timeFmt = "%H:%M:%S",

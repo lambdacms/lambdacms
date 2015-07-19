@@ -45,31 +45,37 @@ import           Yesod.Auth.Message         (AuthMessage (InvalidLogin))
 -- | Foundation type.
 data CoreAdmin = CoreAdmin
 
--- | Denotes what kind of user is allowed to perform an action.
-data Allow a = AllowAll            -- ^ Allow anyone (no authentication required).
-             | AllowAuthenticated  -- ^ Allow any authenticated user.
-             | AllowRoles a        -- ^ Allow anyone who as at least one matching role.
-             | AllowNobody         -- ^ Allow nobody.
+-- | Specifies the criteria for authorizing a request.
+data Allow a = AllowAll            -- ^ Allow any request (no authentication required).
+             | AllowAuthenticated  -- ^ Allow requests in authenticated sessions.
+             | AllowRoles a        -- ^ Allow requests in authenticated sessions belonging
+                                   -- to users that have at least one matching role.
+                                   -- See the `isAuthorizedTo` function for details.
+             | AllowNone           -- ^ Allow no requests at all.
 
 -- | A menu item, also see 'adminMenu'.
 --
 -- > MenuItem (SomeMessage MsgProduct) (ProductAdminOverviewR) "shopping-cart"
 data AdminMenuItem master = MenuItem
-                            { label :: SomeMessage master -- ^ The text of the item (what the user sees).
-                            , route :: Route master       -- ^ The Route to which it points.
-                            , icon  :: Text               -- ^ A <http://glyphicons.bootstrapcheatsheets.com glyphicon> without the ".glyphicon-" prefix.
-                            }
+    { label :: SomeMessage master -- ^ The text of the item (what the user sees).
+    , route :: Route master       -- ^ The Route to which it points.
+    , icon  :: Text               -- ^ A <http://glyphicons.bootstrapcheatsheets.com glyphicon> without the ".glyphicon-" prefix.
+    }
 
 mkYesodSubData "CoreAdmin" $(parseRoutesFile "config/routes")
 
 instance LambdaCmsAdmin master => RenderMessage master CoreMessage where
   renderMessage = renderCoreMessage
 
--- | Fairly complex "handler" type, allowing persistent queries on the master's db connection, hereby simplified.
-type CoreHandler a = forall master. LambdaCmsAdmin master => HandlerT CoreAdmin (HandlerT master IO) a
+-- | Alias for the fairly complex HandlerT type that allows persistent queries
+-- on the master's db connection.
+type CoreHandler a = forall master. LambdaCmsAdmin master
+                   => HandlerT CoreAdmin (HandlerT master IO) a
 
--- | Fairly complex Form type, hereby simplified.
-type CoreForm a = forall master. LambdaCmsAdmin master => Html -> MForm (HandlerT master IO) (FormResult a, WidgetT master IO ())
+-- | Alias for the fairly complex Form type.
+type CoreForm a = forall master. LambdaCmsAdmin master
+                => Html
+                -> MForm (HandlerT master IO) (FormResult a, WidgetT master IO ())
 
 class ( YesodAuth master
       , AuthId master ~ Key User
@@ -111,12 +117,13 @@ class ( YesodAuth master
     defaultRoles :: HandlerT master IO (Set (Roles master))
     defaultRoles = return S.empty
 
-    -- | See if a user is authorized to perform an action.
+    -- | Authorize a request to perform an action.
+    -- If a user session is present it can use the specified Roles to do so.
     isAuthorizedTo :: master                      -- Needed to make function injective.
                    -> Maybe (Set (Roles master))  -- ^ Set of roles the user has.
                    -> Allow (Set (Roles master))  -- ^ Set of roles allowed to perform the action.
                    -> AuthResult
-    isAuthorizedTo _ _           AllowNobody        = Unauthorized "Access denied."
+    isAuthorizedTo _ _           AllowNone          = Unauthorized "Access denied."
     isAuthorizedTo _ _           AllowAll           = Authorized
     isAuthorizedTo _ (Just _)    AllowAuthenticated = Authorized
     isAuthorizedTo _ Nothing     _                  = AuthenticationRequired
@@ -132,7 +139,7 @@ class ( YesodAuth master
                                    -- Knowing /which/ method is used allows for more fine grained
                                    -- permissions than only knowing whether it is /write/ request.
                      -> Allow (Set (Roles master))
-    actionAllowedFor _ _ = AllowNobody
+    actionAllowedFor _ _ = AllowNone
 
     -- | Both coreR and authR are used to navigate to a different controller.
     -- It saves you from putting "getRouteToParent" everywhere.
@@ -232,13 +239,16 @@ class ( YesodAuth master
         where
             subject = Data.Text.concat . map snd $ filter (\(k,_) -> k == "Subject") headers
             attachment :: Text
-            attachment = intercalate ", " . catMaybes . map (partFilename) $ concatMap (filter (isJust . partFilename)) parts
+            attachment = intercalate ", " . catMaybes . map (partFilename) $
+                concatMap (filter (isJust . partFilename)) parts
             htmlBody = getFromParts "text/html; charset=utf-8"
             plainBody = getFromParts "text/plain; charset=utf-8"
-            getFromParts x = decodeUtf8 . LB.toStrict . LB.concat . map partContent $ concatMap (filter ((==) x . partType)) parts
+            getFromParts x = decodeUtf8 . LB.toStrict . LB.concat . map partContent $
+                concatMap (filter ((==) x . partType)) parts
             maddress = intercalate ", " . map (address)
-            address (Address n e) = let e' = "<" <> e <> ">" in case n of Just n' -> n' <> " " <> e'
-                                                                          Nothing -> e'
+            address (Address n e) = let e' = "<" <> e <> ">" in case n of
+                Just n' -> n' <> " " <> e'
+                Nothing -> e'
 
 authenticateByLambdaCms :: LambdaCmsAdmin master
                         => Creds master
@@ -287,7 +297,8 @@ canFor m murs theRoute method = case isAuthorizedTo m murs $ actionAllowedFor th
 -- $maybe r <- can (SomeRouteR)
 --   ... @{r}
 -- @
-getCan :: LambdaCmsAdmin master => HandlerT master IO (Route master -> ByteString -> Maybe (Route master))
+getCan :: LambdaCmsAdmin master
+       => HandlerT master IO (Route master -> ByteString -> Maybe (Route master))
 getCan = do
     mauthId <- maybeAuthId
     murs <- forM mauthId getUserRoles
@@ -295,10 +306,13 @@ getCan = do
     return $ canFor y murs
 
 -- | A default admin menu.
-defaultCoreAdminMenu :: LambdaCmsAdmin master => (Route CoreAdmin -> Route master) -> [AdminMenuItem master]
-defaultCoreAdminMenu tp = [ MenuItem (SomeMessage Msg.MenuDashboard) (tp AdminHomeR) "home"
-                          , MenuItem (SomeMessage Msg.MenuUsers) (tp $ UserAdminR UserAdminIndexR) "user"
-                          ]
+defaultCoreAdminMenu :: LambdaCmsAdmin master
+                     => (Route CoreAdmin -> Route master)
+                     -> [AdminMenuItem master]
+defaultCoreAdminMenu tp =
+    [ MenuItem (SomeMessage Msg.MenuDashboard) (tp AdminHomeR) "home"
+    , MenuItem (SomeMessage Msg.MenuUsers) (tp $ UserAdminR UserAdminIndexR) "user"
+    ]
 
 -- | Shorcut for rendering a subsite Widget in the admin layout.
 adminLayoutSub :: LambdaCmsAdmin master
@@ -314,7 +328,8 @@ withAttrs :: [(Text, Text)] -> FieldSettings site -> FieldSettings site
 withAttrs attrs fs = fs { fsAttrs = attrs }
 
 -- | Wrapper for humanReadableTimeI18N'. It uses Yesod's own i18n functionality.
-lambdaCmsHumanTimeLocale :: LambdaCmsAdmin master => HandlerT master IO HumanTimeLocale
+lambdaCmsHumanTimeLocale :: LambdaCmsAdmin master
+                         => HandlerT master IO HumanTimeLocale
 lambdaCmsHumanTimeLocale = do
     langs <- languages
     y <- getYesod
@@ -381,5 +396,4 @@ logAction messages = do
     actionLogUserId    <- requireAuthId
     actionLogCreatedAt <- liftIO getCurrentTime
     actionLogIdent     <- liftIO generateUUID
-
     mapM_ (\(actionLogLang, actionLogMessage) -> runDB . insert_ $ ActionLog {..}) messages

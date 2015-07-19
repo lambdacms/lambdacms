@@ -14,6 +14,7 @@ import           Prelude
 import           Text.Hamlet
 import           Yesod.Default.Util
 
+
 widgetFileSettings :: WidgetFileSettings
 widgetFileSettings = def
     { wfsHamletSettings = defaultHamletSettings

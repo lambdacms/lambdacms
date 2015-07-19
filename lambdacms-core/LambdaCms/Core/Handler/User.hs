@@ -36,17 +36,20 @@ import           Data.Time.Format.Human
 import           Network.Mail.Mime
 import           Text.Blaze.Html.Renderer.Text (renderHtml)
 
--- data type for a form to change a user's password
+
+-- | Data type used by the change password form.
 data ComparePassword = ComparePassword { originalPassword :: Text
-                                       , _confirmPassword  :: Text
+                                       , _confirmPassword :: Text
                                        } deriving (Show, Eq)
 
+-- | Form by which account setting are changed.
 accountSettingsForm :: LambdaCmsAdmin master
                     => User
                     -> S.Set (Roles master)
                     -> Maybe CoreMessage
                     -> Html
-                    -> MForm (HandlerT master IO) (FormResult (User, [Roles master]), WidgetT master IO ())
+                    -> MForm (HandlerT master IO)
+                             (FormResult (User, [Roles master]), WidgetT master IO ())
 accountSettingsForm user roles mlabel extra = do
     maRoles <- lift mayAssignRoles
     -- User fields
@@ -55,7 +58,9 @@ accountSettingsForm user roles mlabel extra = do
     -- Roles field
     (rolesRes, mrolesView) <- case maRoles of
         True -> do
-            (rolesRes', rolesView) <- mreq (checkboxesField roleList) "Not used" (Just $ S.toList roles)
+            (rolesRes', rolesView) <- mreq (checkboxesField roleList)
+                                           "Not used"
+                                           (Just $ S.toList roles)
             return (rolesRes', Just rolesView)
         False -> return (FormSuccess $ S.toList roles, Nothing)
 
@@ -66,11 +71,13 @@ accountSettingsForm user roles mlabel extra = do
         widget = $(widgetFile "user/settings-form")
 
     return (formRes, widget)
-    where roleList = optionsPairs $ map ((T.pack . show) &&& id) [minBound .. maxBound]
+  where
+    roleList = optionsPairs $ map ((T.pack . show) &&& id) [minBound .. maxBound]
 
 -- | Webform for changing a user's password.
 userChangePasswordForm :: Maybe Text -> Maybe CoreMessage -> CoreForm ComparePassword
-userChangePasswordForm original submit = renderBootstrap3 BootstrapBasicForm $ ComparePassword
+userChangePasswordForm original submit =
+    renderBootstrap3 BootstrapBasicForm $ ComparePassword
     <$> areq validatePasswordField (withName "original-pw" $ bfs Msg.Password) Nothing
     <*> areq comparePasswordField  (bfs Msg.Confirm) Nothing
     <*  bootstrapSubmit (BootstrapSubmit (fromMaybe Msg.Submit submit) " btn-success " [])
@@ -107,15 +114,15 @@ generateUserWithEmail e = do
 emptyUser :: IO User
 emptyUser = generateUserWithEmail ""
 
--- | Validate an activation token
+-- | Validate an activation token.
 validateUserToken :: User -> Text -> Maybe Bool
-validateUserToken user token =
-    case userToken user of
-        Just t
-          | t == token -> Just True  -- tokens match
-          | otherwise  -> Just False -- tokens don't match
-        Nothing        -> Nothing    -- there is no token (account already actived)
+validateUserToken user token = case userToken user of
+    Just t
+      | t == token -> Just True  -- tokens match
+      | otherwise  -> Just False -- tokens don't match
+    Nothing        -> Nothing    -- there is no token (account already actived)
 
+-- | Send an email to the user with a link containing the activation token.
 sendAccountActivationToken :: Entity User -> CoreHandler ()
 sendAccountActivationToken (Entity userId user) = case userToken user of
     Just token -> do
@@ -124,6 +131,7 @@ sendAccountActivationToken (Entity userId user) = case userToken user of
             $(hamletFile "templates/mail/activation-html.hamlet")
     Nothing -> error "No activation token found"
 
+-- | Send an email to the user with a link containing the reset token.
 sendAccountResetToken :: Entity User -> CoreHandler ()
 sendAccountResetToken (Entity userId user) = case userToken user of
     Just token -> do
@@ -132,6 +140,9 @@ sendAccountResetToken (Entity userId user) = case userToken user of
             $(hamletFile "templates/mail/reset-html.hamlet")
     Nothing -> error "No reset token found"
 
+-- | Function for sending mail to the user.  The method of sending mail is up
+-- to the implementation by the `lambdaCmsSendMail` function in the "base"
+--- application.
 sendMailToUser :: LambdaCmsAdmin master
                => User
                -> Text
@@ -148,12 +159,11 @@ sendMailToUser user subj ttemp htemp = do
             text
             html
             []
-
     lambdaCmsSendMail mail
-    where
-        getRenderedTemplate template = do
-            markup <- withUrlRenderer template
-            return $ renderHtml markup
+  where
+    getRenderedTemplate template = do
+        markup <- withUrlRenderer template
+        return $ renderHtml markup
 
 
 -- | User overview.
@@ -172,24 +182,26 @@ getUserAdminIndexR = do
           setTitleI Msg.UserIndex
           $(widgetFile "user/index")
 
--- | Create a new user.
+-- | Create a new user, show the form.
 getUserAdminNewR :: CoreHandler Html
 getUserAdminNewR = do
     eu <- liftIO emptyUser
     lift $ do
         can <- getCan
         drs <- defaultRoles
-        (formWidget, enctype) <- generateFormPost $ accountSettingsForm eu drs (Just Msg.Create)
+        (formWidget, enctype) <- generateFormPost $
+            accountSettingsForm eu drs (Just Msg.Create)
         adminLayout $ do
             setTitleI Msg.NewUser
             $(widgetFile "user/new")
 
--- | Create a new user.
+-- | Create a new user, handle a posted form.
 postUserAdminNewR :: CoreHandler Html
 postUserAdminNewR = do
     eu <- liftIO emptyUser
     drs <- lift $ defaultRoles
-    ((formResult, formWidget), enctype) <- lift . runFormPost $ accountSettingsForm eu drs (Just Msg.Create)
+    ((formResult, formWidget), enctype) <- lift . runFormPost $
+        accountSettingsForm eu drs (Just Msg.Create)
     case formResult of
         FormSuccess (user, roles) -> do
             userId <- lift $ runDB $ insert user
@@ -204,7 +216,7 @@ postUserAdminNewR = do
                 setTitleI Msg.NewUser
                 $(widgetFile "user/new")
 
--- | Edit an existing user.
+-- | Show the forms to edit an existing user.
 getUserAdminEditR :: UserId -> CoreHandler Html
 getUserAdminEditR userId = do
     timeNow <- liftIO getCurrentTime
@@ -214,24 +226,30 @@ getUserAdminEditR userId = do
         user <- runDB $ get404 userId
         urs <- getUserRoles userId
         hrtLocale <- lambdaCmsHumanTimeLocale
-        (formWidget, enctype)     <- generateFormPost $ accountSettingsForm user urs (Just Msg.Save)     -- user form
-        (pwFormWidget, pwEnctype) <- generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change) -- user password form
+        (formWidget, enctype) <- generateFormPost $
+            accountSettingsForm user urs (Just Msg.Save)     -- user form
+        (pwFormWidget, pwEnctype) <- generateFormPost $
+            userChangePasswordForm Nothing (Just Msg.Change) -- user password form
         adminLayout $ do
             setTitleI . Msg.EditUser $ userName user
             $(widgetFile "user/edit")
 
--- | Edit an existing user.
+-- | Change a user's main properties.
 patchUserAdminEditR :: UserId -> CoreHandler Html
 patchUserAdminEditR userId = do
     user <- lift . runDB $ get404 userId
     timeNow <- liftIO getCurrentTime
     hrtLocale <- lift lambdaCmsHumanTimeLocale
     urs <- lift $ getUserRoles userId
-    (pwFormWidget, pwEnctype)           <- lift . generateFormPost $ userChangePasswordForm Nothing (Just Msg.Change)
-    ((formResult, formWidget), enctype) <- lift . runFormPost $ accountSettingsForm user urs (Just Msg.Save)
+    (pwFormWidget, pwEnctype) <- lift . generateFormPost $
+        userChangePasswordForm Nothing (Just Msg.Change)
+    ((formResult, formWidget), enctype) <- lift . runFormPost $
+        accountSettingsForm user urs (Just Msg.Save)
     case formResult of
         FormSuccess (updatedUser, updatedRoles) -> do
-            _ <- lift $ runDB $ update userId [UserName =. userName updatedUser, UserEmail =. userEmail updatedUser]
+            _ <- lift $ runDB $ update userId [ UserName  =. userName  updatedUser
+                                              , UserEmail =. userEmail updatedUser
+                                              ]
             lift $ setUserRoles userId (S.fromList updatedRoles)
             lift $ logUser user >>= logAction
             lift $ setMessageI Msg.SuccessReplace
@@ -243,7 +261,7 @@ patchUserAdminEditR userId = do
                 setTitleI . Msg.EditUser $ userName user
                 $(widgetFile "user/edit")
 
--- | Edit password of an existing user.
+-- | Change a user's password.
 chpassUserAdminEditR :: UserId -> CoreHandler Html
 chpassUserAdminEditR userId = do
     authId <- lift requireAuthId
@@ -253,12 +271,15 @@ chpassUserAdminEditR userId = do
             timeNow <- liftIO getCurrentTime
             hrtLocale <- lift lambdaCmsHumanTimeLocale
             urs <- lift $ getUserRoles userId
-            (formWidget, enctype) <- lift . generateFormPost $ accountSettingsForm user urs (Just Msg.Save)
+            (formWidget, enctype) <- lift . generateFormPost $
+                accountSettingsForm user urs (Just Msg.Save)
             opw <- lookupPostParam "original-pw"
-            ((formResult, pwFormWidget), pwEnctype) <- lift . runFormPost $ userChangePasswordForm opw (Just Msg.Change)
+            ((formResult, pwFormWidget), pwEnctype) <- lift . runFormPost $
+                userChangePasswordForm opw (Just Msg.Change)
             case formResult of
                 FormSuccess f -> do
-                    _ <- lift . runDB $ update userId [UserPassword =. Just (originalPassword f)]
+                    _ <- lift . runDB $
+                        update userId [ UserPassword =. Just (originalPassword f) ]
                     lift $ logUser user >>= logAction
                     lift $ setMessageI Msg.SuccessChgPwd
                     redirect $ UserAdminR $ UserAdminEditR userId
@@ -269,6 +290,7 @@ chpassUserAdminEditR userId = do
                         $(widgetFile "user/edit")
         False -> error "Can't change this uses password"
 
+-- | Request a user's password to be reset.
 rqpassUserAdminEditR :: UserId -> CoreHandler Html
 rqpassUserAdminEditR userId = do
     user' <- lift . runDB $ get404 userId
@@ -284,6 +306,7 @@ rqpassUserAdminEditR userId = do
     lift $ setMessageI Msg.PasswordResetTokenSend
     redirectUltDest . UserAdminR $ UserAdminEditR userId
 
+-- | Deactivate a user.
 deactivateUserAdminEditR :: UserId -> CoreHandler Html
 deactivateUserAdminEditR userId = do
     user' <- lift . runDB $ get404 userId
@@ -297,6 +320,7 @@ deactivateUserAdminEditR userId = do
         _ -> lift $ setMessageI Msg.UserStillPending
     redirectUltDest . UserAdminR $ UserAdminEditR userId
 
+-- | Activate a user.
 activateUserAdminEditR :: UserId -> CoreHandler Html
 activateUserAdminEditR userId = do
     user' <- lift . runDB $ get404 userId
@@ -331,13 +355,14 @@ deleteUserAdminEditR userId = do
         setMessageI Msg.SuccessDelete
     redirectUltDest $ UserAdminR UserAdminIndexR
 
--- | Active an account.
+-- | Active an account by emailed activation link.
 getUserAdminActivateR :: UserId -> Text -> CoreHandler Html
 getUserAdminActivateR userId token = do
     user <- lift . runDB $ get404 userId
     case validateUserToken user token of
         Just True -> do
-            (pwFormWidget, pwEnctype) <- lift . generateFormPost $ userChangePasswordForm Nothing (Just Msg.Save)
+            (pwFormWidget, pwEnctype) <- lift . generateFormPost $
+                userChangePasswordForm Nothing (Just Msg.Save)
             lift . adminAuthLayout $ do
                 setTitle . toHtml $ userName user
                 $(widgetFile "user/activate")
@@ -348,22 +373,25 @@ getUserAdminActivateR userId token = do
             setTitleI Msg.AccountAlreadyActivated
             $(widgetFile "user/account-already-activated")
 
--- | Active an account.
+-- | Process a password change by password-reset-link email.
 postUserAdminActivateR :: UserId -> Text -> CoreHandler Html
 postUserAdminActivateR userId token = do
     user <- lift . runDB $ get404 userId
     case validateUserToken user token of
         Just True -> do
             opw <- lookupPostParam "original-pw"
-            ((formResult, pwFormWidget), pwEnctype) <- lift . runFormPost $ userChangePasswordForm opw (Just Msg.Save)
+            ((formResult, pwFormWidget), pwEnctype) <- lift . runFormPost $
+                userChangePasswordForm opw (Just Msg.Save)
             case formResult of
                 FormSuccess f -> do
-                    _ <- lift . runDB $ update userId [ UserPassword =. Just (originalPassword f)
-                                                      , UserToken =. Nothing
-                                                      , UserActive =. True
-                                                      ]
+                    _ <- lift . runDB $
+                        update userId [ UserPassword =. Just (originalPassword f)
+                                      , UserToken    =. Nothing
+                                      , UserActive   =. True
+                                      ]
                     lift $ setMessageI Msg.ActivationSuccess
-                    lift . setCreds False $ Creds "lambdacms-token-activation" (userEmail user) []
+                    lift . setCreds False $
+                        Creds "lambdacms-token-activation" (userEmail user) []
                     redirect $ AdminHomeR
                 _ -> do
                     lift . adminAuthLayout $ do

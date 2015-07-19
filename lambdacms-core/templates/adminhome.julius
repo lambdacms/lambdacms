@@ -3,12 +3,12 @@
     var load_activities;
     $(document).ready(function() {
       $(".get-action-logs").each(function(index) {
-        var feed_count, panel_body, panel_wrapper, url;
+        var chunk_length, panel_body, panel_wrapper, url;
         panel_wrapper = $(this);
         panel_body = panel_wrapper.find(".panel .panel-body");
         url = panel_wrapper.data("url");
-        feed_count = #{toJSON feedCount};
-        load_activities(url, feed_count - 1, panel_body, function() {
+        chunk_length = #{toJSON actionLogChunkLength};
+        load_activities(url, chunk_length - 1, panel_body, function() {
           panel_wrapper.removeClass("hidden");
         }, function() {
           panel_wrapper.remove();

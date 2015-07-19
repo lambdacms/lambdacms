@@ -37,11 +37,10 @@ class PageHeadProperties res where
 
     pageHeadTags :: LambdaCmsAdmin master => res -> WidgetT master IO ()
     pageHeadTags res = toWidgetHead $(hamletFile "templates/pagehead.hamlet")
-        where
-            robotsText :: Maybe Text
-            robotsText = case robots res of
-                Just (index, follow) -> Just $ (if' index "Index" "NoIndex") <> ", " <> (if' follow "Follow" "NoFollow")
-                Nothing -> Nothing
-            if' :: Bool -> a -> a -> a
-            if' True t _ = t
-            if' False _ f = f
+      where
+        robotsText :: Maybe Text
+        robotsText = case robots res of
+            Just (index, follow) -> Just $ (if index then "Index" else "NoIndex")
+                                        <> ", "
+                                        <> (if follow then "Follow" else "NoFollow")
+            Nothing -> Nothing

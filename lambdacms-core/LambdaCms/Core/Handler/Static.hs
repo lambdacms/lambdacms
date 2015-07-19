@@ -3,8 +3,8 @@
 {-# LANGUAGE TemplateHaskell   #-}
 
 
--- |
--- A collection of helper functions to get to static resources.
+-- | A collection of helper functions to allow static resources to be requested.
+-- This also embeds those files into the resulting binary.
 module LambdaCms.Core.Handler.Static
        ( getNormalizeR
        , getBootstrapCssR

@@ -1,30 +1,30 @@
 /static AdminStaticR:
-    /css               CssAdminR:
+    /css CssAdminR:
         /normalize.css NormalizeR    GET
         /bootstrap.css BootstrapCssR GET
 
-    /js               JsAdminR:
-        /bootstrap.js BootstrapJsR GET
-        /jquery.js    JQueryR      GET
+    /js JsAdminR:
+        /bootstrap.js  BootstrapJsR  GET
+        /jquery.js     JQueryR       GET
 
-    /fonts                                 FontsAdminR:
+    /fonts FontsAdminR:
         /glyphicons-halflings-regular.woff GlyphiconsWoffR GET
         /glyphicons-halflings-regular.ttf  GlyphiconsTtfR  GET
         /glyphicons-halflings-regular.eot  GlyphiconsEotR  GET
         /glyphicons-halflings-regular.svg  GlyphiconsSvgR  GET
 
-    /img                    ImageAdminR:
+    /img ImageAdminR:
         /lambdacms-logo.png LambdaCmsLogoR GET
 
 /                       AdminHomeR         GET
 /activate/#UserId/#Text UserAdminActivateR GET POST
 
 -- User CRUD
-/users             UserAdminR:
-    /              UserAdminIndexR          GET
-    /new           UserAdminNewR            GET POST
-    !/#UserId      UserAdminEditR           GET PATCH DELETE CHPASS RQPASS DEACTIVATE ACTIVATE
+/users UserAdminR:
+    /              UserAdminIndexR         GET
+    /new           UserAdminNewR           GET POST
+    !/#UserId      UserAdminEditR          GET PATCH DELETE CHPASS RQPASS DEACTIVATE ACTIVATE
 
-/activity                      ActionLogAdminR:
-    /                          ActionLogAdminIndexR     GET
-    /user/#UserId              ActionLogAdminUserR      GET
+/activity ActionLogAdminR:
+    /              ActionLogAdminIndexR    GET
+    /user/#UserId  ActionLogAdminUserR     GET

@@ -7,7 +7,7 @@
         <div .row>
             $forall (apiRoute, title) <- [(coreR $ ActionLogAdminR $ ActionLogAdminIndexR, Msg.AllLogs), (coreR $ ActionLogAdminR $ ActionLogAdminUserR authId, Msg.PersonalLogs)]
                 $maybe r <- can (apiRoute) "GET"
-                    <div .hidden .col-xs-12 .col-md-6 .get-action-logs data-url=@?{(r, [("limit", pack $ show feedCount)])}>
+                    <div .hidden .col-xs-12 .col-md-6 .get-action-logs data-url=@?{(r, [("limit", pack $ show actionLogChunkLength)])}>
                         <div .panel .panel-default>
                             <div .panel-heading>_{title}
                             <div .panel-body data-more=_{Msg.LoadMore}>

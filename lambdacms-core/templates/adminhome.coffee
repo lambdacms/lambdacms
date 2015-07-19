@@ -4,8 +4,8 @@ do ($ = jQuery, scope = window)->
       panel_wrapper = $(this)
       panel_body = panel_wrapper.find(".panel .panel-body")
       url = panel_wrapper.data("url")
-      feed_count = %{toJSON feedCount}
-      load_activities(url, feed_count - 1, panel_body,
+      chunk_length = %{toJSON actionLogChunkLength}
+      load_activities(url, chunk_length - 1, panel_body,
       ->
         panel_wrapper.removeClass("hidden")
         return
