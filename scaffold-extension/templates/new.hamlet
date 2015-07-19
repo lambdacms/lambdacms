@@ -1,0 +1,13 @@
+<div .row>
+    <div .col-xs-12>
+        $maybe r <- can (%LC_MODEL%R %MODEL%AdminIndexR) "GET"
+            <a href=@{r}>
+                <span .glyphicon .glyphicon-arrow-left>
+                _{Msg.Back}
+<div .page-header>
+    <h1>_{Msg.New%MODEL%}
+<div .row>
+    <div .col-sm-10 .col-md-7 .col-lg-4>
+        $maybe r <- can (%LC_MODEL%R %MODEL%AdminNewR) "POST"
+            <form role=form method=POST action=@{r} enctype=#{enctype}>
+                ^{fWidget}

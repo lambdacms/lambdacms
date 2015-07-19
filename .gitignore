@@ -6,8 +6,11 @@ dist*
 cabal.sandbox.config
 .DS_Store
 *.swp
+<<<<<<< HEAD
 .stack-work
 <<<<<<< HEAD
 session.*
 =======
 >>>>>>> lambdacms-media/master
+=======
+>>>>>>> extension-boilerplate/master

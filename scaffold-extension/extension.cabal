@@ -1,0 +1,49 @@
+name:               %LC_PACKAGE%-%LC_MODEL%
+version:            0.0.0
+license:            MIT
+license-file:       LICENSE
+author:
+maintainer:
+copyright:          (c) 2015
+bug-reports:
+homepage:
+synopsis:           %PACKAGE% %MODEL%
+description:        Content Management System (CMS) %MODEL% Extension
+stability:          alpha
+category:           web
+build-type:         Simple
+cabal-version:      >= 1.18
+tested-with:        GHC >= 7.6
+extra-doc-files:    README.md
+extra-source-files: templates/edit.hamlet
+                  , templates/index.hamlet
+                  , templates/new.hamlet
+                  , config/models
+                  , config/routes
+
+source-repository head
+  type:             git
+  location:
+
+library
+  default-language: Haskell2010
+
+  exposed-modules:  %PACKAGE%.%MODEL%
+                  , %PACKAGE%.%MODEL%.Message
+
+  other-modules:    %PACKAGE%.%MODEL%.Foundation
+                  , %PACKAGE%.%MODEL%.Models
+                  , %PACKAGE%.%MODEL%.Import
+                  , %PACKAGE%.%MODEL%.Handler.%MODEL%
+
+  build-depends:    base
+                  , yesod
+                  , yesod-form
+                  , lambdacms-core
+                  , persistent
+                  , text
+                  , time
+                  , shakespeare
+                  , wai
+
+  ghc-options:      -Wall -O2

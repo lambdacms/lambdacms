@@ -1,0 +1,39 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+    echo "Needs 2 arguments: Package & Model"
+    exit
+elif [ $# != 2 ]; then
+    echo "Allows only 2 arguments: Package & Model"
+    exit
+fi
+
+package=$1
+model=$2
+lc_package=$(echo "$package" | tr '[:upper:]' '[:lower:]')
+lc_model=$(echo "$model" | tr '[:upper:]' '[:lower:]')
+files=($(find PACKAGE -type f))
+files+=($(find config -type f))
+files+=($(find templates -type f))
+files+=('EXTENSION_README.md' 'extension.cabal')
+
+# Insert package and model into files
+for f in ${files[@]}; do
+    if test -f $f; then
+        sed "s/%PACKAGE%/$package/g" "$f" >replacement && mv replacement "$f"
+        sed "s/%MODEL%/$model/g" "$f" >replacement && mv replacement "$f"
+        sed "s/%LC_PACKAGE%/$lc_package/g" "$f" >replacement && mv replacement "$f"
+        sed "s/%LC_MODEL%/$lc_model/g" "$f" >replacement && mv replacement "$f"
+    fi
+done
+
+# Move files to final dir structure
+mv extension.cabal "${lc_package}-${lc_model}.cabal"
+mv EXTENSION_README.md "README.md"
+mv PACKAGE/MODEL.hs "PACKAGE/${model}.hs"
+mv PACKAGE/MODEL/Handler/MODEL.hs "PACKAGE/MODEL/Handler/${model}.hs"
+mv PACKAGE/MODEL "PACKAGE/${model}"
+mv PACKAGE "${package}"
+
+# Remove this script
+rm create

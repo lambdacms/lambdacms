@@ -1,0 +1,33 @@
+<div .row>
+    <div .col-xs-12>
+        $maybe r <- can (coreR AdminHomeR) "GET"
+            <a href=@{r}>
+                <span .glyphicon .glyphicon-arrow-left>
+                _{Msg.Back}
+<div .page-header>
+    <h1>_{Msg.%MODEL%Index}
+    $maybe r <- can (%LC_MODEL%R %MODEL%AdminNewR) "GET"
+        <a .btn .btn-primary .btn-xs href=@{r}>
+            <span .glyphicon .glyphicon-plus>
+            _{Msg.New%MODEL%}
+<div .row>
+    <div .col-xs-12>
+        $if null %LC_MODEL%s
+            <p .alert .alert-info>_{Msg.No%MODEL%sFound}
+        $else
+            <div .table-responsive>
+                <table .table .table-striped .table-hover>
+                    <thead>
+                        <tr>
+                            <th>_{Msg.Title}
+                            <th>_{Msg.CreatedOn}
+                    <tbody>
+                        $forall (Entity %LC_MODEL%Id %LC_MODEL%) <- %LC_MODEL%s
+                            $with mroute <- can (%LC_MODEL%R $ %MODEL%AdminEditR %LC_MODEL%Id) "GET"
+                                <tr :isJust mroute:onclick="document.location.href='@{fromJust mroute}'">
+                                    <td>
+                                        $maybe r <- mroute
+                                            <a href=@{r}>#{%LC_MODEL%Title %LC_MODEL%}
+                                        $nothing
+                                            #{%LC_MODEL%Title %LC_MODEL%}
+                                    <td>#{show $ utctDay $ %LC_MODEL%CreatedAt %LC_MODEL%}
