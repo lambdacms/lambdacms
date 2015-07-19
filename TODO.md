@@ -17,6 +17,8 @@ TODOs
 * Authorisation depending on a specific resource instance's properties (Authorizable class?)
 * Slugging function (JS) and widget
 * Integrate with coveralls.io, travis-ci.com and hackage.org; add emblems to README
+  * run test of individual packages
+  * make tests for `scaffold_extension` and `yesod_scaffold_patches` to ensure they compile/patch cleanly
 * Pick an (almost) Haskell to-JS compiler and integrate it
 * Possibly pick a client-side FW (like React.js) to integrate
 * Implement routing without TH for more flexibility
