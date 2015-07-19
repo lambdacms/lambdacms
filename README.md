@@ -87,7 +87,7 @@ available:
   * CentOS/Fedora/RHEL: `mysql-devel`
   * Homebrew (OSX): `mysql`
 
-* For Sqlite
+* For Sqlite (required for building the test suite)
 
   * Debian/Ubuntu: `libsqlite3-dev`
   * CentOS/Fedora/RHEL: `sqlite-devel`
@@ -165,7 +165,7 @@ The following commands will run your scaffolded Yesod application
 in development mode.
 
 ```bash
-yesod devel
+stack exec yesod devel
 ```
 
 Now fire some requests at it by pointing your browser to:
@@ -176,14 +176,13 @@ If all went well you are now ready to add LambdaCms to your app.
 
 ### Patching a freshly init'ed Yesod app scaffold to use `lambdacms-core`
 
-To add `lambdacms-core` to a freshly initialized Yesod application a number
-of files need to be edited. To automate this process we use patch-set to
-simplify this process into a couple of shell commands.
+To add `lambdacms-core` to a fresh Yesod application scaffold, a number
+of files need to be edited. We use some patch files to automate this
+process to a couple of simple shell commands.
 
-First we need to download the patches by cloning the repository, we do so in
-`/tmp`. Then we apply the patches with the good old `patch` command.
-
-Run the following from the root of your newly created Yesod project:
+Run the following commands from the root of your Yesod application scaffold.
+It first downloads the patches by cloning the repository in to the `/tmp`
+directory. Then the patches are applied with the good old `patch` command.
 
 ```bash
 export TMP_CLONE=/tmp/lambdacms-clone-for-patches-`date +%s`
@@ -228,7 +227,7 @@ Run `stack install` again to rebuild and install with the patches.
 Then start the development server, which automatically recompiles when files
 have changed.
 
-    yesod devel
+    stack exec yesod devel
 
 Point your browser to
 [`http://localhost:3000/admin`](http://localhost:3000/admin) and you will be
