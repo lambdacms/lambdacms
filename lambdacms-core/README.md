@@ -6,9 +6,9 @@ This package provides a [Yesod](http://yesodweb.com) subsite containing the
 basic functionality of a CMS's admin section and all code that is shared
 between the admin sections of *extensions*.
 
-Please refer to the main [README](https://github.com/lambdacms/lambdacms) of
-LambdaCms for instructions on how to use this package and what LambdaCms
-*extensions* are.
+Please refer to
+[the main README of LambdaCms](https://github.com/lambdacms/lambdacms)
+for instructions on how to use this package and what LambdaCms *extensions* are.
 
 
 
