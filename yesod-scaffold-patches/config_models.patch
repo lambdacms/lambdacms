@@ -1,0 +1,20 @@
+--- a/config/models	2015-07-17 20:53:55.301251336 +0200
++++ b/config/models	2015-07-17 21:35:03.288495495 +0200
+@@ -1,12 +1,5 @@
+-User
+-    ident Text
+-    password Text Maybe
+-    UniqueUser ident
+-    deriving Typeable
+-Email
+-    email Text
+-    user UserId Maybe
+-    verkey Text Maybe
+-    UniqueEmail email
+-
+- -- By default this file is used in Model.hs (which is imported by Foundation.hs)
++UserRole
++    userId UserId
++    roleName RoleName
++    UniqueUserRole userId roleName
++    deriving Typeable Show

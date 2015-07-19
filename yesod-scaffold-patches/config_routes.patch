@@ -1,0 +1,14 @@
+--- a/config/routes	2015-07-17 20:53:55.301251336 +0200
++++ b/config/routes	2015-07-17 21:35:03.288495495 +0200
+@@ -1,7 +1,10 @@
+ /static StaticR Static appStatic
+-/auth   AuthR   Auth   getAuth
+ 
+ /favicon.ico FaviconR GET
+ /robots.txt RobotsR GET
+ 
+ / HomeR GET POST
++
++/admin/auth   AuthR                Auth         getAuth
++/admin/core   CoreAdminR           CoreAdmin    getLambdaCms
++/admin        AdminHomeRedirectR   GET

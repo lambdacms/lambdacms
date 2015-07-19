@@ -1,7 +1,10 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # lambdacms
 A CMS in Haskell using Yesod: performant, developer friendly &amp; type safe
 =======
+=======
+>>>>>>> lambdacms-patches/master
 REPO HAS MOVED
 ==============
 
@@ -11,4 +14,7 @@ It is now part of
 Please update any links, or
 [raise an issue](https://github.org/lambdacms/lambdacms/issues)
 if we have to update a link somewhere.
+<<<<<<< HEAD
 >>>>>>> lambdacms-core/master
+=======
+>>>>>>> lambdacms-patches/master
