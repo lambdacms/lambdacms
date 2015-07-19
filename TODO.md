@@ -32,3 +32,5 @@ TODOs
 
 To consider:
 * Scaffold generator (or incorporate in `yesod-bin`'s) -- maybe the current patch workflow is sufficient
+
+* Provide resizing functionality of pictures without OS dependencies
