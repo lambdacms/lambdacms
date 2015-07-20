@@ -9,7 +9,7 @@
 ```
 
 
-# 1. Rationale
+# 1. Rationale &nbsp;[![Build Status](https://travis-ci.org/lambdacms/lambdacms.svg?branch=master)](https://travis-ci.org/lambdacms/lambdacms)
 
 LambdaCms is a set of packaged libraries —containing subsites for the
 [Yesod application framework](http://www.yesodweb.com)— which allow rapid
