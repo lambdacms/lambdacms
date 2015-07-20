@@ -4,7 +4,8 @@ sudo: false
 
 env:
   - GHCVER=7.10.1 STACK_YAML=stack.yaml
-  - GHCVER=head STACK_YAML=stack.yaml
+# 2015.07.20, builds with GHC HEAD fail: do not waste energy
+# - GHCVER=head STACK_YAML=stack.yaml
 
 matrix:
   allow_failures:
