@@ -66,7 +66,7 @@ Besides Haskell you need to be somewhat familliar with:
 * the web technologies (HTTP, HTML, CSS, JS, REST),
 * RDBMS/SQL (LambdaCms makes use of a relational database), and
 * the Yesod web application framework (for which an
-* [awesome book](http://yesodweb.com/book) exists).
+  [awesome book](http://yesodweb.com/book) exists).
 
 
 ### Non-Haskell dependencies
