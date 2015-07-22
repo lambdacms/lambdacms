@@ -48,7 +48,6 @@ PROJECT_BASE_NAME=$PROJECT_NAME-base
 yesod init -n $PROJECT_BASE_NAME -d $PROJECT_DB
 cd $PROJECT_BASE_NAME
 
-# Temporary step, will no longer be needed with LTS 3 is out
 echo
 echo "==== Bump some upperbounds ===="
 cf=$PROJECT_BASE_NAME.cabal
@@ -57,7 +56,6 @@ sed -i "s%\(^ \+, persistent \+>= 2.0 \+&& <\) 2.2%\1 2.3%" $cf
 sed -i "s%\(^ \+, persistent-postgres \+>= 2.1.1 \+&& <\) 2.2%\1 2.3%" $cf
 sed -i "s%\(^ \+, persistent-sqlite \+>= 2.1.1 \+&& <\) 2.2%\1 2.3%" $cf
 sed -i "s%\(^ \+, persistent-mysql \+>= 2.1.2 \+&& <\) 2.2%\1 2.3%" $cf
-
 
 # Maybe copy unpatched (helpful for updating the patch files)
 if [ $COPY_UNPATCHED != "no" ]; then
