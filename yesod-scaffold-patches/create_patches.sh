@@ -11,8 +11,8 @@ KEEP=$3
 
 REGULAR_FILES="Foundation.hs Application.hs Model.hs Roles.hs Settings.hs \
                config/routes config/models config/settings.yml \
-               stack.yaml \
-               templates/homepage.hamlet \
+               Handler/Home.hs \
+               templates/homepage.hamlet templates/homepage.julius templates/homepage.lucius \
                test/TestImport.hs test/Handler/HomeSpec.hs"
 CABAL_FILE=`basename $UNPATCHED/*.cabal`
 

@@ -1,0 +1,4 @@
+--- a/templates/homepage.julius	2015-07-22 22:52:20.275915255 +0200
++++ b/templates/homepage.julius	2015-07-23 00:39:58.165056744 +0200
+@@ -1 +0,0 @@
+-document.getElementById(#{toJSON aDomId}).innerHTML = "This text was added by the Javascript part of the homepage widget.";

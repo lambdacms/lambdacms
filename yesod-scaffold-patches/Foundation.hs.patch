@@ -1,5 +1,5 @@
---- a/Foundation.hs	2015-07-22 14:06:58.168019891 +0200
-+++ b/Foundation.hs	2015-07-22 14:06:59.740020067 +0200
+--- a/Foundation.hs	2015-07-22 22:52:20.271915262 +0200
++++ b/Foundation.hs	2015-07-22 22:52:23.019910160 +0200
 @@ -5,10 +5,13 @@
  import Text.Hamlet          (hamletFile)
  import Text.Jasmine         (minifym)

@@ -1,5 +1,5 @@
---- a/test/TestImport.hs	2015-07-22 14:06:58.168019891 +0200
-+++ b/test/TestImport.hs	2015-07-22 14:32:16.236215702 +0200
+--- a/test/TestImport.hs	2015-07-22 22:52:20.271915262 +0200
++++ b/test/TestImport.hs	2015-07-22 22:52:23.023910152 +0200
 @@ -10,7 +10,6 @@
  import Foundation            as X
  import Model                 as X

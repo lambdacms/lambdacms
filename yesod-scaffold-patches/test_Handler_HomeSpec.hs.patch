@@ -1,5 +1,5 @@
---- a/test/Handler/HomeSpec.hs	2015-07-22 14:06:58.168019891 +0200
-+++ b/test/Handler/HomeSpec.hs	2015-07-22 14:29:23.308191639 +0200
+--- a/test/Handler/HomeSpec.hs	2015-07-22 22:52:20.271915262 +0200
++++ b/test/Handler/HomeSpec.hs	2015-07-22 22:52:23.023910152 +0200
 @@ -8,25 +8,3 @@
          get HomeR
          statusIs 200

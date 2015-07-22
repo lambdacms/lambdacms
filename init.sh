@@ -11,7 +11,7 @@ echo "Copy unpatched:     " ${COPY_UNPATCHED:=no}
 
 echo
 echo "==== Create project directory ===="
-mkdir $PROJECT_NAME
+mkdir -p $PROJECT_NAME
 cd $PROJECT_NAME
 
 echo
@@ -80,15 +80,15 @@ sed -i "/^admin:.*/c\\$NEW_SETTING" config/settings.yml
 
 echo
 echo "==== Done! ===="
-echo "If all went well you are good to go!"
-echo "To proceed you should first 'cd' into you project folder:"
-echo "    cd $PROJECT_BASE_NAME"
-echo "Build and test your project with the following commands:"
-echo "    stack setup"
-echo "    stack install"
-echo "    stack test"
-echo "Start a development server:"
-echo "    stack exec -- yesod devel"
-echo "And point your browser to the following URLs:"
-echo "    http://localhost:3000/"
-echo "    http://localhost:3000/admin/"
+echo "## If all went well you are good to go!"
+echo "## To proceed you should first 'cd' into you project folder:"
+echo "cd $PROJECT_NAME/$PROJECT_BASE_NAME"
+echo "## Build and test your project with the following commands:"
+echo "stack setup"
+echo "stack install"
+echo "stack test"
+echo "## Start a development server:"
+echo "stack exec -- yesod devel"
+echo "## And point your browser to the following URLs:"
+echo "##   http://localhost:3000/"
+echo "##   http://localhost:3000/admin/"

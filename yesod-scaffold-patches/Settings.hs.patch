@@ -1,5 +1,5 @@
---- a/Settings.hs	2015-07-22 14:06:58.168019891 +0200
-+++ b/Settings.hs	2015-07-22 14:06:59.740020067 +0200
+--- a/Settings.hs	2015-07-22 22:52:20.271915262 +0200
++++ b/Settings.hs	2015-07-22 22:52:23.023910152 +0200
 @@ -52,6 +52,9 @@
      -- ^ Copyright text to appear in the footer of the page
      , appAnalytics              :: Maybe Text
