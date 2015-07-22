@@ -34,9 +34,6 @@ EOT
 
 echo
 echo "==== Generate Yesod app scaffold ===="
-BASE_DIR=$PROJECT_NAME/$PROJECT_NAME-base
-mkdir -p $BASE_DIR
-cd $BASE_DIR
 stack install yesod-bin --no-terminal --skip-ghc-check --resolver $STACK_RESOLVER
 stack exec -- yesod init -n $PROJECT_NAME -d $PROJECT_DB --bare
 
