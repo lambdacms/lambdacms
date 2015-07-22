@@ -28,9 +28,11 @@ before_install:
 install:
   - ./.travis_long.sh stack --no-terminal --skip-ghc-check setup
   - ./.travis_long.sh stack --no-terminal --skip-ghc-check test --only-snapshot
+  - ./.travis_long.sh./init.sh
 
 script:
   - stack --no-terminal --skip-ghc-check test
+  - (cd mysite; stack --no-terminal --skip-ghc-check test)
 
 cache:
   directories:
