@@ -48,13 +48,14 @@ EOT
 
 echo
 echo "==== Generate Yesod app scaffold ===="
-yesod init -n $PROJECT_NAME-base -d $PROJECT_DB
-cd $PROJECT_NAME-base
+PROJECT_BASE_NAME=$PROJECT_NAME-base
+yesod init -n $PROJECT_BASE_NAME -d $PROJECT_DB
+cd $PROJECT_BASE_NAME
 
 # Temporary step, will no longer be needed with LTS 3 is out
 echo
 echo "==== Bump some upperbounds ===="
-cf=$PROJECT_NAME.cabal
+cf=$PROJECT_BASE_NAME.cabal
 sed -i "s%\(^ \+, yesod-static \+>= 1.4.0.3 \+&& <\) 1.5%\1 1.6%" $cf
 sed -i "s%\(^ \+, persistent \+>= 2.0 \+&& <\) 2.2%\1 2.3%" $cf
 sed -i "s%\(^ \+, persistent-postgres \+>= 2.1.1 \+&& <\) 2.2%\1 2.3%" $cf
@@ -66,16 +67,16 @@ sed -i "s%\(^ \+, persistent-mysql \+>= 2.1.2 \+&& <\) 2.2%\1 2.3%" $cf
 if [ $COPY_UNPATCHED != "no" ]; then
   echo
   echo "==== Copy unpatched Yesod app ===="
-  (cd ..; cp -R $PROJECT_NAME-base unpatched-$PROJECT_NAME-base)
+  (cd ..; cp -R $PROJECT_BASE_NAME unpatched-$PROJECT_BASE_NAME)
 fi
 
 echo
 echo "==== Patch the Yesod app into a minimal LambdaCms website ===="
 TMP_CLONE=/tmp/lambdacms-clone-for-patches-`date +%s`
 git clone --depth=1 https://github.com/lambdacms/lambdacms.git $TMP_CLONE
-mv $PROJECT_NAME.cabal project_name.cabal
+mv $PROJECT_BASE_NAME.cabal project_name.cabal
 for f in $TMP_CLONE/yesod-scaffold-patches/*.patch; do patch -p1 < $f; done
-mv project_name.cabal $PROJECT_NAME.cabal
+mv project_name.cabal $PROJECT_BASE_NAME.cabal
 rm -rf $TMP_CLONE
 
 echo
