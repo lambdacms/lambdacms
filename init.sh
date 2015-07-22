@@ -11,8 +11,8 @@ echo "Copy unpatched:     " ${COPY_UNPATCHED:=no}
 
 echo
 echo "==== Create the directory structure ===="
-mkdir $BASE_DIR
-cd $BASE_DIR
+mkdir $PROJECT_NAME
+cd $PROJECT_NAME
 
 echo
 echo "==== Create the appropriate stack.yaml file ===="
