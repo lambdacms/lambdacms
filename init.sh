@@ -19,7 +19,7 @@ echo
 echo "==== Create the appropriate stack.yaml file ===="
 cat <<EOT > ../stack.yaml
 flags:
-  $PROJECT_NAME:
+  $PROJECT_NAME-base:
     library-only: false
     dev: false
 packages:
@@ -33,9 +33,25 @@ extra-deps:
 EOT
 
 echo
+echo "cat ../stack.yaml"
+cat ../stack.yaml
+
+echo
+echo "pwd"
+pwd
+
+echo
+echo "(cd ..; ls)"
+(cd ..; ls)
+
+echo
+echo "ls"
+ls
+
+echo
 echo "==== Generate Yesod app scaffold ===="
 stack install yesod-bin --no-terminal --skip-ghc-check --resolver $STACK_RESOLVER
-stack exec -- yesod init -n $PROJECT_NAME -d $PROJECT_DB --bare
+yesod init -n $PROJECT_NAME -d $PROJECT_DB --bare
 
 # Temporary step, will no longer be needed with LTS 3 is out
 echo
@@ -46,7 +62,6 @@ sed -i "s%\(^ \+, persistent \+>= 2.0 \+&& <\) 2.2%\1 2.3%" $cf
 sed -i "s%\(^ \+, persistent-postgres \+>= 2.1.1 \+&& <\) 2.2%\1 2.3%" $cf
 sed -i "s%\(^ \+, persistent-sqlite \+>= 2.1.1 \+&& <\) 2.2%\1 2.3%" $cf
 sed -i "s%\(^ \+, persistent-mysql \+>= 2.1.2 \+&& <\) 2.2%\1 2.3%" $cf
-
 
 
 # Maybe copy unpatched (helpful for updating the patch files)
