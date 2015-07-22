@@ -1,6 +1,5 @@
-reverted:
---- b/Foundation.hs	2015-07-19 15:54:09.416756403 +0200
-+++ a/Foundation.hs	2015-07-19 18:02:07.587291567 +0200
+--- a/Foundation.hs	2015-07-22 14:06:58.168019891 +0200
++++ b/Foundation.hs	2015-07-22 14:06:59.740020067 +0200
 @@ -5,10 +5,13 @@
  import Text.Hamlet          (hamletFile)
  import Text.Jasmine         (minifym)
@@ -28,6 +27,11 @@ reverted:
      authRoute _ = Just $ AuthR LoginR
  
      -- Routes not requiring authentication.
+-    isAuthorized (AuthR _) _ = return Authorized
+-    isAuthorized FaviconR _ = return Authorized
+-    isAuthorized RobotsR _ = return Authorized
+-    -- Default to Authorized for now.
+-    isAuthorized _ _ = return Authorized
 +    isAuthorized (StaticR _)                   _ = return Authorized
 +    isAuthorized (CoreAdminR (AdminStaticR _)) _ = return Authorized
 +    isAuthorized theRoute                      _ = do
@@ -36,11 +40,6 @@ reverted:
 +        y       <- getYesod
 +        murs    <- mapM getUserRoles mauthId
 +        return $ isAuthorizedTo y murs $ actionAllowedFor theRoute (W.requestMethod wai)
--    isAuthorized (AuthR _) _ = return Authorized
--    isAuthorized FaviconR _ = return Authorized
--    isAuthorized RobotsR _ = return Authorized
--    -- Default to Authorized for now.
--    isAuthorized _ _ = return Authorized
  
      -- This function creates static content files in the static folder
      -- and names them based on a hash of their content. This allows
@@ -48,20 +47,20 @@ reverted:
      type AuthId App = UserId
  
      -- Where to send a user after successful login
-+    loginDest _ = CoreAdminR AdminHomeR
 -    loginDest _ = HomeR
++    loginDest _ = CoreAdminR AdminHomeR
      -- Where to send a user after logout
-+    logoutDest _ = AuthR LoginR
 -    logoutDest _ = HomeR
++    logoutDest _ = AuthR LoginR
      -- Override the above two destinations when a Referer: header is present
      redirectToReferer _ = True
  
-+    authenticate = authenticateByLambdaCms
 -    authenticate creds = runDB $ do
 -        x <- getBy $ UniqueUser $ credsIdent creds
 -        return $ case x of
 -            Just (Entity uid _) -> Authenticated uid
 -            Nothing -> UserError InvalidLogin
++    authenticate = authenticateByLambdaCms
  
      -- You can add other plugins like BrowserID, email or OAuth here
      authPlugins _ = [authBrowserId def]

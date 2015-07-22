@@ -1,6 +1,5 @@
-reverted:
---- b/project_name.cabal	2015-07-19 15:54:09.416756403 +0200
-+++ a/project_name.cabal	2015-07-19 17:26:17.398712467 +0200
+---b.cabal	2015-07-22 14:06:58.168019891 +0200
++++ b/project_name.cabal	2015-07-22 14:06:59.748020067 +0200
 @@ -22,6 +22,7 @@
                       Settings.StaticFiles
                       Handler.Common

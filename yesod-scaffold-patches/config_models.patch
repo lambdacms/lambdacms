@@ -1,12 +1,6 @@
-reverted:
---- b/config/models	2015-07-19 15:54:09.416756403 +0200
-+++ a/config/models	2015-07-19 17:26:17.386712462 +0200
+--- a/config/models	2015-07-22 14:06:58.168019891 +0200
++++ b/config/models	2015-07-22 14:06:59.744020066 +0200
 @@ -1,12 +1,5 @@
-+UserRole
-+    userId UserId
-+    roleName RoleName
-+    UniqueUserRole userId roleName
-+    deriving Typeable Show
 -User
 -    ident Text
 -    password Text Maybe
@@ -19,3 +13,8 @@ reverted:
 -    UniqueEmail email
 -
 - -- By default this file is used in Model.hs (which is imported by Foundation.hs)
++UserRole
++    userId UserId
++    roleName RoleName
++    UniqueUserRole userId roleName
++    deriving Typeable Show

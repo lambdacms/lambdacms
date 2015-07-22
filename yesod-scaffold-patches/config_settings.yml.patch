@@ -1,6 +1,5 @@
-reverted:
---- b/config/settings.yml	2015-07-19 15:54:09.416756403 +0200
-+++ a/config/settings.yml	2015-07-19 17:26:17.394712465 +0200
+--- a/config/settings.yml	2015-07-22 14:06:58.168019891 +0200
++++ b/config/settings.yml	2015-07-22 14:06:59.756020069 +0200
 @@ -23,3 +23,8 @@
  
  copyright: Insert copyright statement here
@@ -9,4 +8,4 @@ reverted:
 +# Fill in the initial admin's email address below.
 +# To use Mozilla Persona for login, the email address
 +# needs to be registered with that service. (Recommended)
-+admin:          "_env:LAMBDACMS_ADMIN:<email address>"
++admin: "_env:LAMBDACMS_ADMIN:cies@hoppinger.com"

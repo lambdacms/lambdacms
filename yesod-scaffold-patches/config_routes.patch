@@ -1,6 +1,5 @@
-reverted:
---- b/config/routes	2015-07-19 15:54:09.416756403 +0200
-+++ a/config/routes	2015-07-19 17:26:17.390712463 +0200
+--- a/config/routes	2015-07-22 14:06:58.168019891 +0200
++++ b/config/routes	2015-07-22 14:06:59.744020066 +0200
 @@ -1,7 +1,10 @@
  /static StaticR Static appStatic
 -/auth   AuthR   Auth   getAuth
