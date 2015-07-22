@@ -1,21 +1,22 @@
---- a/Settings.hs	2015-07-19 17:26:17.402712470 +0200
-+++ b/Settings.hs	2015-07-19 15:54:09.416756403 +0200
-@@ -52,9 +52,6 @@
+reverted:
+--- b/Settings.hs	2015-07-19 15:54:09.416756403 +0200
++++ a/Settings.hs	2015-07-19 17:26:17.402712470 +0200
+@@ -52,6 +52,9 @@
      -- ^ Copyright text to appear in the footer of the page
      , appAnalytics              :: Maybe Text
      -- ^ Google Analytics code
--
--    , appAdmin                  :: Text
--    -- ^ LambdaCms default admin email address
++
++    , appAdmin                  :: Text
++    -- ^ LambdaCms default admin email address
      }
  
  instance FromJSON AppSettings where
-@@ -81,8 +78,6 @@
+@@ -78,6 +81,8 @@
          appCopyright              <- o .: "copyright"
          appAnalytics              <- o .:? "analytics"
  
--        appAdmin                  <- o .: "admin"
--
++        appAdmin                  <- o .: "admin"
++
          return AppSettings {..}
  
  -- | Settings for 'widgetFile', such as which template languages to support and

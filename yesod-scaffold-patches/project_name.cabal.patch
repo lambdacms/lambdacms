@@ -1,19 +1,20 @@
---- a/project_name.cabal	2015-07-19 17:26:17.398712467 +0200
-+++ b/project_name.cabal	2015-07-19 15:54:09.416756403 +0200
-@@ -22,7 +22,6 @@
+reverted:
+--- b/project_name.cabal	2015-07-19 15:54:09.416756403 +0200
++++ a/project_name.cabal	2015-07-19 17:26:17.398712467 +0200
+@@ -22,6 +22,7 @@
                       Settings.StaticFiles
                       Handler.Common
                       Handler.Home
--                     Roles
++                     Roles
  
      if flag(dev) || flag(library-only)
          cpp-options:   -DDEVELOPMENT
-@@ -82,8 +81,6 @@
+@@ -81,6 +82,8 @@
                   , containers
                   , vector
                   , time
--                 , wai                           >= 3.0.2      && < 3.1
--                 , lambdacms-core                >= 0.3.0.0    && < 0.4
++                 , wai                           >= 3.0.2      && < 3.1
++                 , lambdacms-core                >= 0.3.0.0    && < 0.4
  
  executable         mysite
      if flag(library-only)

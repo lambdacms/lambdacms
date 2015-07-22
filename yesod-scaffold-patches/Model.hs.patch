@@ -1,12 +1,13 @@
---- a/Model.hs	2015-07-19 17:26:17.398712467 +0200
-+++ b/Model.hs	2015-07-19 15:54:09.416756403 +0200
-@@ -3,9 +3,6 @@
+reverted:
+--- b/Model.hs	2015-07-19 15:54:09.416756403 +0200
++++ a/Model.hs	2015-07-19 17:26:17.398712467 +0200
+@@ -3,6 +3,9 @@
  import ClassyPrelude.Yesod
  import Database.Persist.Quasi
  
--import Roles
--import LambdaCms.Core
--
++import Roles
++import LambdaCms.Core
++
  -- You can define all of your database entities in the entities file.
  -- You can find more information on persistent and how to declare entities
  -- at:

@@ -1,13 +1,14 @@
---- a/stack.yaml	2015-07-19 17:26:17.402712470 +0200
-+++ b/stack.yaml	2015-07-19 15:54:09.416756403 +0200
-@@ -1,9 +1,5 @@
+reverted:
+--- b/stack.yaml	2015-07-19 15:54:09.416756403 +0200
++++ a/stack.yaml	2015-07-19 17:26:17.402712470 +0200
+@@ -1,5 +1,9 @@
  flags: {}
  packages:
  - '.'
--extra-deps:
--- lambdacms-core-0.3.0.0
--- friendly-time-0.4
--- lists-0.4.2
--- list-extras-0.4.1.4
-+extra-deps: []
++extra-deps:
++- lambdacms-core-0.3.0.0
++- friendly-time-0.4
++- lists-0.4.2
++- list-extras-0.4.1.4
+-extra-deps: []
  resolver: nightly-2015-07-09

@@ -1,12 +1,13 @@
---- a/Roles.hs	2015-07-19 17:26:17.398712467 +0200
-+++ b/Roles.hs	1970-01-01 01:00:00.000000000 +0100
-@@ -1,9 +0,0 @@
--module Roles where
--
--import ClassyPrelude.Yesod
--
--data RoleName = Admin
--              | Blogger
--              deriving (Eq, Ord, Show, Read, Enum, Bounded, Typeable)
--
--derivePersistField "RoleName"
+reverted:
+--- b/Roles.hs	1970-01-01 01:00:00.000000000 +0100
++++ a/Roles.hs	2015-07-19 17:26:17.398712467 +0200
+@@ -0,0 +1,9 @@
++module Roles where
++
++import ClassyPrelude.Yesod
++
++data RoleName = Admin
++              | Blogger
++              deriving (Eq, Ord, Show, Read, Enum, Bounded, Typeable)
++
++derivePersistField "RoleName"

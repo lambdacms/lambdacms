@@ -1,11 +1,12 @@
---- a/config/settings.yml	2015-07-19 17:26:17.394712465 +0200
-+++ b/config/settings.yml	2015-07-19 15:54:09.416756403 +0200
-@@ -23,8 +23,3 @@
+reverted:
+--- b/config/settings.yml	2015-07-19 15:54:09.416756403 +0200
++++ a/config/settings.yml	2015-07-19 17:26:17.394712465 +0200
+@@ -23,3 +23,8 @@
  
  copyright: Insert copyright statement here
  #analytics: UA-YOURCODE
--
--# Fill in the initial admin's email address below.
--# To use Mozilla Persona for login, the email address
--# needs to be registered with that service. (Recommended)
--admin:          "_env:LAMBDACMS_ADMIN:<email address>"
++
++# Fill in the initial admin's email address below.
++# To use Mozilla Persona for login, the email address
++# needs to be registered with that service. (Recommended)
++admin:          "_env:LAMBDACMS_ADMIN:<email address>"

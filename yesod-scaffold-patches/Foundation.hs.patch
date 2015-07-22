@@ -1,112 +1,113 @@
---- a/Foundation.hs	2015-07-19 18:02:07.587291567 +0200
-+++ b/Foundation.hs	2015-07-19 15:54:09.416756403 +0200
-@@ -5,13 +5,10 @@
+reverted:
+--- b/Foundation.hs	2015-07-19 15:54:09.416756403 +0200
++++ a/Foundation.hs	2015-07-19 18:02:07.587291567 +0200
+@@ -5,10 +5,13 @@
  import Text.Hamlet          (hamletFile)
  import Text.Jasmine         (minifym)
  import Yesod.Auth.BrowserId (authBrowserId)
-+import Yesod.Auth.Message   (AuthMessage (InvalidLogin))
+-import Yesod.Auth.Message   (AuthMessage (InvalidLogin))
  import Yesod.Default.Util   (addStaticContentExternal)
  import Yesod.Core.Types     (Logger)
  import qualified Yesod.Core.Unsafe as Unsafe
--import qualified Data.Set          as S
--import qualified Network.Wai       as W
--import LambdaCms.Core
--import Roles
++import qualified Data.Set          as S
++import qualified Network.Wai       as W
++import LambdaCms.Core
++import Roles
  
  -- | The foundation datatype for your application. This can be a good place to
  -- keep settings and values requiring initialization before your application
-@@ -23,7 +20,6 @@
+@@ -20,6 +23,7 @@
      , appConnPool    :: ConnectionPool -- ^ Database connection pool.
      , appHttpManager :: Manager
      , appLogger      :: Logger
--    , getLambdaCms   :: CoreAdmin
++    , getLambdaCms   :: CoreAdmin
      }
  
  instance HasHttpManager App where
-@@ -77,14 +73,11 @@
+@@ -73,11 +77,14 @@
      authRoute _ = Just $ AuthR LoginR
  
      -- Routes not requiring authentication.
--    isAuthorized (StaticR _)                   _ = return Authorized
--    isAuthorized (CoreAdminR (AdminStaticR _)) _ = return Authorized
--    isAuthorized theRoute                      _ = do
--        mauthId <- maybeAuthId
--        wai     <- waiRequest
--        y       <- getYesod
--        murs    <- mapM getUserRoles mauthId
--        return $ isAuthorizedTo y murs $ actionAllowedFor theRoute (W.requestMethod wai)
-+    isAuthorized (AuthR _) _ = return Authorized
-+    isAuthorized FaviconR _ = return Authorized
-+    isAuthorized RobotsR _ = return Authorized
-+    -- Default to Authorized for now.
-+    isAuthorized _ _ = return Authorized
++    isAuthorized (StaticR _)                   _ = return Authorized
++    isAuthorized (CoreAdminR (AdminStaticR _)) _ = return Authorized
++    isAuthorized theRoute                      _ = do
++        mauthId <- maybeAuthId
++        wai     <- waiRequest
++        y       <- getYesod
++        murs    <- mapM getUserRoles mauthId
++        return $ isAuthorizedTo y murs $ actionAllowedFor theRoute (W.requestMethod wai)
+-    isAuthorized (AuthR _) _ = return Authorized
+-    isAuthorized FaviconR _ = return Authorized
+-    isAuthorized RobotsR _ = return Authorized
+-    -- Default to Authorized for now.
+-    isAuthorized _ _ = return Authorized
  
      -- This function creates static content files in the static folder
      -- and names them based on a hash of their content. This allows
-@@ -127,21 +120,23 @@
+@@ -120,23 +127,21 @@
      type AuthId App = UserId
  
      -- Where to send a user after successful login
--    loginDest _ = CoreAdminR AdminHomeR
-+    loginDest _ = HomeR
++    loginDest _ = CoreAdminR AdminHomeR
+-    loginDest _ = HomeR
      -- Where to send a user after logout
--    logoutDest _ = AuthR LoginR
-+    logoutDest _ = HomeR
++    logoutDest _ = AuthR LoginR
+-    logoutDest _ = HomeR
      -- Override the above two destinations when a Referer: header is present
      redirectToReferer _ = True
  
--    authenticate = authenticateByLambdaCms
-+    authenticate creds = runDB $ do
-+        x <- getBy $ UniqueUser $ credsIdent creds
-+        return $ case x of
-+            Just (Entity uid _) -> Authenticated uid
-+            Nothing -> UserError InvalidLogin
++    authenticate = authenticateByLambdaCms
+-    authenticate creds = runDB $ do
+-        x <- getBy $ UniqueUser $ credsIdent creds
+-        return $ case x of
+-            Just (Entity uid _) -> Authenticated uid
+-            Nothing -> UserError InvalidLogin
  
      -- You can add other plugins like BrowserID, email or OAuth here
      authPlugins _ = [authBrowserId def]
  
      authHttpManager = getHttpManager
  
--    authLayout = adminAuthLayout
--
++    authLayout = adminAuthLayout
++
  instance YesodAuthPersist App
  
  -- This instance is required to use forms. You can modify renderMessage to
-@@ -159,37 +154,3 @@
+@@ -154,3 +159,37 @@
  -- https://github.com/yesodweb/yesod/wiki/Sending-email
  -- https://github.com/yesodweb/yesod/wiki/Serve-static-files-from-a-separate-domain
  -- https://github.com/yesodweb/yesod/wiki/i18n-messages-in-the-scaffolding
--
--instance LambdaCmsAdmin App where
--    type Roles App = RoleName
--
--    actionAllowedFor (FaviconR) "GET" = AllowAll
--    actionAllowedFor (RobotsR)  "GET" = AllowAll
--    actionAllowedFor (HomeR)    "GET" = AllowAll
--    actionAllowedFor (AuthR _)  _     = AllowAll
--    actionAllowedFor _          _     = AllowRoles $ S.fromList [Admin]
--
--    coreR = CoreAdminR
--    authR = AuthR
--    masterHomeR = HomeR
--
--    -- cache user roles to reduce the amount of DB calls
--    getUserRoles userId = cachedBy cacheKey . fmap toRoleSet . runDB $ selectList [UserRoleUserId ==. userId] []
--        where
--            cacheKey = encodeUtf8 $ toPathPiece userId
--            toRoleSet = S.fromList . map (userRoleRoleName . entityVal)
--
--    setUserRoles userId rs = runDB $ do
--        deleteWhere [UserRoleUserId ==. userId]
--        mapM_ (insert_ . UserRole userId) $ S.toList rs
--
--    adminMenu =  (defaultCoreAdminMenu CoreAdminR)
--    renderLanguages _ = ["en", "nl"]
--
--    mayAssignRoles = do
--        authId <- requireAuthId
--        roles <- getUserRoles authId
--        return $ isAdmin roles
--
--isAdmin :: S.Set RoleName -> Bool
--isAdmin = S.member Admin
++
++instance LambdaCmsAdmin App where
++    type Roles App = RoleName
++
++    actionAllowedFor (FaviconR) "GET" = AllowAll
++    actionAllowedFor (RobotsR)  "GET" = AllowAll
++    actionAllowedFor (HomeR)    "GET" = AllowAll
++    actionAllowedFor (AuthR _)  _     = AllowAll
++    actionAllowedFor _          _     = AllowRoles $ S.fromList [Admin]
++
++    coreR = CoreAdminR
++    authR = AuthR
++    masterHomeR = HomeR
++
++    -- cache user roles to reduce the amount of DB calls
++    getUserRoles userId = cachedBy cacheKey . fmap toRoleSet . runDB $ selectList [UserRoleUserId ==. userId] []
++        where
++            cacheKey = encodeUtf8 $ toPathPiece userId
++            toRoleSet = S.fromList . map (userRoleRoleName . entityVal)
++
++    setUserRoles userId rs = runDB $ do
++        deleteWhere [UserRoleUserId ==. userId]
++        mapM_ (insert_ . UserRole userId) $ S.toList rs
++
++    adminMenu =  (defaultCoreAdminMenu CoreAdminR)
++    renderLanguages _ = ["en", "nl"]
++
++    mayAssignRoles = do
++        authId <- requireAuthId
++        roles <- getUserRoles authId
++        return $ isAdmin roles
++
++isAdmin :: S.Set RoleName -> Bool
++isAdmin = S.member Admin
