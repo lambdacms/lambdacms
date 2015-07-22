@@ -11,12 +11,13 @@ echo "Copy unpatched:     " ${COPY_UNPATCHED:=no}
 
 echo
 echo "==== Generate Yesod app scaffold ===="
-mkdir $PROJECT_NAME
-cd $PROJECT_NAME
+BASE_DIR=$PROJECT_NAME/$PROJECT_NAME-base
+mkdir -p $BASE_DIR
+cd $BASE_DIR
 stack install yesod-bin --resolver $STACK_RESOLVER
 yesod init -n $PROJECT_NAME -d $PROJECT_DB --bare
-stack init --resolver $STACK_RESOLVER
 
+# Temporary step, will no longer be needed with LTS 3 is out
 echo
 echo "==== Bump some upperbounds ===="
 cf=$PROJECT_NAME.cabal
@@ -26,11 +27,26 @@ sed -i "s%\(^ \+, persistent-postgres \+>= 2.1.1 \+&& <\) 2.2%\1 2.3%" $cf
 sed -i "s%\(^ \+, persistent-sqlite \+>= 2.1.1 \+&& <\) 2.2%\1 2.3%" $cf
 sed -i "s%\(^ \+, persistent-mysql \+>= 2.1.2 \+&& <\) 2.2%\1 2.3%" $cf
 
+echo
+echo "==== Generate a stack.yaml file ===="
+(cd ..; stack init --resolver $STACK_RESOLVER)
+
+echo
+echo "==== Add non-Stackage dependencies to the stack.yaml file ===="
+sed -i '/^extra-deps: \[\]$/d' ../stack.yaml
+cat <<EOT >> ../stack.yaml
+extra-deps:
+- lambdacms-core-0.3.0.0
+- friendly-time-0.4
+- lists-0.4.2
+- list-extras-0.4.1.4
+EOT
+
 # Maybe copy unpatched (helpful for updating the patch files)
 if [ $COPY_UNPATCHED != "no" ]; then
   echo
   echo "==== Copy unpatched Yesod app ===="
-  (cd ..; cp -R $PROJECT_NAME unpatched-$PROJECT_NAME)
+  (cd ..; cp -R $PROJECT_NAME-base unpatched-$PROJECT_NAME-base)
 fi
 
 echo
@@ -48,16 +64,16 @@ NEW_SETTING="admin: \"_env:LAMBDACMS_ADMIN:$ADMIN_EMAIL\""
 sed -i "/^admin:.*/c\\$NEW_SETTING" config/settings.yml
 
 echo
-echo "==== Build and run test suite ===="
-stack setup
-stack install
-stack test
-
-# Try it yourself
-echo
 echo "==== Done! ===="
 echo "If all went well you are good to go!"
-echo "Try running: stack exec -- yesod devel"
-echo "And point your browser to the following urls:"
+echo "To proceed you should first 'cd' into you project folder:"
+echo "    cd $PROJECT_NAME"
+echo "Build and test your project with the following commands:"
+echo "    stack setup"
+echo "    stack install"
+echo "    stack test"
+echo "Start a development server:"
+echo "    stack exec -- yesod devel"
+echo "And point your browser to the following URLs:"
 echo "    http://localhost:3000/"
 echo "    http://localhost:3000/admin/"
