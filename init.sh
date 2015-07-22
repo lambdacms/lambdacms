@@ -11,13 +11,12 @@ echo "Copy unpatched:     " ${COPY_UNPATCHED:=no}
 
 echo
 echo "==== Create the directory structure ===="
-BASE_DIR=$PROJECT_NAME/$PROJECT_NAME-base
-mkdir -p $BASE_DIR
+mkdir $BASE_DIR
 cd $BASE_DIR
 
 echo
 echo "==== Create the appropriate stack.yaml file ===="
-cat <<EOT > ../stack.yaml
+cat <<EOT > stack.yaml
 flags:
   $PROJECT_NAME-base:
     library-only: false
@@ -33,25 +32,10 @@ extra-deps:
 EOT
 
 echo
-echo "cat ../stack.yaml"
-cat ../stack.yaml
-
-echo
-echo "pwd"
-pwd
-
-echo
-echo "(cd ..; ls)"
-(cd ..; ls)
-
-echo
-echo "ls"
-ls
-
-echo
 echo "==== Generate Yesod app scaffold ===="
 stack install yesod-bin --no-terminal --skip-ghc-check --resolver $STACK_RESOLVER
-yesod init -n $PROJECT_NAME -d $PROJECT_DB --bare
+yesod init -n $PROJECT_NAME-base -d $PROJECT_DB
+cd $PROJECT_NAME-base
 
 # Temporary step, will no longer be needed with LTS 3 is out
 echo
