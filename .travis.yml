@@ -28,9 +28,12 @@ before_install:
 install:
   - ./.travis_long.sh stack --no-terminal --skip-ghc-check setup
   - ./.travis_long.sh stack --no-terminal --skip-ghc-check test --only-snapshot
+  - (cd ..;        ./lambdacms/init.sh)
+  - (cd ../mysite; stack --no-terminal --skip-ghc-check test --only-snapshot)
 
 script:
   - stack --no-terminal --skip-ghc-check test
+  - (cd ../mysite; stack --no-terminal --skip-ghc-check test)
 
 cache:
   directories:

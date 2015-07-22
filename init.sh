@@ -10,31 +10,31 @@ echo "Admin email address:" ${ADMIN_EMAIL:=admin@lambdacms.org}
 echo "Copy unpatched:     " ${COPY_UNPATCHED:=no}
 
 echo
-echo "==== Generate Yesod app scaffold ===="
-BASE_DIR=$PROJECT_NAME/$PROJECT_NAME-base
-mkdir -p $BASE_DIR
-cd $BASE_DIR
-stack install yesod-bin --resolver $STACK_RESOLVER
-yesod init -n $PROJECT_NAME -d $PROJECT_DB --bare
-
-# Temporary step, will no longer be needed with LTS 3 is out
-echo
-echo "==== Bump some upperbounds ===="
-cf=$PROJECT_NAME.cabal
-sed -i "s%\(^ \+, yesod-static \+>= 1.4.0.3 \+&& <\) 1.5%\1 1.6%" $cf
-sed -i "s%\(^ \+, persistent \+>= 2.0 \+&& <\) 2.2%\1 2.3%" $cf
-sed -i "s%\(^ \+, persistent-postgres \+>= 2.1.1 \+&& <\) 2.2%\1 2.3%" $cf
-sed -i "s%\(^ \+, persistent-sqlite \+>= 2.1.1 \+&& <\) 2.2%\1 2.3%" $cf
-sed -i "s%\(^ \+, persistent-mysql \+>= 2.1.2 \+&& <\) 2.2%\1 2.3%" $cf
+echo "==== Create project directory ===="
+mkdir $PROJECT_NAME
+cd $PROJECT_NAME
 
 echo
-echo "==== Generate a stack.yaml file ===="
-(cd ..; stack init --resolver $STACK_RESOLVER)
+echo "==== Install yesod-bin for scaffolding ===="
+# stack cannot init a file w/o a cabal file, thus init it ourselves
+# this file is just to correctly bootstrap the app on Travis
+cat <<EOT > stack.yaml
+packages: []
+resolver: $STACK_RESOLVER
+EOT
+stack install yesod-bin --no-terminal --skip-ghc-check
 
 echo
-echo "==== Add non-Stackage dependencies to the stack.yaml file ===="
-sed -i '/^extra-deps: \[\]$/d' ../stack.yaml
-cat <<EOT >> ../stack.yaml
+echo "==== Create the appropriate stack.yaml file ===="
+# stack cannot init a file w/o a cabal file, thus init it ourselves
+cat <<EOT > stack.yaml
+flags:
+  $PROJECT_NAME-base:
+    library-only: false
+    dev: false
+packages:
+- $PROJECT_NAME-base/
+resolver: $STACK_RESOLVER
 extra-deps:
 - lambdacms-core-0.3.0.0
 - friendly-time-0.4
@@ -42,20 +42,37 @@ extra-deps:
 - list-extras-0.4.1.4
 EOT
 
+echo
+echo "==== Generate Yesod app scaffold ===="
+PROJECT_BASE_NAME=$PROJECT_NAME-base
+yesod init -n $PROJECT_BASE_NAME -d $PROJECT_DB
+cd $PROJECT_BASE_NAME
+
+# Temporary step, will no longer be needed with LTS 3 is out
+echo
+echo "==== Bump some upperbounds ===="
+cf=$PROJECT_BASE_NAME.cabal
+sed -i "s%\(^ \+, yesod-static \+>= 1.4.0.3 \+&& <\) 1.5%\1 1.6%" $cf
+sed -i "s%\(^ \+, persistent \+>= 2.0 \+&& <\) 2.2%\1 2.3%" $cf
+sed -i "s%\(^ \+, persistent-postgres \+>= 2.1.1 \+&& <\) 2.2%\1 2.3%" $cf
+sed -i "s%\(^ \+, persistent-sqlite \+>= 2.1.1 \+&& <\) 2.2%\1 2.3%" $cf
+sed -i "s%\(^ \+, persistent-mysql \+>= 2.1.2 \+&& <\) 2.2%\1 2.3%" $cf
+
+
 # Maybe copy unpatched (helpful for updating the patch files)
 if [ $COPY_UNPATCHED != "no" ]; then
   echo
   echo "==== Copy unpatched Yesod app ===="
-  (cd ..; cp -R $PROJECT_NAME-base unpatched-$PROJECT_NAME-base)
+  (cd ..; cp -R $PROJECT_BASE_NAME unpatched-$PROJECT_BASE_NAME)
 fi
 
 echo
 echo "==== Patch the Yesod app into a minimal LambdaCms website ===="
 TMP_CLONE=/tmp/lambdacms-clone-for-patches-`date +%s`
 git clone --depth=1 https://github.com/lambdacms/lambdacms.git $TMP_CLONE
-mv $PROJECT_NAME.cabal project_name.cabal
+mv $PROJECT_BASE_NAME.cabal project_name.cabal
 for f in $TMP_CLONE/yesod-scaffold-patches/*.patch; do patch -p1 < $f; done
-mv project_name.cabal $PROJECT_NAME.cabal
+mv project_name.cabal $PROJECT_BASE_NAME.cabal
 rm -rf $TMP_CLONE
 
 echo
@@ -67,7 +84,7 @@ echo
 echo "==== Done! ===="
 echo "If all went well you are good to go!"
 echo "To proceed you should first 'cd' into you project folder:"
-echo "    cd $PROJECT_NAME"
+echo "    cd $PROJECT_BASE_NAME"
 echo "Build and test your project with the following commands:"
 echo "    stack setup"
 echo "    stack install"
