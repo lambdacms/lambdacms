@@ -10,12 +10,17 @@ echo "Admin email address:" ${ADMIN_EMAIL:=admin@lambdacms.org}
 echo "Copy unpatched:     " ${COPY_UNPATCHED:=no}
 
 echo
-echo "==== Create the directory structure ===="
+echo "==== Create project directory ===="
 mkdir $PROJECT_NAME
 cd $PROJECT_NAME
 
 echo
+echo "==== Install yesod-bin for scaffolding ===="
+stack install yesod-bin --no-terminal --skip-ghc-check --resolver $STACK_RESOLVER
+
+echo
 echo "==== Create the appropriate stack.yaml file ===="
+# stack cannot init a file w/o a cabal file, thus init it ourselves
 cat <<EOT > stack.yaml
 flags:
   $PROJECT_NAME-base:
@@ -33,7 +38,6 @@ EOT
 
 echo
 echo "==== Generate Yesod app scaffold ===="
-stack install yesod-bin --no-terminal --skip-ghc-check --resolver $STACK_RESOLVER
 yesod init -n $PROJECT_NAME-base -d $PROJECT_DB
 cd $PROJECT_NAME-base
 
