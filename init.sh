@@ -16,8 +16,21 @@ mkdir -p $BASE_DIR
 cd $BASE_DIR
 
 echo
-echo "==== Generate a stack.yaml file ===="
-(cd ..; stack init --no-terminal --skip-ghc-check --resolver $STACK_RESOLVER)
+echo "==== Create the appropriate stack.yaml file ===="
+cat <<EOT > ../stack.yaml
+flags:
+  $PROJECT_NAME:
+    library-only: false
+    dev: false
+packages:
+- $PROJECT_NAME-base/
+resolver: $STACK_RESOLVER
+extra-deps:
+- lambdacms-core-0.3.0.0
+- friendly-time-0.4
+- lists-0.4.2
+- list-extras-0.4.1.4
+EOT
 
 echo
 echo "==== Generate Yesod app scaffold ===="
@@ -37,16 +50,7 @@ sed -i "s%\(^ \+, persistent-postgres \+>= 2.1.1 \+&& <\) 2.2%\1 2.3%" $cf
 sed -i "s%\(^ \+, persistent-sqlite \+>= 2.1.1 \+&& <\) 2.2%\1 2.3%" $cf
 sed -i "s%\(^ \+, persistent-mysql \+>= 2.1.2 \+&& <\) 2.2%\1 2.3%" $cf
 
-echo
-echo "==== Add non-Stackage dependencies to the stack.yaml file ===="
-sed -i '/^extra-deps: \[\]$/d' ../stack.yaml
-cat <<EOT >> ../stack.yaml
-extra-deps:
-- lambdacms-core-0.3.0.0
-- friendly-time-0.4
-- lists-0.4.2
-- list-extras-0.4.1.4
-EOT
+
 
 # Maybe copy unpatched (helpful for updating the patch files)
 if [ $COPY_UNPATCHED != "no" ]; then
