@@ -10,12 +10,22 @@ echo "Admin email address:" ${ADMIN_EMAIL:=admin@lambdacms.org}
 echo "Copy unpatched:     " ${COPY_UNPATCHED:=no}
 
 echo
+echo "==== Create the directory structure ===="
+BASE_DIR=$PROJECT_NAME/$PROJECT_NAME-base
+mkdir -p $BASE_DIR
+cd $BASE_DIR
+
+echo
+echo "==== Generate a stack.yaml file ===="
+(cd ..; stack init --no-terminal --skip-ghc-check --resolver $STACK_RESOLVER)
+
+echo
 echo "==== Generate Yesod app scaffold ===="
 BASE_DIR=$PROJECT_NAME/$PROJECT_NAME-base
 mkdir -p $BASE_DIR
 cd $BASE_DIR
-stack install yesod-bin --resolver $STACK_RESOLVER
-yesod init -n $PROJECT_NAME -d $PROJECT_DB --bare
+stack install yesod-bin --no-terminal --skip-ghc-check --resolver $STACK_RESOLVER
+stack exec -- yesod init -n $PROJECT_NAME -d $PROJECT_DB --bare
 
 # Temporary step, will no longer be needed with LTS 3 is out
 echo
@@ -26,10 +36,6 @@ sed -i "s%\(^ \+, persistent \+>= 2.0 \+&& <\) 2.2%\1 2.3%" $cf
 sed -i "s%\(^ \+, persistent-postgres \+>= 2.1.1 \+&& <\) 2.2%\1 2.3%" $cf
 sed -i "s%\(^ \+, persistent-sqlite \+>= 2.1.1 \+&& <\) 2.2%\1 2.3%" $cf
 sed -i "s%\(^ \+, persistent-mysql \+>= 2.1.2 \+&& <\) 2.2%\1 2.3%" $cf
-
-echo
-echo "==== Generate a stack.yaml file ===="
-(cd ..; stack init --resolver $STACK_RESOLVER)
 
 echo
 echo "==== Add non-Stackage dependencies to the stack.yaml file ===="
