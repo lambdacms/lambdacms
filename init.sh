@@ -16,7 +16,11 @@ cd $PROJECT_NAME
 
 echo
 echo "==== Install yesod-bin for scaffolding ===="
+echo $STACK_YAML
+export STACK_YAML_BACKUP=$STACK_YAML
+export STACK_YAML=""
 stack install yesod-bin --no-terminal --skip-ghc-check --resolver $STACK_RESOLVER
+export STACK_YAML=$STACK_YAML_BACKUP
 
 echo
 echo "==== Create the appropriate stack.yaml file ===="
