@@ -36,7 +36,7 @@ packages:
 - $PROJECT_NAME-base/
 resolver: $STACK_RESOLVER
 extra-deps:
-- lambdacms-core-0.3.0.1
+- lambdacms-core-0.3.0.2
 - friendly-time-0.4
 - lists-0.4.2
 - list-extras-0.4.1.4
