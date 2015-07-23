@@ -1,6 +1,6 @@
 --- a/Foundation.hs	2015-07-22 22:52:20.271915262 +0200
-+++ b/Foundation.hs	2015-07-22 22:52:23.019910160 +0200
-@@ -5,10 +5,13 @@
++++ b/Foundation.hs	2015-07-23 15:50:49.967268759 +0200
+@@ -5,10 +5,14 @@
  import Text.Hamlet          (hamletFile)
  import Text.Jasmine         (minifym)
  import Yesod.Auth.BrowserId (authBrowserId)
@@ -12,10 +12,11 @@
 +import qualified Network.Wai       as W
 +import LambdaCms.Core
 +import Roles
++
  
  -- | The foundation datatype for your application. This can be a good place to
  -- keep settings and values requiring initialization before your application
-@@ -20,6 +23,7 @@
+@@ -20,6 +24,7 @@
      , appConnPool    :: ConnectionPool -- ^ Database connection pool.
      , appHttpManager :: Manager
      , appLogger      :: Logger
@@ -23,7 +24,7 @@
      }
  
  instance HasHttpManager App where
-@@ -73,11 +77,14 @@
+@@ -73,11 +78,14 @@
      authRoute _ = Just $ AuthR LoginR
  
      -- Routes not requiring authentication.
@@ -43,7 +44,7 @@
  
      -- This function creates static content files in the static folder
      -- and names them based on a hash of their content. This allows
-@@ -120,23 +127,21 @@
+@@ -120,23 +128,26 @@
      type AuthId App = UserId
  
      -- Where to send a user after successful login
@@ -60,7 +61,11 @@
 -        return $ case x of
 -            Just (Entity uid _) -> Authenticated uid
 -            Nothing -> UserError InvalidLogin
++    -- Do more then just authenticating (keep ActionLog)
 +    authenticate = authenticateByLambdaCms
++
++    -- Check if account is active when validating the session on each request to admin section
++    maybeAuthId = lambdaCmsMaybeAuthId
  
      -- You can add other plugins like BrowserID, email or OAuth here
      authPlugins _ = [authBrowserId def]
@@ -69,10 +74,11 @@
  
 +    authLayout = adminAuthLayout
 +
++
  instance YesodAuthPersist App
  
  -- This instance is required to use forms. You can modify renderMessage to
-@@ -154,3 +159,37 @@
+@@ -154,3 +165,37 @@
  -- https://github.com/yesodweb/yesod/wiki/Sending-email
  -- https://github.com/yesodweb/yesod/wiki/Serve-static-files-from-a-separate-domain
  -- https://github.com/yesodweb/yesod/wiki/i18n-messages-in-the-scaffolding

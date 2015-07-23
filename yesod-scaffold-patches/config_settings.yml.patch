@@ -8,4 +8,4 @@
 +# Fill in the initial admin's email address below.
 +# To use Mozilla Persona for login, the email address
 +# needs to be registered with that service. (Recommended)
-+admin: "_env:LAMBDACMS_ADMIN:info@lambdacms.org"
++admin: "_env:LAMBDACMS_ADMIN:admin@lambdacms.com"

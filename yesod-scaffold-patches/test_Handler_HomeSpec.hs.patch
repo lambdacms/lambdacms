@@ -1,9 +1,10 @@
 --- a/test/Handler/HomeSpec.hs	2015-07-22 22:52:20.271915262 +0200
-+++ b/test/Handler/HomeSpec.hs	2015-07-22 22:52:23.023910152 +0200
-@@ -8,25 +8,3 @@
++++ b/test/Handler/HomeSpec.hs	2015-07-23 08:52:26.353922342 +0200
+@@ -7,26 +7,4 @@
+     it "loads the index and checks it looks right" $ do
          get HomeR
          statusIs 200
-         htmlAllContain "h1" "Welcome to Yesod"
+-        htmlAllContain "h1" "Welcome to Yesod"
 -
 -        request $ do
 -            setMethod "POST"
@@ -26,3 +27,4 @@
 -        statusIs 200
 -        users <- runDB $ selectList ([] :: [Filter User]) []
 -        assertEqual "user table empty" 0 $ length users
++        htmlAllContain "h1" "Welcome to LambdaCms!"
