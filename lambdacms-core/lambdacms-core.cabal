@@ -1,7 +1,7 @@
 name:               lambdacms-core
-version:            0.3.0.1
+version:            0.3.0.2
 license:            MIT
-license-file:       ../LICENSE
+license-file:       LICENSE
 author:             Cies Breijs, Mats Rietdijk, Rutger van Aalst
 maintainer:         cies@AT-hoppinger.com
 copyright:          (c) 2014-2015 Hoppinger
@@ -47,6 +47,7 @@ library
   other-modules:    LambdaCms.Core.Models
                   , LambdaCms.Core.Classes
                   , LambdaCms.Core.Import
+                  , LambdaCms.Core.Handler.ActionLog
                   , LambdaCms.Core.Handler.Home
                   , LambdaCms.Core.Handler.Static
                   , LambdaCms.Core.Handler.User

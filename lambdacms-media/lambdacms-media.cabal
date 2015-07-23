@@ -1,7 +1,7 @@
 name:               lambdacms-media
 version:            0.3.0.1
 license:            MIT
-license-file:       ../LICENSE
+license-file:       LICENSE
 author:             Mats Rietdijk, Cies Breijs
 maintainer:         mats@AT-hoppinger.com
 copyright:          (c) 2014-2015 Hoppinger BV
