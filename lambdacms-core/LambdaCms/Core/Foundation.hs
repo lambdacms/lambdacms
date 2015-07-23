@@ -252,11 +252,12 @@ class ( YesodAuth master
                 Just n' -> n' <> " " <> e'
                 Nothing -> e'
 
+-- | Ensures the admin user's lastLogin property is updated with logging in.
 authenticateByLambdaCms :: LambdaCmsAdmin master
                         => Creds master
                         -> HandlerT master IO (AuthenticationResult master)
 authenticateByLambdaCms creds = runDB $ do
-    user <- getBy $ UniqueUser $ credsIdent creds
+    user <- getBy $ UniqueAuth (credsIdent creds) True
     case user of
         Just (Entity uid _) -> do
             timeNow <- liftIO getCurrentTime
@@ -264,6 +265,10 @@ authenticateByLambdaCms creds = runDB $ do
             return $ Authenticated uid
         Nothing -> return $ UserError InvalidLogin
 
+-- | Replace 'defaultMaybeAuthId' with this function to ensure (for every
+-- request to the admin interface) that admin users are required to have
+-- an active account.
+-- TODO: Provide a bit more feedback then the standard 404 page when denying access.
 lambdaCmsMaybeAuthId :: LambdaCmsAdmin master
                      => HandlerT master IO (Maybe (AuthId master))
 lambdaCmsMaybeAuthId = do

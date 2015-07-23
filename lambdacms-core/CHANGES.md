@@ -4,6 +4,12 @@ Change log
 #### dev
 * ...
 
+#### 0.3.0.1
+* Fix authentication
+
+#### 0.3.0.0
+* Small change to API
+
 #### 0.2.0.0
 * Use GHC 7.10 with Stackage `nightly-2015-07-09`
 * Use Stack
