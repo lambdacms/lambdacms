@@ -22,11 +22,10 @@ The only mandatory package is `lambdacms-core`, it provides
 functionality that all other `lambdacms-*` packages depend on.
 
 As mentioned, each `lambdacms-*` package contains a subsite which is
-"mounted" in a standard Yesod application, which we will refer to as
-"the base application" or simply "base".
-Before a packaged subsite can be mounted, the package needs to be
-included as a dependency to the base app's `.cabal` file.  After that
-some glue code needs to be added to the base app, as explained below.
+"mounted" in a standard Yesod application we call the "base application",
+or simply "base".
+To mount a packaged subsite specify it as a dependency to the base app's
+`.cabal` file and add some glue code as explained below.
 
 In the base app we have to:
 
@@ -45,7 +44,12 @@ In the base app we optionally may also:
 
 # 2. Setting up a site with LambdaCms
 
-This section walk through the steps of setting up a site with LambdaCms.
+This section describes the steps of setting up a site with LambdaCms.
+
+For the purpose of integration testing we also provide a
+[script that covers the steps below](https://github.com/lambdacms/lambdacms/blob/master/init.sh).
+We recommend following the steps below as it provides more guidance
+and helps to understand the inner workings.
 
 **NOTE:** We're currently in the process using
 [`stack`](https://github.com/commercialhaskell/stack), and upgrading to
