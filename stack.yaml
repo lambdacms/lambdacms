@@ -6,5 +6,5 @@ extra-deps:
 - friendly-time-0.4
 - lists-0.4.2
 - list-extras-0.4.1.4
-resolver: nightly-2015-07-09
+resolver: nightly-2015-07-24
 

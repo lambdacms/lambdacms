@@ -3,7 +3,7 @@
 set -e
 
 echo "==== CONFIG ===="
-echo "Stack resolver:     " ${STACK_RESOLVER:=nightly-2015-07-09}
+echo "Stack resolver:     " ${STACK_RESOLVER:=nightly-2015-07-24}
 echo "Project name:       " ${PROJECT_NAME:=mysite}
 echo "Database type:      " ${PROJECT_DB:=sqlite}  ;# other values: postgres, mysql
 echo "Admin email address:" ${ADMIN_EMAIL:=admin@lambdacms.org}
@@ -56,6 +56,7 @@ sed -i "s%\(^ \+, persistent \+>= 2.0 \+&& <\) 2.2%\1 2.3%" $cf
 sed -i "s%\(^ \+, persistent-postgres \+>= 2.1.1 \+&& <\) 2.2%\1 2.3%" $cf
 sed -i "s%\(^ \+, persistent-sqlite \+>= 2.1.1 \+&& <\) 2.2%\1 2.3%" $cf
 sed -i "s%\(^ \+, persistent-mysql \+>= 2.1.2 \+&& <\) 2.2%\1 2.3%" $cf
+sed -i "s%\(^ \+, fast-logger \+>= 2.2 \+&& <\) 2.4%\1 2.5%" $cf
 
 # Maybe copy unpatched (helpful for updating the patch files)
 if [ $COPY_UNPATCHED != "no" ]; then

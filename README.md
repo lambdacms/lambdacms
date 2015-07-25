@@ -49,7 +49,7 @@ This section walk through the steps of setting up a site with LambdaCms.
 
 **NOTE:** We're currently in the process using
 [`stack`](https://github.com/commercialhaskell/stack), and upgrading to
-GHC 7.10. This means we will use Stackage's `nightly-2015-07-09` package
+GHC 7.10. This means we will use Stackage's `nightly-2015-07-24` package
 set until LTS 3 is released.
 
 
@@ -119,7 +119,7 @@ First we need to install the `yesod` command, this command requires a
 lot of dependent packages to be downloaded and build (may a while).
 
 ```bash
-stack install yesod-bin --resolver nightly-2015-07-09
+stack install yesod-bin --resolver nightly-2015-07-24
 ```
 
 With the following command you create a "scaffolded" Yesod application.
@@ -138,7 +138,7 @@ Now we will create a `stack.yaml` file for this project which specifies
 the nightly snapshot we would like to use.
 
 ```
-stack init --resolver nightly-2015-07-09
+stack init --resolver nightly-2015-07-24
 ```
 
 **NOTE:** This command complains that the some version constraints in
