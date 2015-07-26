@@ -1,7 +1,8 @@
 lambdacms-media
 ===============
 
-This is an extension for [LambdaCms](http://lambdacms.org) which allows admins to manage media files.
+This is an extension for [LambdaCms](http://lambdacms.org) which allows admins to
+manage media files.
 
 **NOTE:** At this point the functionality provided by this extension is very basic.
 Pull requests adding features are most welcome.
@@ -26,10 +27,16 @@ The media extension's admin section needs to be mounted in the base app's
 router, therefor add the following line to your `config/routes` file:
 
 ```
-/admin/media  MediaAdminSubR       MediaAdmin   getLambdaCmsMedia
+/admin/media  MediaAdminR          MediaAdmin   getLambdaCmsMedia
 ```
 
-To `Application.hs` add `import LambdaCms.Media` and the following line:
+To `Application.hs` add:
+
+```haskell
+import LambdaCms.Media
+```
+
+As well as the following line (see the comment):
 
 ```haskell
 ...
@@ -39,7 +46,7 @@ To `Application.hs` add `import LambdaCms.Media` and the following line:
 ...
 ```
 
-The procede by including the `migrateLambdaCmsMedia` function to `Application.hs`
+Then proceed by including the `migrateLambdaCmsMedia` function to `Application.hs`
 as shown in this snippet:
 
 ```haskell
@@ -51,7 +58,8 @@ as shown in this snippet:
 ```
 
 
-To `Foundation.hs` also add `import LambdaCms.Media` and the following two lines:
+To `Foundation.hs` also add `import LambdaCms.Media` and the following two
+lines (see comments):
 
 ```haskell
 ...
@@ -71,7 +79,7 @@ Finally the following instance needs to be defined in `Foundation.hs`:
 
 ```haskell
 instance LambdaCmsMedia App where
-  mediaR       = MediaAdminSubR
+  mediaR       = MediaAdminR
   staticDir y  = appStaticDir $ appSettings y
   staticRoot _ = "/static"
 ```

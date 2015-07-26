@@ -6,7 +6,7 @@
 {-# LANGUAGE FlexibleContexts    #-}
 
 module LambdaCms.Media.Handler.Media
-    ( getMediaAdminR
+    ( getMediaAdminIndexR
     , getMediaAdminNewR
     , postMediaAdminNewR
     , getMediaAdminEditR
@@ -25,7 +25,7 @@ import           System.Directory
 import           System.FilePath
 
 
-getMediaAdminR         :: MediaHandler Html
+getMediaAdminIndexR    :: MediaHandler Html
 getMediaAdminNewR      :: MediaHandler Html
 postMediaAdminNewR     :: MediaHandler Html
 getMediaAdminEditR     :: MediaId -> MediaHandler Html
@@ -33,7 +33,7 @@ patchMediaAdminEditR   :: MediaId -> MediaHandler Html
 deleteMediaAdminEditR  :: MediaId -> MediaHandler Html
 patchMediaAdminRenameR :: MediaId -> MediaHandler Html
 
-getMediaAdminR = lift $ do
+getMediaAdminIndexR = lift $ do
     can <- getCan
     -- Following line needs +XFlexibleContexts in GHC 7.10+
     let indexItem file mroute = $(widgetFile "index_item")
@@ -57,7 +57,7 @@ postMediaAdminNewR = do
             (location, ctype) <- upload fileF (unpack nameF)
             _ <- lift . runDB . insert $ Media location ctype labelF descriptionF now
             lift . setMessageI $ Msg.SaveSuccess labelF
-            redirect MediaAdminR
+            redirect MediaAdminIndexR
         _ -> lift $ do
             can <- getCan
             adminLayout $ do
@@ -98,7 +98,7 @@ deleteMediaAdminEditR fileId = do
     case isDeleted of
         True -> do
             lift . setMessageI $ Msg.DeleteSuccess (mediaLabel file)
-            redirect MediaAdminR
+            redirect MediaAdminIndexR
         False -> do
             lift . setMessageI $ Msg.DeleteFail (mediaLabel file)
             redirect $ MediaAdminEditR fileId

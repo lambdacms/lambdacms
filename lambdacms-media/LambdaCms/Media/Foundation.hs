@@ -56,7 +56,7 @@ class LambdaCmsAdmin master => LambdaCmsMedia master where
     renderMediaMessage _ _ = defaultMessage
 
 defaultMediaAdminMenu :: LambdaCmsMedia master => (Route MediaAdmin -> Route master) -> [AdminMenuItem master]
-defaultMediaAdminMenu tp = [ MenuItem (SomeMessage Msg.MenuMedia) (tp MediaAdminR) "picture" ]
+defaultMediaAdminMenu tp = [ MenuItem (SomeMessage Msg.MenuMedia) (tp MediaAdminIndexR) "picture" ]
 
 attachedMaybeMedia :: LambdaCmsMedia master
                        => model

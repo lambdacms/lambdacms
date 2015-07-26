@@ -1,6 +1,6 @@
 <div .row>
     <div .col-xs-12>
-        $maybe r <- can (mediaR MediaAdminR) "GET"
+        $maybe r <- can (mediaR MediaAdminIndexR) "GET"
             <a href=@{r}>
                 <span .glyphicon .glyphicon-arrow-left>
                 _{Msg.Back}
