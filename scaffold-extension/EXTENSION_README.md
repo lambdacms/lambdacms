@@ -1,3 +1,6 @@
-# %PACKAGE% %LC_MODEL% extension
+# LambdaCms %LC_PACKAGE%-%LC_MODEL% extension
 
-%PACKAGE% %LC_MODEL% extensions allows admins to manage %LC_MODEL%s
+%LC_PACKAGE% %LC_MODEL% extension allows admins to manage %LC_MODEL%s.
+
+This contains a [Yesod](http://www.yesodweb.com) subsite to be used with
+[LambdaCms](http://lambdacms.org).

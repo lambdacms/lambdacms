@@ -6,13 +6,13 @@
                 _{Msg.Back}
 <div .page-header>
     <h1>_{Msg.%MODEL%Index}
-    $maybe r <- can (%LC_MODEL%R %MODEL%AdminNewR) "GET"
+    $maybe r <- can (%LCC_MODEL%R %MODEL%AdminNewR) "GET"
         <a .btn .btn-primary .btn-xs href=@{r}>
             <span .glyphicon .glyphicon-plus>
             _{Msg.New%MODEL%}
 <div .row>
     <div .col-xs-12>
-        $if null %LC_MODEL%s
+        $if null %LCC_MODEL%s
             <p .alert .alert-info>_{Msg.No%MODEL%sFound}
         $else
             <div .table-responsive>
@@ -22,12 +22,12 @@
                             <th>_{Msg.Title}
                             <th>_{Msg.CreatedOn}
                     <tbody>
-                        $forall (Entity %LC_MODEL%Id %LC_MODEL%) <- %LC_MODEL%s
-                            $with mroute <- can (%LC_MODEL%R $ %MODEL%AdminEditR %LC_MODEL%Id) "GET"
+                        $forall (Entity %LCC_MODEL%Id %LCC_MODEL%) <- %LCC_MODEL%s
+                            $with mroute <- can (%LCC_MODEL%R $ %MODEL%AdminEditR %LCC_MODEL%Id) "GET"
                                 <tr :isJust mroute:onclick="document.location.href='@{fromJust mroute}'">
                                     <td>
                                         $maybe r <- mroute
-                                            <a href=@{r}>#{%LC_MODEL%Title %LC_MODEL%}
+                                            <a href=@{r}>#{%LCC_MODEL%Title %LCC_MODEL%}
                                         $nothing
-                                            #{%LC_MODEL%Title %LC_MODEL%}
-                                    <td>#{show $ utctDay $ %LC_MODEL%CreatedAt %LC_MODEL%}
+                                            #{%LCC_MODEL%Title %LCC_MODEL%}
+                                    <td>#{show $ utctDay $ %LCC_MODEL%CreatedAt %LCC_MODEL%}

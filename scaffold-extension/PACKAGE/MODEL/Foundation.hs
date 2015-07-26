@@ -6,6 +6,7 @@
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE ViewPatterns          #-}
+{-# OPTIONS_GHC -fno-warn-orphans  #-}
 
 module %PACKAGE%.%MODEL%.Foundation where
 
@@ -32,7 +33,7 @@ type %MODEL%Handler a = forall master. %PACKAGE%%MODEL% master => HandlerT %MODE
 type %MODEL%Form x = forall master. %PACKAGE%%MODEL% master => Html -> MForm (HandlerT master IO) (FormResult x, WidgetT master IO ())
 
 class LambdaCmsAdmin master => %PACKAGE%%MODEL% master where
-    %LC_MODEL%R :: Route %MODEL%Admin -> Route master
+    %LCC_MODEL%R :: Route %MODEL%Admin -> Route master
 
     render%MODEL%Message :: master
                        -> [Text]
@@ -58,10 +59,10 @@ translate%MODEL%Logs :: forall b master.
                      , RenderMessage master b
                      ) => master -> (Text -> b) -> %MODEL% -> [(Text, Text)]
 translate%MODEL%Logs y msg e = map (id &&& messageFor) $ renderLanguages y
-    where messageFor lang = renderMessage y [lang] . msg $ %LC_MODEL%Title e
+    where messageFor lang = renderMessage y [lang] . msg $ %LCC_MODEL%Title e
 
 log%MODEL% :: %PACKAGE%%MODEL% master => %MODEL% -> HandlerT master IO [(Text, Text)]
-log%MODEL% %LC_MODEL% = do
+log%MODEL% %LCC_MODEL% = do
     y <- getYesod
     method <- waiRequest >>= return . requestMethod
-    return $ logMessage y method %LC_MODEL%
+    return $ logMessage y method %LCC_MODEL%

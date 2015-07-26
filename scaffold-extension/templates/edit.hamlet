@@ -1,12 +1,12 @@
 <div .row>
     <div .col-xs-12>
-        $maybe r <- can (%LC_MODEL%R %MODEL%AdminIndexR) "GET"
+        $maybe r <- can (%LCC_MODEL%R %MODEL%AdminIndexR) "GET"
             <a href=@{r}>
                 <span .glyphicon .glyphicon-arrow-left>
                 _{Msg.Back}
 <div .page-header>
     <h1>_{Msg.Edit%MODEL%}
-    $maybe r <- can (%LC_MODEL%R $ %MODEL%AdminEditR %LC_MODEL%Id) "DELETE"
+    $maybe r <- can (%LCC_MODEL%R $ %MODEL%AdminEditR %LCC_MODEL%Id) "DELETE"
         <form .form-inline .display-inline method=POST action=@{r}>
             <input name="_method" type="hidden" value="DELETE" />
             <button .btn .btn-danger type=submit>
@@ -19,13 +19,13 @@
                 <tbody>
                     <tr>
                         <td>_{Msg.Title}
-                        <td .text-right>#{%LC_MODEL%Title %LC_MODEL%}
+                        <td .text-right>#{%LCC_MODEL%Title %LCC_MODEL%}
                     <tr>
                         <td>_{Msg.CreatedOn}
-                        <td .text-right>#{show $ utctDay $ %LC_MODEL%CreatedAt %LC_MODEL%}
+                        <td .text-right>#{show $ utctDay $ %LCC_MODEL%CreatedAt %LCC_MODEL%}
 <div .row>
     <div .col-sm-12 .col-md-9 .col-lg-6>
-        $maybe r <- can (%LC_MODEL%R $ %MODEL%AdminEditR %LC_MODEL%Id) "PATCH"
+        $maybe r <- can (%LCC_MODEL%R $ %MODEL%AdminEditR %LCC_MODEL%Id) "PATCH"
             <div .form-toggle-wrapper>
                 <h2 .form-toggle data-expanded=false>_{Msg.Change%MODEL%Settings}
                 <form role=form method=POST action=@{r} enctype=#{enctype}>
