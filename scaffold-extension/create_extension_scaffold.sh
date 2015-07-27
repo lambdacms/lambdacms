@@ -16,7 +16,9 @@ model=$2
 lc_package=$(echo "$package" | tr '[:upper:]' '[:lower:]')
 lc_model=$(echo "$model" | tr '[:upper:]' '[:lower:]')
 lcc_model=$(echo "$model" | cut -c1-1 | tr '[:upper:]' '[:lower:]')$(echo "$model" | cut -c2-99)
+lcs_model=$(echo "$model" | sed 's/\([A-Z][^A-Z]\)/ \1/g' | tr '[:upper:]' '[:lower:]')
 lc_combined="${lc_package}-${lc_model}"
+
 files=($(find PACKAGE -type f))
 files+=($(find config -type f))
 files+=($(find templates -type f))
@@ -30,6 +32,7 @@ for f in ${files[@]}; do
     sed "s/%LC_PACKAGE%/$lc_package/g" "$f" >replacement && mv replacement "$f"
     sed "s/%LC_MODEL%/$lc_model/g" "$f" >replacement && mv replacement "$f"
     sed "s/%LCC_MODEL%/$lcc_model/g" "$f" >replacement && mv replacement "$f"
+    sed "s/%LCS_MODEL%/$lcs_model/g" "$f" >replacement && mv replacement "$f"
   fi
 done
 
