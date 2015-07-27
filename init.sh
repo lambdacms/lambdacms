@@ -58,6 +58,10 @@ sed -i "s%\(^ \+, persistent-sqlite \+>= 2.1.1 \+&& <\) 2.2%\1 2.3%" $cf
 sed -i "s%\(^ \+, persistent-mysql \+>= 2.1.2 \+&& <\) 2.2%\1 2.3%" $cf
 sed -i "s%\(^ \+, fast-logger \+>= 2.2 \+&& <\) 2.4%\1 2.5%" $cf
 
+echo
+echo "==== Set the name of the executable ===="
+sed -i "s%\(^executable \+\w\+\)-base%\1%" $cf
+
 # Maybe copy unpatched (helpful for updating the patch files)
 if [ $COPY_UNPATCHED != "no" ]; then
   echo
