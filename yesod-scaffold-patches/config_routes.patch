@@ -11,5 +11,5 @@
 +/ HomeR GET
 +
 +/admin/auth   AuthR                Auth         getAuth
-+/admin/core   CoreAdminR           CoreAdmin    getLambdaCms
 +/admin        AdminHomeRedirectR   GET
++/admin/core   CoreAdminR           CoreAdmin    getLambdaCms
