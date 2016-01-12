@@ -3,8 +3,12 @@ lambdacms-core
 
 Provides functionality that all other `lambdacms-*` packages depend on.
 This package provides a [Yesod](http://yesodweb.com) subsite containing the
-basic functionality of a CMS's admin section and all code that is shared
-between the admin sections of *extensions*.
+basic functionality of a CMS's admin section and provides a fundament for
+the admin sections of *extensions*.
+
+This package provides two
+[models](https://github.com/lambdacms/lambdacms/blob/master/lambdacms-core/config/models),
+namely `User` and `ActionLog`.
 
 Please refer to
 [the main README of LambdaCms](https://github.com/lambdacms/lambdacms)
