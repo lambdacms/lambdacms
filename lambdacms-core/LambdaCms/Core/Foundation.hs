@@ -28,7 +28,8 @@ import           Data.Time.Format.Human
 import           Data.Traversable           (forM)
 import           Database.Persist.Sql       (SqlBackend)
 import           LambdaCms.Core.Message     (CoreMessage, defaultMessage,
-                                             dutchMessage, englishMessage)
+                                             dutchMessage, englishMessage,
+                                             russianMessage)
 import qualified LambdaCms.Core.Message     as Msg
 import           LambdaCms.Core.Models
 import           LambdaCms.Core.Settings
@@ -217,6 +218,7 @@ class ( YesodAuth master
         case (lang `elem` (renderLanguages m), lang) of
             (True, "en") -> englishMessage
             (True, "nl") -> dutchMessage
+            (True, "ru") -> russianMessage
             _ -> renderCoreMessage m langs
     renderCoreMessage _ _ = defaultMessage
 
