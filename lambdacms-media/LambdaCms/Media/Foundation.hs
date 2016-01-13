@@ -18,7 +18,8 @@ import           Yesod
 import           LambdaCms.Core
 
 import           LambdaCms.Media.Message (MediaMessage, defaultMessage,
-                                          dutchMessage, englishMessage)
+                                          dutchMessage, englishMessage,
+                                          russianMessage)
 import qualified LambdaCms.Media.Message as Msg
 import           LambdaCms.Media.Models
 
@@ -52,6 +53,7 @@ class LambdaCmsAdmin master => LambdaCmsMedia master where
         case (lang `elem` (renderLanguages m), lang) of
             (True, "en") -> englishMessage
             (True, "nl") -> dutchMessage
+            (True, "ru") -> russianMessage
             _ -> renderMediaMessage m langs
     renderMediaMessage _ _ = defaultMessage
 

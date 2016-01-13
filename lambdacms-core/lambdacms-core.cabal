@@ -1,5 +1,5 @@
 name:               lambdacms-core
-version:            0.3.0.2
+version:            0.3.0.3
 license:            MIT
 license-file:       LICENSE
 author:             Cies Breijs, Mats Rietdijk, Rutger van Aalst
@@ -54,8 +54,9 @@ library
                   , LambdaCms.I18n
                   , LambdaCms.I18n.Dutch
                   , LambdaCms.I18n.Italian
+                  , LambdaCms.I18n.Russian
 
-  build-depends:    base                               >= 4.3     && < 5
+  build-depends:    base                               >= 4.6     && < 5
                   , yesod
                   , yesod-core
                   , yesod-auth

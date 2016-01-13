@@ -7,9 +7,12 @@ module LambdaCms.Core.Message
          -- * All languages
        , englishMessage
        , dutchMessage
+       , russianMessage
        ) where
 
-import           Data.Text   (Text)
+import           Data.Monoid ((<>))
+import           Data.Text   (Text, unpack)
+import           Text.Read   (readMaybe)
 
 
 data CoreMessage =
@@ -269,3 +272,128 @@ dutchMessage (WelcomeTitle name)             = "Welkom, " `mappend` name `mappen
 dutchMessage (WelcomeIntro site)             = "Je bekijkt de beheeromgeving van " `mappend` site `mappend` ", die gebouwd is met behulp van LambdaCms."
 dutchMessage WelcomeMenu                     = "Met het menu aan de linker kant kan je navigeren door de beheeromgeving om deze website te beheren."
 dutchMessage WelcomeInfo                     = "Voor meer informatie over LambdaCms kan je terecht op <a href='http://www.lambdacms.org'>www.lambdacms.org</a>."
+
+russianMessage :: CoreMessage -> Text
+russianMessage Dashboard                       = "Панель инструментов"
+russianMessage LambdaCms                       = "LambdaCms"
+russianMessage NotLoggedIn                     = "Вход не выполнен"
+russianMessage You                             = "Вы"
+russianMessage Logout                          = "Выход"
+russianMessage AccountSettings                 = "Настройки учётной записи"
+russianMessage UserIndex                       = "Просмотр пользователей"
+russianMessage EmailAddress                    = "Адрес эл.почты"
+russianMessage NewUser                         = "Новый пользователь"
+russianMessage (EditUser name)                 = name
+russianMessage ChangeAccountSettings           = "Изменить настройки учётной записи"
+russianMessage ChangeRoles                     = "Выберите роли"
+russianMessage ChangePassword                  = "Изменить пароль"
+russianMessage ResetPassword                   = "Сбросить пароль"
+russianMessage RequestResetToken_Text          = "Сбросить пароль данного пользователя и отправить ему на эл.почту новое проверочное письмо"
+russianMessage RequestResetToken_Button        = "Запросить сброс пароля"
+russianMessage PasswordResetTokenSend          = "Ссылка для сброса пароля выслана"
+russianMessage PasswordTooShort                = "Слишком короткий пароль"
+russianMessage PasswordMismatch                = "Пароли не совпадают"
+russianMessage Username                        = "Имя пользователя"
+russianMessage Password                        = "Пароль"
+russianMessage Roles                           = "Роли"
+russianMessage Confirm                         = "Подтвердить"
+russianMessage Create                          = "Создать"
+russianMessage Save                            = "Сохранить"
+russianMessage Submit                          = "Отправить"
+russianMessage Change                          = "Изменить"
+russianMessage Back                            = "Назад"
+russianMessage BackHome                        = "на главную страницу"
+russianMessage Remove                          = "Удалить"
+russianMessage Deactivate                      = "Деактивировать"
+russianMessage Activate                        = "Активировать"
+russianMessage UserDeactivated                 = "Пользователь деактивирован"
+russianMessage UserActivated                   = "Пользователь активирован"
+russianMessage UserStillPending                = "Невозможно выполнить действие, пользователь ещё не прошёл проверку"
+russianMessage CreatedOn                       = "Создан"
+russianMessage LastLogin                       = "Последний вход"
+russianMessage AccountStatus                   = "Настройки учётной записи"
+russianMessage AccountPending                  = "Ожидает проверки"
+russianMessage AccountActive                   = "Активный"
+russianMessage AccountInactive                 = "Неактивный"
+russianMessage AccountAlreadyActivated         = "Эта учётная запись уже активирована"
+russianMessage ActivationSuccess               = "Учётная запись успешно активирована"
+russianMessage TokenMismatch                   = "Неверный ключ"
+russianMessage NoUsersFound                    = "Пользователей не найдено."
+russianMessage SuccessCreate                   = "Создание прошло успешно"
+russianMessage SuccessReplace                  = "Замена прошла успешно"
+russianMessage SuccessUpdate                   = "Обновление прошло успешно"
+russianMessage SuccessChgPwd                   = "Пароль успешно изменён"
+russianMessage SuccessDelete                   = "Удаление прошло успешно"
+russianMessage MenuDashboard                   = russianMessage Dashboard
+russianMessage MenuUsers                       = "Пользователи"
+russianMessage (DeletedUser name)              = "Пользователь " `mappend` name `mappend` " удалён"
+russianMessage TimeJustNow                     = "Только что"
+russianMessage (TimeSecondsAgo time)           = pluralCountRu time RuWordSecond `mappend` ruAgo
+russianMessage TimeOneMinuteAgo                = "минуту назад"
+russianMessage (TimeMinutesAgo time)           = pluralCountRu time RuWordMinute `mappend` ruAgo
+russianMessage TimeOneHourAgo                  = "час назад"
+russianMessage (TimeAboutHoursAgo time)        = "около " `mappend` pluralCountRu time RuWordHour `mappend` ruAgo
+russianMessage (TimeAt time)                   = "в " `mappend` time
+russianMessage (TimeDaysAgo time)              = pluralCountRu time RuWordDay `mappend` ruAgo
+russianMessage (TimeWeekAgo time)              = russianMessage (TimeWeeksAgo time)
+russianMessage (TimeWeeksAgo time)             = pluralCountRu time RuWordWeek `mappend` ruAgo
+russianMessage (TimeOnYear time)               = "в " `mappend` time
+russianMessage DayOfWeekFmt                    = "%A, %l:%M %p"
+russianMessage ActionLogIndex                  = "Действия"
+russianMessage NoActionLogsFound               = "Действий пока не было"
+russianMessage (LogCreatedUser name)           = "Создан новый пользователь \"" `mappend` name `mappend` "\""
+russianMessage (LogUpdatedUser name)           = "Обновлён пользователь \"" `mappend` name `mappend` "\" "
+russianMessage (LogDeletedUser name)           = "Удалён пользователь \"" `mappend` name `mappend` "\""
+russianMessage (LogChangedPasswordUser name)   = "Изменён пароль пользователя \"" `mappend` name `mappend` "\""
+russianMessage (LogRequestedPasswordUser name) = "Пользователю \"" `mappend` name `mappend` "\" выслан ключ для сброса пароля"
+russianMessage (LogDeactivatedUser name)       = "Деактивирован пользователь \"" `mappend` name `mappend` "\""
+russianMessage (LogActivatedUser name)         = "Активирован пользователь \"" `mappend` name `mappend` "\""
+russianMessage AllLogs                         = "Все события"
+russianMessage PersonalLogs                    = "Ваша деятельность"
+russianMessage InvalidOffset                   = "Неверное значение сдвига \"offset\""
+russianMessage InvalidLimit                    = "Неверное значение ограничения \"limit\""
+russianMessage LoadMore                        = "загрузить больше"
+russianMessage (WelcomeTitle name)             = "Добро пожаловать, " `mappend` name `mappend` "!"
+russianMessage (WelcomeIntro site)             = "Вы просматриваете интерфейс управления сайта " `mappend` site `mappend` ", основанный на LambdaCms."
+russianMessage WelcomeMenu                     = "С помощью меню слева вы можете перемещаться по интерфейсу и управлять сайтом."
+russianMessage WelcomeInfo                     = "Если вам нужно получить дополнительную информацию о LambdaCms, пожалуйста, посетите <a href='http://www.lambdacms.org'>www.lambdacms.org</a>."
+
+pluralCountRu :: Text -> RussianWord -> Text
+pluralCountRu tn w =
+    case mayRead of
+        Nothing -> pluralCountRu' 0 w -- most common case
+        Just  n -> pluralCountRu' n w
+ where
+   mayRead = readMaybe (unpack tn) :: Maybe Int
+   pluralCountRu' :: Int -> RussianWord -> Text
+   pluralCountRu' n w
+       | n >= 10 && n <= 20   = tn <> " " <> plural0Ru w
+       | rem == 1             = tn <> " " <> plural1Ru w
+       | rem >= 2 && rem <= 4 = tn <> " " <> plural234Ru w
+       | otherwise            = tn <> " " <> plural0Ru w -- 0, 5-9
+     where rem = n `mod` 10
+   plural1Ru RuWordSecond = "секунду"
+   plural1Ru RuWordMinute = "минуту"
+   plural1Ru RuWordHour = "час"
+   plural1Ru RuWordDay = "день"
+   plural1Ru RuWordWeek = "неделю"
+   plural234Ru RuWordSecond = "секунды"
+   plural234Ru RuWordMinute = "минуты"
+   plural234Ru RuWordHour = "часа"
+   plural234Ru RuWordDay = "дня"
+   plural234Ru RuWordWeek = "недели"
+   plural0Ru RuWordSecond = "секунд"
+   plural0Ru RuWordMinute = "минут"
+   plural0Ru RuWordHour = "часов"
+   plural0Ru RuWordDay = "дней"
+   plural0Ru RuWordWeek = "недель"
+
+ruAgo :: Text
+ruAgo = " назад"
+
+data RussianWord
+    = RuWordSecond
+    | RuWordMinute
+    | RuWordHour
+    | RuWordDay
+    | RuWordWeek
