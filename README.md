@@ -201,9 +201,14 @@ If any patches (partly) fail: try to fix it manually editing the files in
 question. If this happens while closely following this README, then please
 [open an issue](https://github.com/lambdacms/lambdacms/issues).
 
-
 You could patch the files individually by manually unrolling the `for` loop
 in the commands above.
+
+In some cases you may want to do manual patching instead (e.g. for existing web
+app), in this case you can simply go through `.patch` files in
+`lambdacms/yesod-scaffold-patches/` subfolder, they are quite self-exlplanatory.
+Alternatively there is a
+[quick overview](https://github.com/lambdacms/lambdacms/blob/master/ManualPatching.md).
 
 
 ### Configure the initial administrator
