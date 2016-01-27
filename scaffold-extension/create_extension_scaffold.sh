@@ -16,7 +16,8 @@ model=$2
 lc_package=$(echo "$package" | tr '[:upper:]' '[:lower:]')
 lc_model=$(echo "$model" | tr '[:upper:]' '[:lower:]')
 lcc_model=$(echo "$model" | cut -c1-1 | tr '[:upper:]' '[:lower:]')$(echo "$model" | cut -c2-99)
-lcs_model=$(echo "$model" | sed 's/\([A-Z][^A-Z]\)/ \1/g' | tr '[:upper:]' '[:lower:]')
+# the `xargs` command "strips" whitespace off the ends of the string
+lcs_model=$(echo "$model" | sed 's/\([A-Z][^A-Z]\)/ \1/g' | tr '[:upper:]' '[:lower:]' | xargs)
 lc_combined="${lc_package}-${lc_model}"
 
 files=($(find PACKAGE -type f))
