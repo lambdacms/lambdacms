@@ -160,7 +160,7 @@ stack install
 
 When you experience problems during builds, while using LTS `3.x`,
 we consider this a bug. Please
-[raise an issue](https://github.com/lambdacms/lambdacms-core/issues).
+[raise an issue](https://github.com/lambdacms/lambdacms/issues).
 
 
 ### Testing the scaffoled Yesod app
