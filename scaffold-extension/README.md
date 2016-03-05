@@ -18,25 +18,28 @@ A more complex example is
 ## Creating the scaffold of a new extension
 
 In the following commands we are going to create an extension for the
-`Testimonial` content type, namespaced in the `MySite` module.
+`Testimonial` content type, namespaced in the `MySite` module, and in
+a package named `mysite-testimonial`.
+
+First we use `git` to download the scaffoling files and script to the
+right directory (named after the package):
 
 ```bash
 export TMP_CLONE=/tmp/lambdacms-clone-for-extension-scaffolding-`date +%s`
 git clone --depth=1 https://github.com/lambdacms/lambdacms.git $TMP_CLONE
 cp -r $TMP_CLONE/scaffold-extension .
 rm -rf $TMP_CLONE
-cd scaffold-extension
+mv scaffold-extension mysite-testimonial
 ```
 
-Here we clone it into the `mysite-post` folder, hinting that we will
-create a `testimonial` extension to a base app called `mysite`.
-
-Pick a module and an extension name to use when creating the extension
-scaffold. In this example we name the extension model **`Testimonial`**
-to be part of the **`MySite`** module (often the same as the module of
-the "base application it will be part of).
+Then we run scaffoling script. We pick a module name and an extension
+name to use when creating the extension scaffold. As mentioned in this
+example we name the extension model **`Testimonial`** which is to
+be part of the **`MySite`** module (often the same as the module of
+the "base application" it will be part of).
 
 ```bash
+cd mysite-testimonial
 ./create_extension_scaffold.sh MySite Testimonial
 ```
 
