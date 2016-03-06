@@ -34,7 +34,7 @@ import qualified LambdaCms.Core.Message     as Msg
 import           LambdaCms.Core.Models
 import           LambdaCms.Core.Settings
 import           LambdaCms.I18n
-import           Network.Gravatar           (GravatarOptions(..), Size(..),
+import           Network.Gravatar           (GravatarOptions (..), Size (..),
                                              def, gravatar)
 import           Network.Mail.Mime
 import           Network.Wai                (requestMethod)
