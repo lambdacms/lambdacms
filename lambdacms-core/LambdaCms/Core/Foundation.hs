@@ -323,6 +323,53 @@ defaultCoreAdminMenu tp =
     , MenuItem (SomeMessage Msg.MenuUsers) (tp $ UserAdminR UserAdminIndexR) "user"
     ]
 
+-- | Default admin layout.
+--
+-- Since 0.3.1.1
+defaultAdminLayout :: ( Yesod s, YesodAuth s
+                      , AuthId s ~ Key User, AuthEntity s ~ User
+                      , LambdaCmsAdmin s)
+                   => WidgetT s IO () -> HandlerT s IO Html
+defaultAdminLayout widget = do
+    auth      <- requireAuth
+    mCurrentR <- getCurrentRoute
+    mmsg      <- getMessage
+    can       <- getCan
+
+    let am = filter (isJust . flip can "GET" . route) adminMenu
+        mActiveMenuR = routeBestMatch mCurrentR $ map route am
+        gravatarSize = 28 :: Int
+        gOpts = def { gSize = Just $ Size $ gravatarSize * 2 {- retina -} }
+
+    pc <- widgetToPageContent $ do
+        adminImportsWidget
+        $(widgetFile "admin-layout")
+    withUrlRenderer $(hamletFile "templates/admin-layout-wrapper.hamlet")
+
+-- | Default admin layout for authorization.
+--
+-- Since 0.3.1.1
+defaultAdminAuthLayout :: ( Yesod s, YesodAuth s
+                          , AuthId s ~ Key User, AuthEntity s ~ User
+                          , LambdaCmsAdmin s)
+                       => WidgetT s IO () -> HandlerT s IO Html
+defaultAdminAuthLayout widget = do
+    mmsg      <- getMessage
+    logoRowId <- newIdent
+
+    pc <- widgetToPageContent $ do
+        adminImportsWidget
+        $(widgetFile "admin-auth-layout")
+    withUrlRenderer $(hamletFile "templates/admin-auth-layout-wrapper.hamlet")
+
+adminImportsWidget :: (Yesod s, LambdaCmsAdmin s)
+                   => WidgetT s IO ()
+adminImportsWidget = do
+    addStylesheet . coreR $ AdminStaticR $ CssAdminR NormalizeR
+    addStylesheet . coreR $ AdminStaticR $ CssAdminR BootstrapCssR
+    addScript . coreR $ AdminStaticR $ JsAdminR JQueryR
+    addScript . coreR $ AdminStaticR $ JsAdminR BootstrapJsR
+
 -- | Shorcut for rendering a subsite Widget in the admin layout.
 adminLayoutSub :: LambdaCmsAdmin master
                   => WidgetT sub IO ()
