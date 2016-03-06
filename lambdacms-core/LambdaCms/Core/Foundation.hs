@@ -163,39 +163,10 @@ class ( YesodAuth master
 
     -- | Applies some form of layout to the contents of an admin section page.
     adminLayout :: WidgetT master IO () -> HandlerT master IO Html
-    adminLayout widget = do
-        auth <- requireAuth
-        mCurrentR <- getCurrentRoute
-        mmsg <- getMessage
-        can <- getCan
-
-        let am = filter (isJust . flip can "GET" . route) adminMenu
-            mActiveMenuR = routeBestMatch mCurrentR $ map route am
-            gravatarSize = 28 :: Int
-            gOpts = def
-                    { gSize = Just $ Size $ gravatarSize * 2 -- retina
-                    }
-
-        pc <- widgetToPageContent $ do
-            addStylesheet $ coreR $ AdminStaticR $ CssAdminR NormalizeR
-            addStylesheet $ coreR $ AdminStaticR $ CssAdminR BootstrapCssR
-            addScript $ coreR $ AdminStaticR $ JsAdminR JQueryR
-            addScript $ coreR $ AdminStaticR $ JsAdminR BootstrapJsR
-            $(widgetFile "admin-layout")
-        withUrlRenderer $(hamletFile "templates/admin-layout-wrapper.hamlet")
+    adminLayout = defaultAdminLayout
 
     adminAuthLayout :: WidgetT master IO () -> HandlerT master IO Html
-    adminAuthLayout widget = do
-        mmsg <- getMessage
-        logoRowId <- newIdent
-
-        pc <- widgetToPageContent $ do
-            addStylesheet $ coreR $ AdminStaticR $ CssAdminR NormalizeR
-            addStylesheet $ coreR $ AdminStaticR $ CssAdminR BootstrapCssR
-            addScript $ coreR $ AdminStaticR $ JsAdminR JQueryR
-            addScript $ coreR $ AdminStaticR $ JsAdminR BootstrapJsR
-            $(widgetFile "admin-auth-layout")
-        withUrlRenderer $(hamletFile "templates/admin-auth-layout-wrapper.hamlet")
+    adminAuthLayout  = defaultAdminAuthLayout
 
     authLogoR :: Route master
     authLogoR = coreR $ AdminStaticR $ ImageAdminR LambdaCmsLogoR
