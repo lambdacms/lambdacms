@@ -1,8 +1,8 @@
+{-# LANGUAGE KindSignatures      #-}
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE RankNTypes          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell     #-}
-
 
 module LambdaCms.Core.Handler.User
   ( getUserAdminIndexR
@@ -238,10 +238,7 @@ getUserAdminEditR userId = do
 -- | Change a user's main properties.
 patchUserAdminEditR :: UserId -> CoreHandler Html
 patchUserAdminEditR userId = do
-    user <- lift . runDB $ get404 userId
-    timeNow <- liftIO getCurrentTime
-    hrtLocale <- lift lambdaCmsHumanTimeLocale
-    urs <- lift $ getUserRoles userId
+    (user, timeNow, hrtLocale, urs) <- updateHelper userId
     (pwFormWidget, pwEnctype) <- lift . generateFormPost $
         userChangePasswordForm Nothing (Just Msg.Change)
     ((formResult, formWidget), enctype) <- lift . runFormPost $
@@ -271,10 +268,7 @@ chpassUserAdminEditR userId = do
     authId <- lift requireAuthId
     if userId == authId
         then do
-            user <- lift . runDB $ get404 userId
-            timeNow <- liftIO getCurrentTime
-            hrtLocale <- lift lambdaCmsHumanTimeLocale
-            urs <- lift $ getUserRoles userId
+            (user, timeNow, hrtLocale, urs) <- updateHelper userId
             (formWidget, enctype) <- lift . generateFormPost $
                 accountSettingsForm user urs (Just Msg.Save)
             opw <- lookupPostParam "original-pw"
@@ -302,6 +296,21 @@ chpassUserAdminEditR userId = do
                         setTitleI . Msg.EditUser $ userName user
                         $(widgetFile "user/edit")
         else error "Can't change this uses password"
+
+-- | Helper function to get data required for some DB updates operations in
+-- handlers.  Removes code duplication.
+updateHelper :: forall (t :: (* -> *) -> * -> *) site.
+                ( MonadTrans t, MonadIO (t (HandlerT site IO))
+                , LambdaCmsAdmin site )
+             => Key User
+             -> t (HandlerT site IO)
+                  (User, UTCTime, HumanTimeLocale, S.Set (Roles site))
+updateHelper userId = do
+    user      <- lift . runDB $ get404 userId
+    timeNow   <- liftIO getCurrentTime
+    hrtLocale <- lift lambdaCmsHumanTimeLocale
+    roles     <- lift $ getUserRoles userId
+    return (user, timeNow, hrtLocale, roles)
 
 -- | Request a user's password to be reset.
 rqpassUserAdminEditR :: UserId -> CoreHandler Html
