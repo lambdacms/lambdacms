@@ -25,6 +25,7 @@ import qualified LambdaCms.Core.Message        as Msg
 import           Yesod                         (Route)
 import           Yesod.Auth                    (Creds (..), requireAuthId,
                                                 setCreds)
+import           Yesod.Auth.Email              (saltPass)
 
 import           Control.Arrow                 ((&&&))
 import           Data.Maybe                    (fromJust, isJust, fromMaybe)
@@ -262,6 +263,9 @@ patchUserAdminEditR userId = do
                 $(widgetFile "user/edit")
 
 -- | Change a user's password.
+--
+-- Since 0.3.1.0
+-- Store hashed passwords using `saltPass` from `Yesod.Auth.Email`.
 chpassUserAdminEditR :: UserId -> CoreHandler Html
 chpassUserAdminEditR userId = do
     authId <- lift requireAuthId
@@ -278,8 +282,17 @@ chpassUserAdminEditR userId = do
                 userChangePasswordForm opw (Just Msg.Change)
             case formResult of
                 FormSuccess f -> do
+                    {- For now it's not clear what is the best way to store
+                    passwords due to different plug-ins may store passwords
+                    differently, but unmodified naked password are insecure
+                    anyway.  The only one default plug-in from `Yesod.Auth`
+                    which stores passwords internally is `Yesod.Auth.Email`,
+                    and since it stores hashed passwords using `saltPass`
+                    function it was decided to default to this approach for now.
+                    -}
+                    saltedPassword <- liftIO . saltPass $ originalPassword f
                     _ <- lift . runDB $
-                        update userId [ UserPassword =. Just (originalPassword f) ]
+                        update userId [ UserPassword =. Just saltedPassword ]
                     lift $ logUser user >>= logAction
                     lift $ setMessageI Msg.SuccessChgPwd
                     redirect $ UserAdminR $ UserAdminEditR userId
