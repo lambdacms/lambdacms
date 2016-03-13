@@ -34,7 +34,7 @@ import qualified LambdaCms.Core.Message     as Msg
 import           LambdaCms.Core.Models
 import           LambdaCms.Core.Settings
 import           LambdaCms.I18n
-import           Network.Gravatar           (GravatarOptions(..), Size(..),
+import           Network.Gravatar           (GravatarOptions (..), Size (..),
                                              def, gravatar)
 import           Network.Mail.Mime
 import           Network.Wai                (requestMethod)
@@ -163,39 +163,10 @@ class ( YesodAuth master
 
     -- | Applies some form of layout to the contents of an admin section page.
     adminLayout :: WidgetT master IO () -> HandlerT master IO Html
-    adminLayout widget = do
-        auth <- requireAuth
-        mCurrentR <- getCurrentRoute
-        mmsg <- getMessage
-        can <- getCan
-
-        let am = filter (isJust . flip can "GET" . route) adminMenu
-            mActiveMenuR = routeBestMatch mCurrentR $ map route am
-            gravatarSize = 28 :: Int
-            gOpts = def
-                    { gSize = Just $ Size $ gravatarSize * 2 -- retina
-                    }
-
-        pc <- widgetToPageContent $ do
-            addStylesheet $ coreR $ AdminStaticR $ CssAdminR NormalizeR
-            addStylesheet $ coreR $ AdminStaticR $ CssAdminR BootstrapCssR
-            addScript $ coreR $ AdminStaticR $ JsAdminR JQueryR
-            addScript $ coreR $ AdminStaticR $ JsAdminR BootstrapJsR
-            $(widgetFile "admin-layout")
-        withUrlRenderer $(hamletFile "templates/admin-layout-wrapper.hamlet")
+    adminLayout = defaultAdminLayout
 
     adminAuthLayout :: WidgetT master IO () -> HandlerT master IO Html
-    adminAuthLayout widget = do
-        mmsg <- getMessage
-        logoRowId <- newIdent
-
-        pc <- widgetToPageContent $ do
-            addStylesheet $ coreR $ AdminStaticR $ CssAdminR NormalizeR
-            addStylesheet $ coreR $ AdminStaticR $ CssAdminR BootstrapCssR
-            addScript $ coreR $ AdminStaticR $ JsAdminR JQueryR
-            addScript $ coreR $ AdminStaticR $ JsAdminR BootstrapJsR
-            $(widgetFile "admin-auth-layout")
-        withUrlRenderer $(hamletFile "templates/admin-auth-layout-wrapper.hamlet")
+    adminAuthLayout  = defaultAdminAuthLayout
 
     authLogoR :: Route master
     authLogoR = coreR $ AdminStaticR $ ImageAdminR LambdaCmsLogoR
@@ -322,6 +293,53 @@ defaultCoreAdminMenu tp =
     [ MenuItem (SomeMessage Msg.MenuDashboard) (tp AdminHomeR) "home"
     , MenuItem (SomeMessage Msg.MenuUsers) (tp $ UserAdminR UserAdminIndexR) "user"
     ]
+
+-- | Default admin layout.
+--
+-- Since 0.3.1.1
+defaultAdminLayout :: ( Yesod s, YesodAuth s
+                      , AuthId s ~ Key User, AuthEntity s ~ User
+                      , LambdaCmsAdmin s)
+                   => WidgetT s IO () -> HandlerT s IO Html
+defaultAdminLayout widget = do
+    auth      <- requireAuth
+    mCurrentR <- getCurrentRoute
+    mmsg      <- getMessage
+    can       <- getCan
+
+    let am = filter (isJust . flip can "GET" . route) adminMenu
+        mActiveMenuR = routeBestMatch mCurrentR $ map route am
+        gravatarSize = 28 :: Int
+        gOpts = def { gSize = Just $ Size $ gravatarSize * 2 {- retina -} }
+
+    pc <- widgetToPageContent $ do
+        adminImportsWidget
+        $(widgetFile "admin-layout")
+    withUrlRenderer $(hamletFile "templates/admin-layout-wrapper.hamlet")
+
+-- | Default admin layout for authorization.
+--
+-- Since 0.3.1.1
+defaultAdminAuthLayout :: ( Yesod s, YesodAuth s
+                          , AuthId s ~ Key User, AuthEntity s ~ User
+                          , LambdaCmsAdmin s)
+                       => WidgetT s IO () -> HandlerT s IO Html
+defaultAdminAuthLayout widget = do
+    mmsg      <- getMessage
+    logoRowId <- newIdent
+
+    pc <- widgetToPageContent $ do
+        adminImportsWidget
+        $(widgetFile "admin-auth-layout")
+    withUrlRenderer $(hamletFile "templates/admin-auth-layout-wrapper.hamlet")
+
+adminImportsWidget :: (Yesod s, LambdaCmsAdmin s)
+                   => WidgetT s IO ()
+adminImportsWidget = do
+    addStylesheet . coreR $ AdminStaticR $ CssAdminR NormalizeR
+    addStylesheet . coreR $ AdminStaticR $ CssAdminR BootstrapCssR
+    addScript . coreR $ AdminStaticR $ JsAdminR JQueryR
+    addScript . coreR $ AdminStaticR $ JsAdminR BootstrapJsR
 
 -- | Shorcut for rendering a subsite Widget in the admin layout.
 adminLayoutSub :: LambdaCmsAdmin master
