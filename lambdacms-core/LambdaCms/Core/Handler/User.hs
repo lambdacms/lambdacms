@@ -1,8 +1,8 @@
+{-# LANGUAGE KindSignatures      #-}
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE RankNTypes          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell     #-}
-
 
 module LambdaCms.Core.Handler.User
   ( getUserAdminIndexR
@@ -25,9 +25,10 @@ import qualified LambdaCms.Core.Message        as Msg
 import           Yesod                         (Route)
 import           Yesod.Auth                    (Creds (..), requireAuthId,
                                                 setCreds)
+import           Yesod.Auth.Email              (saltPass)
 
 import           Control.Arrow                 ((&&&))
-import           Data.Maybe                    (fromJust, isJust, fromMaybe)
+import           Data.Maybe                    (fromJust, fromMaybe, isJust)
 import qualified Data.Set                      as S
 import qualified Data.Text                     as T (breakOn, length, pack,
                                                      takeWhile)
@@ -56,13 +57,13 @@ accountSettingsForm user roles mlabel extra = do
     (unameRes, unameView) <- mreq textField (bfs Msg.Username) (Just $ userName user)
     (emailRes, emailView) <- mreq emailField (bfs Msg.EmailAddress) (Just $ userEmail user)
     -- Roles field
-    (rolesRes, mrolesView) <- case maRoles of
-        True -> do
+    (rolesRes, mrolesView) <- if maRoles
+        then do
             (rolesRes', rolesView) <- mreq (checkboxesField roleList)
                                            "Not used"
                                            (Just $ S.toList roles)
             return (rolesRes', Just rolesView)
-        False -> return (FormSuccess $ S.toList roles, Nothing)
+        else return (FormSuccess $ S.toList roles, Nothing)
 
     let userRes = (\un ue -> user { userName = un, userEmail = ue })
                   <$> unameRes
@@ -99,16 +100,16 @@ generateUserWithEmail e = do
     uuid <- generateUUID
     token <- generateActivationToken
     timeNow <- getCurrentTime
-    return $ User { userIdent     = uuid
-                  , userName      = fst $ T.breakOn "@" e
-                  , userPassword  = Nothing
-                  , userEmail     = e
-                  , userActive    = False
-                  , userToken     = Just token
-                  , userCreatedAt = timeNow
-                  , userLastLogin = Nothing
-                  , userDeletedAt = Nothing
-                  }
+    return User { userIdent     = uuid
+                , userName      = fst $ T.breakOn "@" e
+                , userPassword  = Nothing
+                , userEmail     = e
+                , userActive    = False
+                , userToken     = Just token
+                , userCreatedAt = timeNow
+                , userLastLogin = Nothing
+                , userDeletedAt = Nothing
+                }
 
 -- | Helper to create an empty user.
 emptyUser :: IO User
@@ -125,7 +126,7 @@ validateUserToken user token = case userToken user of
 -- | Send an email to the user with a link containing the activation token.
 sendAccountActivationToken :: Entity User -> CoreHandler ()
 sendAccountActivationToken (Entity userId user) = case userToken user of
-    Just token -> do
+    Just token ->
         lift $ sendMailToUser user "Account activation"
             $(hamletFile "templates/mail/activation-text.hamlet")
             $(hamletFile "templates/mail/activation-html.hamlet")
@@ -134,7 +135,7 @@ sendAccountActivationToken (Entity userId user) = case userToken user of
 -- | Send an email to the user with a link containing the reset token.
 sendAccountResetToken :: Entity User -> CoreHandler ()
 sendAccountResetToken (Entity userId user) = case userToken user of
-    Just token -> do
+    Just token ->
         lift $ sendMailToUser user "Account password reset"
             $(hamletFile "templates/mail/reset-text.hamlet")
             $(hamletFile "templates/mail/reset-html.hamlet")
@@ -199,7 +200,7 @@ getUserAdminNewR = do
 postUserAdminNewR :: CoreHandler Html
 postUserAdminNewR = do
     eu <- liftIO emptyUser
-    drs <- lift $ defaultRoles
+    drs <- lift defaultRoles
     ((formResult, formWidget), enctype) <- lift . runFormPost $
         accountSettingsForm eu drs (Just Msg.Create)
     case formResult of
@@ -237,10 +238,7 @@ getUserAdminEditR userId = do
 -- | Change a user's main properties.
 patchUserAdminEditR :: UserId -> CoreHandler Html
 patchUserAdminEditR userId = do
-    user <- lift . runDB $ get404 userId
-    timeNow <- liftIO getCurrentTime
-    hrtLocale <- lift lambdaCmsHumanTimeLocale
-    urs <- lift $ getUserRoles userId
+    (user, timeNow, hrtLocale, urs) <- updateHelper userId
     (pwFormWidget, pwEnctype) <- lift . generateFormPost $
         userChangePasswordForm Nothing (Just Msg.Change)
     ((formResult, formWidget), enctype) <- lift . runFormPost $
@@ -262,15 +260,15 @@ patchUserAdminEditR userId = do
                 $(widgetFile "user/edit")
 
 -- | Change a user's password.
+--
+-- Since 0.3.1.0
+-- Store hashed passwords using `saltPass` from `Yesod.Auth.Email`.
 chpassUserAdminEditR :: UserId -> CoreHandler Html
 chpassUserAdminEditR userId = do
     authId <- lift requireAuthId
-    case userId == authId of
-        True -> do
-            user <- lift . runDB $ get404 userId
-            timeNow <- liftIO getCurrentTime
-            hrtLocale <- lift lambdaCmsHumanTimeLocale
-            urs <- lift $ getUserRoles userId
+    if userId == authId
+        then do
+            (user, timeNow, hrtLocale, urs) <- updateHelper userId
             (formWidget, enctype) <- lift . generateFormPost $
                 accountSettingsForm user urs (Just Msg.Save)
             opw <- lookupPostParam "original-pw"
@@ -278,8 +276,17 @@ chpassUserAdminEditR userId = do
                 userChangePasswordForm opw (Just Msg.Change)
             case formResult of
                 FormSuccess f -> do
+                    {- For now it's not clear what is the best way to store
+                    passwords due to different plug-ins may store passwords
+                    differently, but unmodified naked password are insecure
+                    anyway.  The only one default plug-in from `Yesod.Auth`
+                    which stores passwords internally is `Yesod.Auth.Email`,
+                    and since it stores hashed passwords using `saltPass`
+                    function it was decided to default to this approach for now.
+                    -}
+                    saltedPassword <- liftIO . saltPass $ originalPassword f
                     _ <- lift . runDB $
-                        update userId [ UserPassword =. Just (originalPassword f) ]
+                        update userId [ UserPassword =. Just saltedPassword ]
                     lift $ logUser user >>= logAction
                     lift $ setMessageI Msg.SuccessChgPwd
                     redirect $ UserAdminR $ UserAdminEditR userId
@@ -288,7 +295,22 @@ chpassUserAdminEditR userId = do
                     adminLayout $ do
                         setTitleI . Msg.EditUser $ userName user
                         $(widgetFile "user/edit")
-        False -> error "Can't change this uses password"
+        else error "Can't change this uses password"
+
+-- | Helper function to get data required for some DB updates operations in
+-- handlers.  Removes code duplication.
+updateHelper :: forall (t :: (* -> *) -> * -> *) site.
+                ( MonadTrans t, MonadIO (t (HandlerT site IO))
+                , LambdaCmsAdmin site )
+             => Key User
+             -> t (HandlerT site IO)
+                  (User, UTCTime, HumanTimeLocale, S.Set (Roles site))
+updateHelper userId = do
+    user      <- lift . runDB $ get404 userId
+    timeNow   <- liftIO getCurrentTime
+    hrtLocale <- lift lambdaCmsHumanTimeLocale
+    roles     <- lift $ getUserRoles userId
+    return (user, timeNow, hrtLocale, roles)
 
 -- | Request a user's password to be reset.
 rqpassUserAdminEditR :: UserId -> CoreHandler Html
@@ -344,7 +366,7 @@ deleteUserAdminEditR userId = do
         uuid <- liftIO generateUUID
         let random = T.takeWhile (/= '-') uuid
         let user = user'
-                 { userEmail = random <> "@@@" <> (userEmail user')
+                 { userEmail = random <> "@@@" <> userEmail user'
                  , userToken = Nothing
                  , userActive = False
                  , userDeletedAt = Just timeNow
@@ -392,9 +414,8 @@ postUserAdminActivateR userId token = do
                     lift $ setMessageI Msg.ActivationSuccess
                     lift . setCreds False $
                         Creds "lambdacms-token-activation" (userEmail user) []
-                    redirect $ AdminHomeR
-                _ -> do
-                    lift . adminAuthLayout $ do
+                    redirect AdminHomeR
+                _ -> lift . adminAuthLayout $ do
                         setTitle . toHtml $ userName user
                         $(widgetFile "user/activate")
         Just False -> lift . adminAuthLayout $ do
