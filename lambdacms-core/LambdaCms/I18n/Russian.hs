@@ -1,9 +1,9 @@
 module LambdaCms.I18n.Russian where
 
-import           Data.Time.Format (TimeLocale(..))
+import           Data.Time.Format (TimeLocale (..))
 
 
--- | Dutch time locale.
+-- | Russian time locale.
 russianTimeLocale :: TimeLocale
 russianTimeLocale =  TimeLocale
     {
