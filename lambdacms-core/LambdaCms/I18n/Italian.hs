@@ -1,6 +1,9 @@
 module LambdaCms.I18n.Italian where
 
 import           Data.Time.Format (TimeLocale(..))
+import           Data.Time.Format.Human (HumanTimeLocale (..))
+import           LambdaCms.Core.Message (CoreMessage (..))
+import           LambdaCms.I18n.Default (defaultHumanTimeLocale)
 
 
 -- | Italian time locale.
@@ -26,3 +29,8 @@ italianTimeLocale =  TimeLocale
         time12Fmt = "%H:%M:%S",
         knownTimeZones = []
     }
+
+-- | Italian 'HumanTimeLocale'
+italianHumanTimeLocale :: (CoreMessage -> String) -> HumanTimeLocale
+italianHumanTimeLocale r = (defaultHumanTimeLocale r)
+    { locale = italianTimeLocale }

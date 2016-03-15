@@ -25,7 +25,8 @@ lambdaCmsSelectHumanTimeLocale ::  [Text]
                                -> (CoreMessage -> String)
                                -- ^ message render function
                                -> HumanTimeLocale
+lambdaCmsSelectHumanTimeLocale ("nl":_) = dutchHumanTimeLocale
+lambdaCmsSelectHumanTimeLocale ("it":_) = italianHumanTimeLocale
 lambdaCmsSelectHumanTimeLocale ("ru":_) = russianHumanTimeLocale
--- When other language will be added uncomment following line.
--- lambdaCmsSelectHumanTimeLocale (_:rest) = lambdaCmsSelectHumanTimeLocale rest
+lambdaCmsSelectHumanTimeLocale (_:rest) = lambdaCmsSelectHumanTimeLocale rest
 lambdaCmsSelectHumanTimeLocale _        = defaultHumanTimeLocale
