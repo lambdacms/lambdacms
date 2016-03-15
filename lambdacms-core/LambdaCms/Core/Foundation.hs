@@ -20,10 +20,9 @@ import           Data.Monoid                ((<>))
 import           Data.Ord                   (comparing)
 import           Data.Set                   (Set)
 import qualified Data.Set                   as S (empty, intersection, null)
-import           Data.Text                  (Text, concat, intercalate, pack,
-                                             unpack)
+import           Data.Text                  (Text, concat, intercalate, unpack)
 import           Data.Text.Encoding         (decodeUtf8)
-import           Data.Time                  (getCurrentTime, utc)
+import           Data.Time                  (getCurrentTime)
 import           Data.Time.Format.Human
 import           Data.Traversable           (forM)
 import           Database.Persist.Sql       (SqlBackend)
@@ -361,24 +360,8 @@ lambdaCmsHumanTimeLocale = do
     langs <- languages
     y <- getYesod
     let rm = unpack . renderMessage y langs
-    return $ HumanTimeLocale
-        { justNow       = rm Msg.TimeJustNow
-        , secondsAgo    = (\_ x -> rm . Msg.TimeSecondsAgo $ pack x)
-        , oneMinuteAgo  = (\_   -> rm Msg.TimeOneMinuteAgo)
-        , minutesAgo    = (\_ x -> rm . Msg.TimeMinutesAgo $ pack x)
-        , oneHourAgo    = (\_   -> rm Msg.TimeOneHourAgo)
-        , aboutHoursAgo = (\_ x -> rm . Msg.TimeAboutHoursAgo $ pack x)
-        , at            = (\_ x -> rm $ Msg.TimeAt $ pack x)
-        , daysAgo       = (\_ x -> rm . Msg.TimeDaysAgo $ pack x)
-        , weekAgo       = (\_ x -> rm . Msg.TimeWeekAgo $ pack x)
-        , weeksAgo      = (\_ x -> rm . Msg.TimeWeeksAgo $ pack x)
-        , onYear        = rm . Msg.TimeOnYear . pack
-        , locale        = lambdaCmsTimeLocale langs
-        , dayOfWeekFmt  = rm Msg.DayOfWeekFmt
-        , thisYearFmt   = "%b %e"
-        , prevYearFmt   = "%b %e, %Y"
-        , timeZone      = utc
-        }
+        htl = lambdaCmsSelectHumanTimeLocale langs rm
+    return htl
 
 routeBestMatch :: RenderRoute master
                   => Maybe (Route master)
