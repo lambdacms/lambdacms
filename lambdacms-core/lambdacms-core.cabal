@@ -52,6 +52,7 @@ library
                   , LambdaCms.Core.Handler.Static
                   , LambdaCms.Core.Handler.User
                   , LambdaCms.I18n
+                  , LambdaCms.I18n.Default
                   , LambdaCms.I18n.Dutch
                   , LambdaCms.I18n.Italian
                   , LambdaCms.I18n.Russian
