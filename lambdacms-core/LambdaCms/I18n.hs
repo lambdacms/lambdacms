@@ -14,4 +14,5 @@ lambdaCmsTimeLocale :: [Text] -> TimeLocale
 lambdaCmsTimeLocale ("nl":_) = dutchTimeLocale
 lambdaCmsTimeLocale ("it":_) = italianTimeLocale
 lambdaCmsTimeLocale ("ru":_) = russianTimeLocale
-lambdaCmsTimeLocale _        = defaultTimeLocale
+lambdaCmsTimeLocale (_:rest) = lambdaCmsTimeLocale rest
+lambdaCmsTimeLocale []       = defaultTimeLocale
