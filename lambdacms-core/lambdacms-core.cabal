@@ -44,13 +44,13 @@ library
                   , LambdaCms.Core.Settings
                     -- for the test suite
                   , LambdaCms.Core.Foundation
-  other-modules:    LambdaCms.Core.Models
-                  , LambdaCms.Core.Classes
-                  , LambdaCms.Core.Import
+  other-modules:    LambdaCms.Core.Classes
                   , LambdaCms.Core.Handler.ActionLog
                   , LambdaCms.Core.Handler.Home
                   , LambdaCms.Core.Handler.Static
                   , LambdaCms.Core.Handler.User
+                  , LambdaCms.Core.Import
+                  , LambdaCms.Core.Models
                   , LambdaCms.I18n
                   , LambdaCms.I18n.Default
                   , LambdaCms.I18n.Dutch

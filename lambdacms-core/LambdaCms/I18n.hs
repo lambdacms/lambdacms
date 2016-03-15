@@ -1,9 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
-
 module LambdaCms.I18n where
 
-import           Data.Text
-import           Data.Time.Format (defaultTimeLocale, TimeLocale)
+import           Data.Text              (Text)
+import           Data.Time.Format       (TimeLocale, defaultTimeLocale)
 import           Data.Time.Format.Human (HumanTimeLocale)
 import           LambdaCms.Core.Message (CoreMessage)
 import           LambdaCms.I18n.Default (defaultHumanTimeLocale)
