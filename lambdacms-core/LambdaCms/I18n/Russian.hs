@@ -1,6 +1,9 @@
 module LambdaCms.I18n.Russian where
 
 import           Data.Time.Format (TimeLocale (..))
+import           Data.Time.Format.Human (HumanTimeLocale (..))
+import           LambdaCms.Core.Message (CoreMessage (..))
+import           LambdaCms.I18n.Default (defaultHumanTimeLocale)
 
 
 -- | Russian time locale.
@@ -26,3 +29,10 @@ russianTimeLocale =  TimeLocale
         time12Fmt = "%H:%M:%S",
         knownTimeZones = []
     }
+
+-- | Russian 'HumanTimeLocale'
+russianHumanTimeLocale :: (CoreMessage -> String) -> HumanTimeLocale
+russianHumanTimeLocale r = (defaultHumanTimeLocale r)
+    { locale = russianTimeLocale
+    , thisYearFmt = "%e %b"
+    , prevYearFmt = "%e %b %Y"}
