@@ -1,6 +1,9 @@
 module LambdaCms.I18n.Dutch where
 
 import           Data.Time.Format (TimeLocale(..))
+import           Data.Time.Format.Human (HumanTimeLocale (..))
+import           LambdaCms.Core.Message (CoreMessage (..))
+import           LambdaCms.I18n.Default (defaultHumanTimeLocale)
 
 
 -- | Dutch time locale.
@@ -26,3 +29,7 @@ dutchTimeLocale =  TimeLocale
         time12Fmt = "%H:%M:%S",
         knownTimeZones = []
     }
+
+-- | Dutch 'HumanTimeLocale'
+dutchHumanTimeLocale :: (CoreMessage -> String) -> HumanTimeLocale
+dutchHumanTimeLocale r = (defaultHumanTimeLocale r) { locale = dutchTimeLocale }
