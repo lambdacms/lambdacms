@@ -4,6 +4,9 @@ Change log
 #### dev
 * ...
 
+#### 0.3.1.2
+* Export Models module
+
 #### 0.3.0.1
 * Fix authentication
 
