@@ -4,6 +4,17 @@ Change log
 #### dev
 * ...
 
+#### 0.3.?.?
+* Small changes to API: now it is possible to override `HumanTimeLocale` in `I18n` module
+
+#### 0.3.1.1
+* User passwords are being hashed on update
+* Exported convienient `defaultAdminLayout` and `defaultAdminAuthLayout` functions
+* Fixed some Russian messages
+
+#### 0.3.0.3
+* Added Russian localization
+
 #### 0.3.0.1
 * Fix authentication
 
