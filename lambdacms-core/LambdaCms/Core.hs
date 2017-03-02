@@ -21,7 +21,6 @@ module LambdaCms.Core
 
 import           Database.Persist.Sql             ()
 
-import           LambdaCms.Core.Classes           as Export
 import           LambdaCms.Core.Foundation        as Export
 import           LambdaCms.Core.Handler.ActionLog as Export
 import           LambdaCms.Core.Handler.Home      as Export
